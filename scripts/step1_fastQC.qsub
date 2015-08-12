@@ -1,0 +1,36 @@
+#!/bin/bash -login
+#PBS -o /mnt/scratch/pitchers/eFISH/logfiles
+#PBS -l nodes=1:ppn=1,walltime=01:00:00,mem=8gb
+#PBS -N fastqc_init
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+#PBS -t 0-255
+
+# -o : tells it where to put output from your job
+# -j oe : specifies that output and error messages from your job can be placed in the same location
+# -l : resource requests (maximum amounts needed for each)
+# -M : email address to send status updates to
+# -m abe : what to send email updates about (abort, begin, end)
+# -N : names your job
+# -r n : tells it not to re-run the script in the case of an error (so it doesn't overwrite any results $
+# -t : Submits a Array Job with n identical tasks.
+
+# prepare working environment
+##### NB: run with `sed` to switch out the "WhichDir" field for 20150721_DNASeq_PE or 20150707_DNASeq_PE
+module load FastQC/0.11.2
+
+indir=/mnt/research/efish/2015_genomic_data/WhichDir/
+
+outdir=/mnt/scratch/pitchers/eFISH/WhichDir/
+
+myfiles=(${indir}*_001.fastq.gz)
+
+# pull out one element of the array at a time based on PBS_ARRAYID
+name=`basename ${myfiles[$PBS_ARRAYID]} _001.fastq.gz`
+
+cd ${outdir}
+fastqc ${indir}${name}_001.fastq.gz --outdir=${outdir}
+
+qstat -f $PBS_JOBID
