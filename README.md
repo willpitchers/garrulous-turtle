@@ -11,5 +11,8 @@ Wednesday, 12 August 2015
 	- sed s/WhichDir/20150707_DNASeq_PE/g step1_fastQC.qsub | qsub
 	- sed s/WhichDir/20150721_DNASeq_PE/g step1_fastQC.qsub | qsub
 
+Thursday, 13 August 2015
+
+ - wrote script to extract fastqc stats from reports: 512 reports is too many to check by eye so i intend to script the process
 
 
