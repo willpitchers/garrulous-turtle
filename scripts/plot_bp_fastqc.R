@@ -27,9 +27,9 @@ for ( i in 1:nfiles ){
   plot( as.numeric(base.qual$`_Base`), base.qual$Mean, ylim=c(20, 40), cex.axis=0.5, pch=16, type="n", xlab="position (bp)", xaxt='n', ylab="Q score", main="Median" )
     axis( side=1, at=1:67, labels=base.qual$`_Base`, cex.axis=0.5 )
       abline( h=28, lty=2 )
-        points( base.qual$`_Base`, base.qual$Median, type='b', cex=0.5, col=i )
+        points( base.qual$`_Base`, base.qual$Median, type='b', cex=0.5, col=i, pch=16 )
       } else {
-      points( base.qual$`_Base`, base.qual$Median, type='b', cex=0.5, col=i ) } }
+      points( base.qual$`_Base`, base.qual$Median, type='b', cex=0.5, col=i, pch=16 ) } }
 
 # the second loop draws the plot of *mean* quality score by base pair
 for (i in 1:nfiles ){
@@ -49,9 +49,9 @@ for (i in 1:nfiles ){
   plot( as.numeric(base.qual$`_Base`), base.qual$Mean, ylim=c(20, 40), cex.axis=0.5, pch=16, type="n", xlab="position (bp)", xaxt='n', ylab="Q score", main="Mean" )
       axis( side=1, at=1:67, labels=base.qual$`_Base`, cex.axis=0.5 )
         abline( h=28, lty=2 )
-          points( base.qual$`_Base`, base.qual$Mean, type='b', cex=0.5 )
+          points( base.qual$`_Base`, base.qual$Mean, type='b', cex=0.5, pch=16 )
       } else {
-      points( base.qual$`_Base`, base.qual$mean, type='b', cex=0.5, col=i ) } }
+      points( base.qual$`_Base`, base.qual$Mean, type='b', cex=0.5, col=i, pch=16 ) } }
 
 # close device
 dev.off()
