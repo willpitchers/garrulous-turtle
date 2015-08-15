@@ -1,3 +1,4 @@
+
 # script to read in a folder of ..fastqc_data.txt files and plot their quality score by base pair
 
 # these lines grab a list of the fastqc_data files in the directory and the name of the directory
@@ -35,8 +36,14 @@ for ( i in 1:nfiles ){
       points( base.gc$`_Base`, base.gc$C, type='b', cex=0.5, col="black", pch=16 )
       points( base.gc$`_Base`, base.gc$T, type='b', cex=0.5, col="blue", pch=16 )
       points( base.gc$`_Base`, base.gc$A, type='b', cex=0.5, col="red", pch=16 )
-      }
-      print( i ) }
+      }   }
+
+  # ghetto legend
+  text( 60, 40, "G", col="green" )
+  text( 60, 39, "C", col="black" )
+  text( 60, 38, "T", col="blue" )
+  text( 60, 37, "A", col="red" )
 
 # close device
 dev.off()
+

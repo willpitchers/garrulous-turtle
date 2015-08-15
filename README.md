@@ -1,5 +1,6 @@
-# 2015_genomic_data folder opened by WRP on Wednesday, 12 August 2015
-===
+# 2015_genomic_data folder
+---
+*opened by WRP on Wednesday, 12 August 2015*
 
 Wednesday, 12 August 2015
 
@@ -22,4 +23,7 @@ Friday, 14 August 2015
  - run with:
 	- unzip 20150707_DNASeq_PE_qc.zip -d 20150707_DNASeq_PE_qc ; cd 20150707_DNASeq_PE_qc ; R --no-save < ../scripts/plot_bp_fastqc.R
 	- unzip 20150721_DNASeq_PE_qc.zip -d 20150721_DNASeq_PE_qc ; cd 20150721_DNASeq_PE_qc ; R --no-save < ../scripts/plot_bp_fastqc.R
-
+ - wrote an R script to make GC-content plots
+ - run with:
+  - unzip 20150707_DNASeq_PE_qc.zip -d 20150707_DNASeq_PE_qc ; cd 20150707_DNASeq_PE_qc ; R --no-save < ../scripts/plot_GC_content.R
+  - unzip 20150721_DNASeq_PE_qc.zip -d 20150721_DNASeq_PE_qc ; cd 20150721_DNASeq_PE_qc ; R --no-save < ../scripts/plot_GC_content.R
