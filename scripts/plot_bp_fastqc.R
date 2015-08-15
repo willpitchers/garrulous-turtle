@@ -12,7 +12,7 @@ par( mfrow=c( 1, 2 ), las=2 )
 # the first loop draws the plot of *median* quality score by base pair
 for ( i in 1:nfiles ){
   lines <- readLines( files.list[i] )
-  headrows <- grep( ">>Per base sequence quality\tpass", lines )+1
+  headrows <- grep( ">>Per base sequence quality\t[warnpsfil]{4}", lines )+1
   tailrows <- grep( ">>END_MODULE", lines)[grep( ">>END_MODULE", lines) > headrows][1]-1
 
   basequal <- gsub( "[- #]", "_", lines[ (headrows+1):tailrows ] )
