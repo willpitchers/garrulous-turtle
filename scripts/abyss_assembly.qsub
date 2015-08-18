@@ -1,0 +1,30 @@
+#!/bin/bash -login
+#PBS -o /mnt/scratch/pitchers/eFISH/logfiles
+#PBS -l nodes=1:ppn=1,walltime=04:00:00,mem=32gb
+#PBS -N abyss_assembly
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+
+
+# -o : tells it where to put output from your job
+# -j oe : specifies that output and error messages from your job can be placed in the same location
+# -l : resource requests (maximum amounts needed for each)
+# -M : email address to send status updates to
+# -m abe : what to send email updates about (abort, begin, end)
+# -N : names your job
+# -r n : tells it not to re-run the script in the case of an error (so it doesn't overwrite any results $
+# -t : Submits a Array Job with n identical tasks.
+
+# prepare working environment
+##### NB: run with `sed` to switch out the "WhichDir" field for 20150721_DNASeq_PE or 20150707_DNASeq_PE
+module load ABySS/1.3.7
+
+outdir=/mnt/scratch/pitchers/eFISH/WhichDir/
+
+cd ${outdir}
+
+abyss-pe k=64 name=P_kings pe='PE_20150721_R1.fq PE_20150721_R2.fq' se='SE_20150721.fq'
+
+qstat -f $PBS_JOBID

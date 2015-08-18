@@ -1,0 +1,36 @@
+#!/bin/bash -login
+#PBS -o /mnt/scratch/pitchers/eFISH/logfiles
+#PBS -l nodes=1:ppn=8,walltime=02:00:00,mem=16gb
+#PBS -N trimmomatic
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+#PBS -t 0-172
+
+# -o : tells it where to put output from your job
+# -j oe : specifies that output and error messages from your job can be placed in the same location
+# -l : resource requests (maximum amounts needed for each)
+# -M : email address to send status updates to
+# -m abe : what to send email updates about (abort, begin, end)
+# -N : names your job
+# -r n : tells it not to re-run the script in the case of an error (so it doesn't overwrite any results $
+# -t : Submits a Array Job with n identical tasks.
+
+# prepare working environment
+##### NB: run with `sed` to switch out the "WhichDir" field for 20150721_DNASeq_PE or 20150707_DNASeq_PE
+module load Trimmomatic/0.32
+module load Java
+
+outdir=/mnt/scratch/pitchers/eFISH/WhichDir/
+
+cd ${outdir}
+
+myfiles=(*_R1_001.fastq)
+
+# pull out one element of the array at a time based on PBS_ARRAYID
+name=`basename ${myfiles[${PBS_ARRAYID}]} _R1_001.fastq`
+
+java -jar $TRIM/trimmomatic PE -threads 7 -phred33 ${name}_R1_001.fastq ${name}_R2_001.fastq ${name}_R1_pe.trimmed.fq ${name}_R1_se.trimmed.fq ${name}_R2_pe.trimmed.fq ${name}_R2_se.trimmed.fq ILLUMINACLIP:/mnt/home/pitchers/Illumina_adapters.fa:2:30:10 HEADCROP:10 MAXINFO:50:0.5
+
+qstat -f $PBS_JOBID

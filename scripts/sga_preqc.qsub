@@ -1,0 +1,37 @@
+#!/bin/bash -login
+#PBS -o /mnt/scratch/pitchers/eFISH/logfiles
+#PBS -l nodes=1:ppn=1,walltime=08:00:00,mem=32gb
+#PBS -N sga_preqc
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+
+
+# -o : tells it where to put output from your job
+# -j oe : specifies that output and error messages from your job can be placed in the same location
+# -l : resource requests (maximum amounts needed for each)
+# -M : email address to send status updates to
+# -m abe : what to send email updates about (abort, begin, end)
+# -N : names your job
+# -r n : tells it not to re-run the script in the case of an error (so it doesn't overwrite any results $
+# -t : Submits a Array Job with n identical tasks.
+
+# prepare working environment
+##### NB: run with `sed` to switch out the "WhichDir" field for 20150721_DNASeq_PE or 20150707_DNASeq_PE
+module load SGA
+module load matplotlib
+
+indir=/mnt/scratch/pitchers/eFISH/20150721_DNASeq_PE/
+
+outdir=/mnt/scratch/pitchers/eFISH/20150721_DNASeq_PE/
+
+cd ${outdir}
+
+sga preprocess --pe-mode 1 ${indir}*.fasta  > mygenome.fastq
+sga index -a ropebwt --no-reverse -t 8 mygenome.fastq
+sga preqc -t 8 mygenome.fastq > mygenome.preqc
+sga-preqc-report.py mygenome.preqc 
+sga-preqc-report.py mygenome.preqc /opt/software/SGA/0.10.13--GCC-4.4.5/sga-master/src/examples/preqc/*.preqc
+
+qstat -f $PBS_JOBID

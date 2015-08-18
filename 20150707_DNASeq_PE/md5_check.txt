@@ -1,5 +1,5 @@
-Wednesday, 12 August 2015
-WP
+# Tuesday, 18 August 2015
+# WP
 
 APA_6675_GAGATTCC-TATAGCC_L001_R1_001.fastq.gz: OK
 APA_6675_GAGATTCC-TATAGCC_L001_R2_001.fastq.gz: OK
