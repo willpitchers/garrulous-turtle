@@ -25,6 +25,8 @@ outdir=/mnt/scratch/pitchers/eFISH/WhichDir/
 
 cd ${outdir}
 
-abyss-pe k=64 name=P_kings pe='PE_20150721_R1.fq PE_20150721_R2.fq' se='SE_20150721.fq'
+library=`basename WhichDir _DNASeq_PE`
+
+abyss-pe k=64 name=P_kings pe="PE_${library}_R1.fq PE_${library}_R2.fq" se="SE_${library}.fq"
 
 qstat -f $PBS_JOBID

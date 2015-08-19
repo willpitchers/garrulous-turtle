@@ -42,3 +42,10 @@ Tuesday, 18 August 2015
  - *Now* I see the problem -- sequences in the 20150707_DNASeq_PE now *fail* md5 check. Curious. I shall replace them with the originals from: `wget -r --user="pitchers" --password="" ftp://efishbackup.zoology.msu.edu:/Data/20150707_DNASeq_PE/*.gz`
  - I ran a test assembly of the 20150221 library with ABySS (using the default setting of k=64)
 
+
+Wednesday, 19 August 2015
+
+ - I ran the trimming script on the newly-replaced, md5-passing read files
+ - I then ran an ABySS assembly on the 20150707_DNASeq_PE reads as per above
+
+

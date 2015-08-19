@@ -26,12 +26,14 @@ indir=/mnt/scratch/pitchers/eFISH/20150721_DNASeq_PE/
 
 outdir=/mnt/scratch/pitchers/eFISH/20150721_DNASeq_PE/
 
+library=`basename WhichDir _DNASeq_PE`
+
 cd ${outdir}
 
-sga preprocess --pe-mode 1 ${indir}*.fasta  > mygenome.fastq
-sga index -a ropebwt --no-reverse -t 8 mygenome.fastq
-sga preqc -t 8 mygenome.fastq > mygenome.preqc
-sga-preqc-report.py mygenome.preqc 
-sga-preqc-report.py mygenome.preqc /opt/software/SGA/0.10.13--GCC-4.4.5/sga-master/src/examples/preqc/*.preqc
+sga preprocess --pe-mode 1 PE_${indir}_R1.fq PE_${indir} _R2.fq > ${library}_sga.fastq
+sga index -a ropebwt --no-reverse -t 8 ${library}_sga.fastq
+sga preqc -t 8 ${library}_sga.fastq > ${library}_sga.preqc
+sga-preqc-report.py ${library}_sga.preqc 
+sga-preqc-report.py ${library}_sga.preqc /opt/software/SGA/0.10.13--GCC-4.4.5/sga-master/src/examples/preqc/*.preqc
 
 qstat -f $PBS_JOBID
