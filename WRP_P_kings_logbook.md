@@ -49,3 +49,14 @@ Wednesday, 19 August 2015
  - I then ran an ABySS assembly on the 20150707_DNASeq_PE reads as per above
 
 
+Thursday, 20 August 2015
+
+ - using QUAST to get some metrics on the ABySS assemblies:
+	- `python /opt/software/QUAST/2.3--GCC-4.4.5/quast.py -o /mnt/research/efish/2015_genomic_data/quast_results_ABySS64/ --eukaryote --gene-finding 20150707_DNASeq_PE/P_kings-unitigs.fa 20150721_DNASeq_PE/P_kings-unitigs.fa`
+ - 1st indications suggest that we have quite different results from the two Illumina libraries: 814 vs. 267 contigs, 119 vs. 45 contigs >1kbp, but N50 of 737 vs. 800. I am going to double-check the pipeline upstream to convince myself that this is not *my* error...
+	- this difference in information content is reflected in the size of the files (bytes or lines) in the two libraries (added 2 R scripts to plot these): ...21 seems to much smaller than ...07
+	- I shall bring this up in my meeting with JG tomorrow
+
+
+
+
