@@ -40,7 +40,7 @@ Monday, 17 August 2015
 Tuesday, 18 August 2015
 
  - *Now* I see the problem -- sequences in the 20150707_DNASeq_PE now *fail* md5 check. Curious. I shall replace them with the originals from: `wget -r --user="pitchers" --password="" ftp://efishbackup.zoology.msu.edu:/Data/20150707_DNASeq_PE/*.gz`
- - I ran a test assembly of the 20150221 library with ABySS (using the default setting of k=64)
+ - I ran a test assembly of the 20150221 library with ABySS (using the default setting of k=64). Scripted with `abyss_assembly.qsub`. 
 
 
 Wednesday, 19 August 2015
@@ -56,6 +56,19 @@ Thursday, 20 August 2015
  - 1st indications suggest that we have quite different results from the two Illumina libraries: 814 vs. 267 contigs, 119 vs. 45 contigs >1kbp, but N50 of 737 vs. 800. I am going to double-check the pipeline upstream to convince myself that this is not *my* error...
 	- this difference in information content is reflected in the size of the files (bytes or lines) in the two libraries (added 2 R scripts to plot these): ...21 seems to much smaller than ...07
 	- I shall bring this up in my meeting with JG tomorrow
+
+
+Tuesday, 1st September 2015
+
+  - FTP-ed more genomic data from the NAS drive to the HPC; `MSUEFISHLAB_DROPBOX_NEW/pkings_genome/*` files all pass md5 check.
+  - 3 files from `/original_data/mormyriformes/paramormyrops/` FAILED md5 check. Problem files are:
+	- `gerald_C5A4TACXX_3_CTTGTA.bam`
+	- `gerald_C5A4TACXX_3_GCCAAT.bam`
+	- `gerald_C5A4TACXX_3_GTGAAA.bam`
+	- This is *not* a local transmission problem -- these files match those in the efish research space, and those on the NAS, but *do not* match the checksums in their associated `...bam.md5` files. JG is aware.
+
+  - I also renamed the trimming and QC scripts to match the numbering of the pipeline planned in my meeting with JG on 21-aug-15.
+
 
 
 
