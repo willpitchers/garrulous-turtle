@@ -1,0 +1,33 @@
+#!/bin/bash -login
+#PBS -o /mnt/scratch/pitchers/eFISH/logfiles
+#PBS -l nodes=1:ppn=8,walltime=48:00:00,mem=32gb
+#PBS -N Align
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+
+# -o : tells it where to put output from your job
+# -j oe : specifies that output and error messages from your job can be placed in the same location
+# -l : resource requests (maximum amounts needed for each)
+# -M : email address to send status updates to
+# -m abe : what to send email updates about (abort, begin, end)
+# -N : names your job
+# -r n : tells it not to re-run the script in the case of an error (so it doesn't overwrite any results
+# -t : Submits a Array Job with n identical tasks.
+
+indir=/mnt/scratch/pitchers/eFISH/Illumina_2015/
+outdir=/mnt/scratch/pitchers/eFISH/Illumina_2015/
+reference=/mnt/scratch/pitchers/eFISH/P_kings_genome/Pkings
+
+module load bowtie2/2.2.6
+cd ${indir}
+
+# this awkward 'sed' command replaces the line endings with a comma, *without* leaving a trailing comma as 'tr' would do
+pair1=`ls -1 *R1_pe.trimmed.fq | sed ':a;N;$!ba;s/\n/,/g'`
+pair2=`ls -1 *R2_pe.trimmed.fq | sed ':a;N;$!ba;s/\n/,/g'`
+unpaired=`ls -1 *se.trimmed.fq | sed ':a;N;$!ba;s/\n/,/g'`
+
+bowtie2 -q --phred33 -p 8 -x ${reference} -1 ${pair1} -2 ${pair2} -U ${unpaired} -S P_kings_align_`date +%d_%m_%y`.sam
+
+qstat -f $PBS_JOBID

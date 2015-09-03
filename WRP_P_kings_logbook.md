@@ -70,6 +70,20 @@ Tuesday, 1st September 2015
   - I also renamed the trimming and QC scripts to match the numbering of the pipeline planned in my meeting with JG on 21-aug-15.
 
 
+Wednesday, 2 September 2015
+
+  - I'm going to pool this years' Illumina data into one folder, since there seems to be no benefit in trimming them separately.
+  - Moved my previous attemped assemblies into `Aug_Assemblies`.
+  - `Quast` tool is probably not the most appropriate for this data (qv. discussion with Lex at NGS camp) -- ought to be using `CEGMA` & `BUSCO`.
+  - generated a bowtie2 index from the *P. kings* genome v0.1 using `bowtie2-build -f supercontigs.fasta Pkings`
+  - set up some test runs to estimate timing.
+
+
+Thursday, 3 September 2015
+
+  - dummy run results suggest that the assembly ought to require somewhere between 23 & 43 hrs... so a bit variable. Going to try 48hrs first.
+  - updated Alignment script appropriately.
+
 
 
 
