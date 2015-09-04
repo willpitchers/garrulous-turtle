@@ -85,5 +85,10 @@ Thursday, 3 September 2015
   - updated Alignment script appropriately.
 
 
+Friday, 4 September 2015
+
+  - Alignment still running (no crash yet)
+  - I built a second bowtie index from the 'superscaffold' BioNano file. I intend to try alignments using this map as a reference also.
+
 
 

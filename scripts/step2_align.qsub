@@ -21,6 +21,7 @@ outdir=/mnt/scratch/pitchers/eFISH/Illumina_2015/
 reference=/mnt/scratch/pitchers/eFISH/P_kings_genome/Pkings
 
 module load bowtie2/2.2.6
+module load samtools
 cd ${indir}
 
 # this awkward 'sed' command replaces the line endings with a comma, *without* leaving a trailing comma as 'tr' would do
@@ -29,5 +30,9 @@ pair2=`ls -1 *R2_pe.trimmed.fq | sed ':a;N;$!ba;s/\n/,/g'`
 unpaired=`ls -1 *se.trimmed.fq | sed ':a;N;$!ba;s/\n/,/g'`
 
 bowtie2 -q --phred33 -p 8 -x ${reference} -1 ${pair1} -2 ${pair2} -U ${unpaired} -S P_kings_align_`date +%d_%m_%y`.sam
+
+samtools view -bS P_kings_align_`date +%d_%m_%y`.sam | samtools sort P_kings_align_`date +%d_%m_%y`.sorted.bam
+
+samtools index P_kings_align_`date +%d_%m_%y`.sorted.bam
 
 qstat -f $PBS_JOBID
