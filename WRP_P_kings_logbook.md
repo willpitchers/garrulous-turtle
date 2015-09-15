@@ -91,4 +91,19 @@ Friday, 4 September 2015
   - I built a second bowtie index from the 'superscaffold' BioNano file. I intend to try alignments using this map as a reference also.
 
 
+Monday, 14 September 2015
+
+  - I did not update this file as I ought to have done due to illness. During the week of the 7th--11th I ran scripts to align all the Illumina data to the BioNano 'superscaffaold' bowtie index, and to sort and index both the `sam` alignment files, and to convert to bam format.
+  - These scripts don't appear to have performed as expected. After poking at the logfiles, it seems that I had accidentally loaded an older version of SAMtools, and the options have changed subtly... I see the problem. Scripts updated and resubmitted.
+
+
+Tuesday, 15 September 2015
+
+  - The indexing scripts have errored-out overnight: I clearly **didn't** diagnose the problem correctly. 
+
+
+
+
+
+
 
