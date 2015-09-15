@@ -25,7 +25,9 @@ samname=TARGET
 module load SAMTools/1.2
 cd ${indir}
 
-samtools view -bu ${samname}.sam -o ${samname}.bam | samtools sort -O bam -o ${samname}.sorted.bam
+# samtools view -bu ${samname}.sam -o ${samname}.bam
+
+samtools sort ${samname}.bam -T P_king_TARGET -O bam -o ${samname}.sorted.bam
 
 samtools index ${samname}.sorted.bam
 

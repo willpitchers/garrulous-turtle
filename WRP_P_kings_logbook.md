@@ -99,7 +99,8 @@ Monday, 14 September 2015
 
 Tuesday, 15 September 2015
 
-  - The indexing scripts have errored-out overnight: I clearly **didn't** diagnose the problem correctly. 
+  - The indexing scripts have errored-out overnight: I clearly **didn't** diagnose the problem correctly.
+  - I *think* that I have located the problem. In addition to changing the output flags in `samtools view` from SAMtools/0.* to SAMtools/1.2, the devs have also made the -T flag (prefix for temp file names) complusory in `samtools sort`. Scripts are re-submitted.
 
 
 
