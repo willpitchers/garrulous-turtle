@@ -1,0 +1,29 @@
+#!/bin/bash -login
+#PBS -o /mnt/scratch/pitchers/eFISH/logfiles
+#PBS -l nodes=1:ppn=8,walltime=40:00:00,mem=32gb
+#PBS -N Sort_TARGET
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+
+# -o : tells it where to put output from your job
+# -j oe : specifies that output and error messages from your job can be placed in the same location
+# -l : resource requests (maximum amounts needed for each)
+# -M : email address to send status updates to
+# -m abe : what to send email updates about (abort, begin, end)
+# -N : names your job
+# -r n : tells it not to re-run the script in the case of an error (so it doesn't overwrite any results
+# -t : Submits a Array Job with n identical tasks.
+
+indir=/mnt/scratch/pitchers/eFISH/Illumina_2015/
+
+##### remember to `sed` in the target #####
+samname=TARGET
+
+module load SAMTools/1.2
+cd ${indir}
+
+samtools sort ${samname}.bam -T P_king_TARGET -O bam -o ${samname}.sorted.bam
+
+qstat -f $PBS_JOBID

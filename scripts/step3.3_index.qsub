@@ -1,6 +1,6 @@
 #!/bin/bash -login
 #PBS -o /mnt/scratch/pitchers/eFISH/logfiles
-#PBS -l nodes=1:ppn=8,walltime=36:00:00,mem=32gb
+#PBS -l nodes=1:ppn=8,walltime=04:00:00,mem=32gb
 #PBS -N Indx_TARGET
 #PBS -j oe
 #PBS -M pitchers@msu.edu
@@ -17,17 +17,12 @@
 # -t : Submits a Array Job with n identical tasks.
 
 indir=/mnt/scratch/pitchers/eFISH/Illumina_2015/
-outdir=/mnt/scratch/pitchers/eFISH/Illumina_2015/
 
 ##### remember to `sed` in the target #####
 samname=TARGET
 
 module load SAMTools/1.2
 cd ${indir}
-
-# samtools view -bu ${samname}.sam -o ${samname}.bam
-
-samtools sort ${samname}.bam -T P_king_TARGET -O bam -o ${samname}.sorted.bam
 
 samtools index ${samname}.sorted.bam
 

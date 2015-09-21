@@ -93,7 +93,7 @@ Friday, 4 September 2015
 
 Monday, 14 September 2015
 
-  - I did not update this file as I ought to have done due to illness. During the week of the 7th--11th I ran scripts to align all the Illumina data to the BioNano 'superscaffaold' bowtie index, and to sort and index both the `sam` alignment files, and to convert to bam format.
+  - I did not update this file as I ought to have done due to illness. During the week of the 7th--11th I ran scripts to align all the Illumina data to the BioNano 'superscaffold' bowtie index, and to sort and index both the `sam` alignment files, and to convert to bam format.
   - These scripts don't appear to have performed as expected. After poking at the logfiles, it seems that I had accidentally loaded an older version of SAMtools, and the options have changed subtly... I see the problem. Scripts updated and resubmitted.
 
 
@@ -103,8 +103,23 @@ Tuesday, 15 September 2015
   - I *think* that I have located the problem. In addition to changing the output flags in `samtools view` from SAMtools/0.* to SAMtools/1.2, the devs have also made the -T flag (prefix for temp file names) complusory in `samtools sort`. Scripts are re-submitted.
 
 
+Thursday, 17 September 2015
+
+  - Indexing the (huge) sam files is taking even longer than I projected -- the last scripts ran out of walltime. I have resubmitted with more time requested.
 
 
+Friday, 18 September 2015
+
+  - In light of my repeated underestimates for how long the SAMTools processes ought to take, I am going to split up the bam -> sam conversion, bam sorting and bam indexing steps into their own scripts so that I can request walltime for each process separately.
+  - Sam -> Bam conversions have run.
+  - Bam sorting is underway
+
+
+Monday, 21 September 2015
+
+  - Bam sorting completed. Bam indexing running.
+  - Bam indexing ran surprisingly fast – completed in ~2hrs, vs. ~30hrs for sam->bam conversion and another ~30hrs for bam sorting.
+  - Reorganized SAMTools scritps as above.
 
 
 
