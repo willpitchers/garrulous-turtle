@@ -530,3 +530,6 @@ Aug_Assemblies/
 BioNano/
 Illumina_2015/
 P_kings_genome/
+quast_results_ABySS64/basic_stats quast_results_ABySS64/predicted_genes quast_results_ABySS64/quast.log quast_results_ABySS64/report.html quast_results_ABySS64/report.pdf quast_results_ABySS64/report.tex quast_results_ABySS64/report.tsv quast_results_ABySS64/report.txt quast_results_ABySS64/report_html_aux quast_results_ABySS64/transposed_report.tex quast_results_ABySS64/transposed_report.tsv quast_results_ABySS64/transposed_report.txt
+quast_results_ABySS64/
+scripts/.Rapp.history

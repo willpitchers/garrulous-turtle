@@ -40,7 +40,7 @@ Monday, 17 August 2015
 Tuesday, 18 August 2015
 
  - *Now* I see the problem -- sequences in the 20150707_DNASeq_PE now *fail* md5 check. Curious. I shall replace them with the originals from: `wget -r --user="pitchers" --password="" ftp://efishbackup.zoology.msu.edu:/Data/20150707_DNASeq_PE/*.gz`
- - I ran a test assembly of the 20150221 library with ABySS (using the default setting of k=64). Scripted with `abyss_assembly.qsub`. 
+ - I ran a test assembly of the 20150221 library with ABySS (using the default setting of k=64). Scripted with `abyss_assembly.qsub`.
 
 
 Wednesday, 19 August 2015
@@ -119,7 +119,28 @@ Monday, 21 September 2015
 
   - Bam sorting completed. Bam indexing running.
   - Bam indexing ran surprisingly fast – completed in ~2hrs, vs. ~30hrs for sam->bam conversion and another ~30hrs for bam sorting.
-  - Reorganized SAMTools scritps as above.
+  - Reorganized SAMTools scripts as above.
 
 
+22-23 September 2015
 
+  - read documentation for [GATK](https://www.broadinstitute.org/gatk/guide/) and worked through their suggested 'best practice workflow' with 2 of our datafiles
+  - met with JG to discuss how GATK might help us reach our immediate goals... we decided to alter the pipeline to get our data into the most GATK-compatible formats
+  - I made an attempt to get some data on how a GATK-generated `.vcf` file compares with one output by SAMTools `mpileup`, but VCFtools is fighting me on this...
+
+
+24-25 September 2015
+
+  - Thursday was mostly eaten by a course at Beacon/iCER and I spent Friday moving equipment from Ian's old lab...
+
+
+Monday, 28 September 2015
+
+  - planning out new pipeline to fit around the GATK. req.s...
+  - started writing array scripts to handle over-large arrays and auto-resubmission.
+
+
+Tuesday, 29 September 2015
+
+  - testing smart array script for trimming steps
+  - 
