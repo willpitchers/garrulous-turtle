@@ -74,7 +74,7 @@ Wednesday, 2 September 2015
 
   - I'm going to pool this years' Illumina data into one folder, since there seems to be no benefit in trimming them separately.
   - Moved my previous attemped assemblies into `Aug_Assemblies`.
-  - `Quast` tool is probably not the most appropriate for this data (qv. discussion with Lex at NGS camp) -- ought to be using `CEGMA` & `BUSCO`.
+  - `Quast` tool is probably not the most appropriate for this data (qv. discussion with Lex at NGS camp) -- ought to be using [`CEGMA`](http://korflab.ucdavis.edu/datasets/cegma/#SCT5) & [`BUSCO`](http://busco.ezlab.org/#software).
   - generated a bowtie2 index from the *P. kings* genome v0.1 using `bowtie2-build -f supercontigs.fasta Pkings`
   - set up some test runs to estimate timing.
 
@@ -122,4 +122,12 @@ Monday, 21 September 2015
   - Reorganized SAMTools scritps as above.
 
 
+22-23 September 2015
 
+  - read documentation for [GATK](https://www.broadinstitute.org/gatk/guide/) and worked through their suggested 'best practice workflow' with 2 of our datafiles
+  - met with JG to discuss how GATK might help us reach our immediate goals... we decided to alter the pipeline to get our data into the most GATK-compatible formats
+  - I made an attempt to get some data on how a GATK-generated `.vcf` file compares with one output by SAMTools `mpileup`, but VCFtools is fighting me on this...
+
+Thursday, 24 September 2015
+
+  - 
