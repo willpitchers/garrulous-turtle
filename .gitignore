@@ -531,3 +531,5 @@ BioNano/
 Illumina_2015/
 P_kings_genome/
 scripts/logfiles/*
+quast_results_ABySS64/
+scripts/.Rapp.history
