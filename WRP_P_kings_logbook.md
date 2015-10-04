@@ -150,9 +150,18 @@ Thursday, 1st October 2015
 
   - Re-downloaded the `gerald_*.bam`s from the Genomics Centre to (hopefully) fix the files-with-non-matching-checksums problem.
 
+
 Saturday, 3rd October 2015
 
   - Fixed up *another* bug in my alignment script -- now re-running.
+
+
+Sunday, 4 October 2015
+
+  - Found a *bizarre* bug whereeby the colour-coding in my shell settings was causing `bwa mem` to add colour-code escaoped characters to the outputed `..sam` files (but only sometimes because it wants me to doubt my sanity). I have editted my script to pass the call to named variables in the `bwa mem` command through `sed` to trip out any color-codes that make it that far.
+  - Now re-re-running.
+
+
 
 
 
