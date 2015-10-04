@@ -531,3 +531,5 @@ BioNano/
 Illumina_2015/
 P_kings_genome/
 scripts/logfiles/*
+scripts/*.o*
+Original_P_kings
