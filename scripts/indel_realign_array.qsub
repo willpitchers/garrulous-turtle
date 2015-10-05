@@ -1,10 +1,55 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=8,walltime=00:30:00,mem=32gb
-#PBS -N Align_${PBS_ARRAYID}
+#PBS -l nodes=1:ppn=8,walltime=04:00:00,mem=32gb
+#PBS -N Indel_${PBS_ARRAYID}
 #PBS -j oe
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
+#PBS -t 0-200
 
-echo "." | mail -s "The PICARDtools JOB ARRAY has auto-submitted me!" ${USER}@msu.edu
+#Set manximum number of jobs for this run
+MAXJOBID=767
+
+#The JOBSCRIPT variable should be the name of this script
+JOBSCRIPT=indel_realign_array.qsub
+
+## Set up some variables
+# where do the files live
+dir=/mnt/scratch/pitchers/eFISH/Illumina_2015/GATK-compatible/
+ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
+# Current job number
+n=${PBS_ARRAYID}
+# build a list of file names
+cd ${dir}
+filelist=(*dedup.bam)
+thisfile=${filelist[${n}]}
+
+module load GATK/3.4.46
+
+# the GATK commands – first we need to build a 'target list' of Indels, then realign them
+java -Xmx10g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T RealignerTargetCreator -R ${ref} -I ${thisfile} -o `basename ${thisfile} .dedup.bam`.realignment_targets.list
+
+java -Xmx10g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T IndelRealigner -R ${ref} -I ${thisfile} -targetIntervals `basename ${thisfile} .dedup.bam`.realignment_targets.list -o `basename ${thisfile} .dedup.bam`.realigned.bam
+
+# Calculate next job to run
+NEXT=$(( ${n} + 200 ))
+
+#Check to see if next job is past the maximum job id
+if [ ${NEXT} -le ${MAXJOBID} ]
+then
+    cd ${PBS_O_WORKDIR}
+    qsub -t ${NEXT} ${JOBSCRIPT}
+fi
+
+#Check to see if this is the last job and email user
+if [ ${n} -eq ${MAXJOBID} ]
+then
+    echo "." | mail -s "The IndelRealigner JOB ARRAY is finishing" ${USER}@msu.edu
+    cd ${PBS_O_WORKDIR}
+    qsub base_score_recalibration_array.qsub
+fi
+
+#Print out the statistics for this job
+qstat -f ${PBS_JOBID}
+
 

@@ -1,0 +1,10 @@
+#!/bin/bash -login
+#PBS -l nodes=1:ppn=8,walltime=00:30:00,mem=32gb
+#PBS -N Align_${PBS_ARRAYID}
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+
+echo "." | mail -s "The IndelRealigner JOB ARRAY has auto-submitted me!" ${USER}@msu.edu
+

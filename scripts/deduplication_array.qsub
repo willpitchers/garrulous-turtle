@@ -27,11 +27,11 @@ thisfile=${filelist[${n}]}
 module load picardTools/1.89
 
 # the PICARD commands – I could probably pipe then together, but this way less is lost if we crash
-java -jar ${PICARD}/SortSam.jar INPUT=${thisfile} OUTPUT=`basename ${thisfile} aligned.sam`.sorted.sam SORT_ORDER=coordinate
+java -jar ${PICARD}/SortSam.jar INPUT=${thisfile} OUTPUT=`basename ${thisfile} .aligned.sam`.sorted.sam SORT_ORDER=coordinate
 
-java -jar ${PICARD}/MarkDuplicates.jar INPUT=`basename ${thisfile} aligned.sam`.sorted.sam OUTPUT=`basename ${thisfile} aligned.sam`.dedup.sam M=`basename ${thisfile} aligned.sam`.metrics.txt
+java -jar ${PICARD}/MarkDuplicates.jar INPUT=`basename ${thisfile} .aligned.sam`.sorted.sam OUTPUT=`basename ${thisfile} .aligned.sam`.dedup.bam M=`basename ${thisfile} aligned.sam`.metrics.txt
 
-java -jar ${PICARD}/BuildBamIndex.jar INPUT=`basename ${thisfile} aligned.sam`.dedup.sam
+java -jar ${PICARD}/BuildBamIndex.jar INPUT=`basename ${thisfile} .aligned.sam`.dedup.bam
 
 
 # Calculate next job to run
@@ -49,11 +49,9 @@ if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The PICARDTools JOB ARRAY is finishing" ${USER}@msu.edu
     cd ${PBS_O_WORKDIR}
-    qsub deduplication_array.qsub
+    qsub indel_realign_array.qsub
 fi
 
 #Print out the statistics for this job
 qstat -f ${PBS_JOBID}
-
-
 
