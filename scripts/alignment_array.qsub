@@ -1,0 +1,65 @@
+#!/bin/bash -login
+#PBS -l nodes=1:ppn=8,walltime=04:00:00,mem=32gb
+#PBS -N Align_${PBS_ARRAYID}
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+#PBS -t 0-200
+
+#Set manximum number of jobs for this run
+MAXJOBID=767
+
+#The JOBSCRIPT variable should be the name of this script
+JOBSCRIPT=alignment_array.qsub
+
+## Set up some variables
+# where do the files live
+dir=/mnt/scratch/pitchers/eFISH/Illumina_2015/GATK-compatible/
+ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
+# Current job number
+n=${PBS_ARRAYID}
+# build a list of file names
+cd ${dir}
+matepairs=(*R1_pe.trimmed.fq)
+unpaired=(*_se.trimmed.fq)
+filelist=(`for file in ${matepairs[@]} ${unpaired[@]}; do echo ${file} ; done`)
+thisfile=${filelist[${n}]}
+
+# grab details for @RG tag
+pop=`grep -Eo '^[A-Z]{2,4}' <<< $(echo ${thisfile})`
+ID=`grep -Eo '[0-9]{4}' <<< $(echo ${thisfile})`
+lib=`grep -Eo 'L[0-9]{3}' <<< $(echo ${thisfile})`
+Rn=`grep -Eo 'R[0-9]' <<< $(echo ${thisfile})`
+
+thisTAG=@RG\\tID:${pop}\\tSM:${ID}\\tPL:illumina\\tLB:${lib}\\tPU:${Rn}
+
+module load bwa/0.7.12.r1044
+
+# the BWA command -- the 'if' statement decides whether the alignment should be single or paired-end
+if [ `grep -Eo 'pe' <<< $(echo ${thisfile})` ] ; then
+  bwa mem -M -R `echo ${thisTAG} | sed 's/\x1B\[[0-9;]*[JKmsu]//g'` ${ref} ${thisfile} `basename ${thisfile} R1_pe.trimmed.fq`R2_pe.trimmed.fq > `basename ${thisfile} .trimmed.fq`.aligned.sam
+else
+  bwa mem -M -R `echo ${thisTAG}| sed 's/\x1B\[[0-9;]*[JKmsu]//g'` ${ref} ${thisfile} > `basename ${thisfile} .trimmed.fq`.aligned.sam
+fi
+
+# Calculate next job to run
+NEXT=$(( ${n} + 200 ))
+
+#Check to see if next job is past the maximum job id
+if [ ${NEXT} -le ${MAXJOBID} ]
+then
+    cd ${PBS_O_WORKDIR}
+    qsub -t ${NEXT} ${JOBSCRIPT}
+fi
+
+#Check to see if this is the last job and email user
+if [ ${n} -eq ${MAXJOBID} ]
+then
+    echo "." | mail -s "The BWA alignment JOB ARRAY is finishing" ${USER}@msu.edu
+    cd ${PBS_O_WORKDIR}
+    qsub deduplication_array.qsub
+fi
+
+#Print out the statistics for this job
+qstat -f ${PBS_JOBID}
