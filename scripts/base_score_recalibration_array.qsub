@@ -1,10 +1,64 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=8,walltime=00:30:00,mem=32gb
-#PBS -N Align_${PBS_ARRAYID}
+#PBS -l nodes=1:ppn=8,walltime=04:00:00,mem=32gb
+#PBS -N Indel_${PBS_ARRAYID}
 #PBS -j oe
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
+#PBS -t 0-200
 
-echo "." | mail -s "The IndelRealigner JOB ARRAY has auto-submitted me!" ${USER}@msu.edu
+#Set manximum number of jobs for this run
+MAXJOBID=767
+
+#The JOBSCRIPT variable should be the name of this script
+JOBSCRIPT=base_score_recalibration_array.qsub
+
+## Set up some variables
+# where do the files live
+dir=/mnt/scratch/pitchers/eFISH/Illumina_2015/GATK-compatible/
+ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
+# Current job number
+n=${PBS_ARRAYID}
+# build a list of file names
+cd ${dir}
+filelist=(*realigned.bam)
+thisfile=${filelist[${n}]}
+
+module load GATK/3.4.46
+
+## Analysze patterns of covariation in the dataset (~10 mins)
+java -Xmx10g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T BaseRecalibrator -R ${ref} -I ${thisfile} -o `basename ${thisfile} .realigned.bam`.recal_data.table --run_without_dbsnp_potentially_ruining_quality
+
+## Do a second pass to analyze covariation remaining after recalibration (~10 mins)
+java -Xmx10g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T BaseRecalibrator -R ${ref} -I ${thisfile}  -BQSR `basename ${thisfile} .realigned.bam`.recal_data.table -o `basename ${thisfile} .realigned.bam`.post_recal_data.table --run_without_dbsnp_potentially_ruining_quality
+
+## Generate before-after plots (~5 mins)
+java -Xmx10g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T AnalyzeCovariates -R ${ref}  -before `basename ${thisfile} .realigned.bam`.recal_data.table -after `basename ${thisfile} .realigned.bam`.post_recal_data.table -plots `basename ${thisfile} .realigned.bam`.recal_plots.pdf
+
+## Apply the recalibration to the sequence data (~5 mins)
+java -Xmx10g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T PrintReads -R ${ref} -I ${thisfile}  -BQSR `basename ${thisfile} .realigned.bam`.recal_data.table -o `basename ${thisfile} .realigned.bam`.recalibrated.bam
+
+
+# Calculate next job to run
+NEXT=$(( ${n} + 200 ))
+
+#Check to see if next job is past the maximum job id
+if [ ${NEXT} -le ${MAXJOBID} ]
+then
+    cd ${PBS_O_WORKDIR}
+    qsub -t ${NEXT} ${JOBSCRIPT}
+fi
+
+#Check to see if this is the last job and email user
+if [ ${n} -eq ${MAXJOBID} ]
+then
+    echo "." | mail -s "The base_score_recalibration JOB ARRAY is finishing" ${USER}@msu.edu
+    cd ${PBS_O_WORKDIR}
+#    qsub next job in pipeline
+fi
+
+#Print out the statistics for this job
+qstat -f ${PBS_JOBID}
+
+
 
