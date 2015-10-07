@@ -162,6 +162,11 @@ Sunday, 4 October 2015
   - Now re-re-running.
 
 
+Wednesday, 7 October 2015
+
+  - pipe has run unsupervised through trimming, alignment, indexing, sorting, deduping, indel realignment and base recalibration! ...but some files seem to have been dropped on the way.
+  - I wrote `find_missing_files.sh` to list what's missing.
+  - FTP-ed the replacement `.bam` files from the replacement 'Original_data' set to the lab NAS drive for cold storage.
 
 
 
