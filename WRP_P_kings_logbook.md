@@ -128,7 +128,7 @@ Monday, 21 September 2015
   - met with JG to discuss how GATK might help us reach our immediate goals... we decided to alter the pipeline to get our data into the most GATK-compatible formats
   - I made an attempt to get some data on how a GATK-generated `.vcf` file compares with one output by SAMTools `mpileup`, but VCFtools is fighting me on this...
 
- 
+
 24-25 September 2015
 
   - Thursday was mostly eaten by a course at Beacon/iCER and I spent Friday moving equipment from Ian's old lab...
@@ -158,17 +158,24 @@ Saturday, 3rd October 2015
 
 Sunday, 4 October 2015
 
-  - Found a *bizarre* bug whereeby the colour-coding in my shell settings was causing `bwa mem` to add colour-code escaoped characters to the outputed `..sam` files (but only sometimes because it wants me to doubt my sanity). I have editted my script to pass the call to named variables in the `bwa mem` command through `sed` to trip out any color-codes that make it that far.
+  - Found a *bizarre* bug whereeby the colour-coding in my shell settings was causing `bwa mem` to add colour-code escaped characters to the outputed `..sam` files (but only sometimes because it wants me to doubt my sanity). I have edited my script to pass the call to named variables in the `bwa mem` command through `sed` to trip out any color-codes that make it that far.
   - Now re-re-running.
 
 
 Wednesday, 7 October 2015
 
-  - pipe has run unsupervised through trimming, alignment, indexing, sorting, deduping, indel realignment and base recalibration! ...but some files seem to have been dropped on the way.
-  - I wrote `find_missing_files.sh` to list what's missing.
   - FTP-ed the replacement `.bam` files from the replacement 'Original_data' set to the lab NAS drive for cold storage.
+  - pipe has run unsupervised through trimming, alignment, indexing, sorting, deduping, indel realignment and base recalibration! ...but some files seem to have been dropped on the way.
+  - I wrote `find_missing_files.sh` to list what's missing... 3 fastq files are weird in a way that breaks Picard. Investigating...
 
 
+Thursday, 8 October 2015
+
+  - I think that I have found the source of (some) of the problems -- I have truncated `.fastq` files in some cases, with the EOF appearing in the middle of a 4-line fastq entry.
+  - I'm investigating whether I've introduced this error and if so when..
 
 
+  Monday, 12 October 2015
 
+  -  Over the weekend I ran a couple of the suspect files through the pipeline again, step-by-step and running interactively to make sure that I could catch any errors. It seems that for the libraries that were 'leaking' the problem was occurring right at the start of the pipe; something caused the `gunzip` process to stop part-way through the extraction from the gzip archives.
+  - In order to be sure that there aren't other failure points in the pipe I have thrown out all my output files thus far and started from scratch.
