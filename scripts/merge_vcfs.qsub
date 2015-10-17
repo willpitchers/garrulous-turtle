@@ -1,0 +1,35 @@
+#!/bin/bash -login
+#PBS -l nodes=1:ppn=4,walltime=03:00:00,mem=32gb
+#PBS -N vcf_merge
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+
+## Set up some variables
+# where do the files live
+dir=/mnt/scratch/pitchers/eFISH/Illumina_2015/GATK-compatible/
+
+# build a list of file names
+cd ${dir}
+filelist=(*.vcf)
+
+module load tabix/0.2.6
+module load vcftools/4.2
+
+# pre-processing for vcftools compatibility
+for file in *.vcf
+	do bgzip -c ${file} > ${file}.gz
+	tabix ${file}.gz
+done
+
+# the call to VCF tools
+	vcf-merge *.vcf.gz | bgzip -c > merged_output_`date '+%d_%m_%Y'`.vcf.gz
+
+# email user
+	echo "." | mail -s "The vcf_merge is finished" ${USER}@msu.edu
+
+#Print out the statistics for this job
+cd $PBS_O_WORKDIR	
+qstat -f ${PBS_JOBID}
+

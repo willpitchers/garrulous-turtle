@@ -1,6 +1,6 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=8,walltime=03:30:00,mem=32gb
-#PBS -N Indel_${PBS_ARRAYID}
+#PBS -l nodes=1:ppn=4,walltime=06:00:00,mem=32gb
+#PBS -N vcf_disco_${PBS_ARRAYID}
 #PBS -j oe
 #PBS -M pitchers@msu.edu
 #PBS -m abe
@@ -11,7 +11,7 @@
 MAXJOBID=767
 
 #The JOBSCRIPT variable should be the name of this script
-JOBSCRIPT=indel_realign_array.qsub
+JOBSCRIPT=vcf_discovery_array.qsub
 
 ## Set up some variables
 # where do the files live
@@ -21,15 +21,16 @@ ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
 n=${PBS_ARRAYID}
 # build a list of file names
 cd ${dir}
-filelist=(*dedup.bam)
+filelist=(*recalibrated.bam)
 thisfile=${filelist[${n}]}
 
 module load GATK/3.4.46
 
-# the GATK commands – first we need to build a 'target list' of Indels, then realign them
-java -Xmx10g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T RealignerTargetCreator -R ${ref} -I ${thisfile} -o `basename ${thisfile} .dedup.bam`.realignment_targets.list
-
-java -Xmx10g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T IndelRealigner -R ${ref} -I ${thisfile} -targetIntervals `basename ${thisfile} .dedup.bam`.realignment_targets.list -o `basename ${thisfile} .dedup.bam`.realigned.bam
+if [ ! -f `basename ${thisfile} .recalibrated.bam`.raw_variants.vcf ]
+then
+# the call to the GATK HaplotypeCaller
+java -Xmx10g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T HaplotypeCaller -R ${ref} -I ${thisfile} --genotyping_mode DISCOVERY -stand_emit_conf 10 -stand_call_conf 30 -o `basename ${thisfile} .recalibrated.bam`.raw_variants.vcf
+fi
 
 # Calculate next job to run
 NEXT=$(( ${n} + 200 ))
@@ -44,12 +45,15 @@ fi
 #Check to see if this is the last job and email user
 if [ ${n} -eq ${MAXJOBID} ]
 then
-    echo "." | mail -s "The IndelRealigner JOB ARRAY is finishing" ${USER}@msu.edu
+    echo "." | mail -s "The vcf_discovery JOB ARRAY is finishing" ${USER}@msu.edu
     cd ${PBS_O_WORKDIR}
-    qsub base_score_recalibration_array.qsub
+    qsub merge_vcfs.qsub
 fi
 
 #Print out the statistics for this job
 qstat -f ${PBS_JOBID}
+
+
+
 
 
