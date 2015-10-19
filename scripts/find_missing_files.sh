@@ -32,3 +32,10 @@ for a in *aligned.sam
     then echo `basename ${a} .aligned.sam`.recalibrated.bam >> missing_files.txt
   fi  
 done
+
+for a in *aligned.sam
+  do
+  if [ ! -f `basename ${a} .aligned.sam`.raw_variants.vcf ]
+    then echo `basename ${a} .aligned.sam`.raw_variants.vcf >> missing_files.txt
+  fi
+done

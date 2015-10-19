@@ -175,7 +175,24 @@ Thursday, 8 October 2015
   - I'm investigating whether I've introduced this error and if so when..
 
 
-  Monday, 12 October 2015
+Monday, 12 October 2015
 
   -  Over the weekend I ran a couple of the suspect files through the pipeline again, step-by-step and running interactively to make sure that I could catch any errors. It seems that for the libraries that were 'leaking' the problem was occurring right at the start of the pipe; something caused the `gunzip` process to stop part-way through the extraction from the gzip archives.
   - In order to be sure that there aren't other failure points in the pipe I have thrown out all my output files thus far and started from scratch.
+
+
+Tuesday, 13 October 2015
+
+  - Finished the from-scratch re-run. All output files now appear to be present and correct!
+
+
+Thursday, 15 October 2015
+
+  - We have `.vcf` files!
+  - Some of the larger (PE) files overran my 4hr estimate at the `HaplotypeCaller` stage, upped the resource request to 6hrs
+
+
+Friday, 16 October 2015
+  - merging the `.vcf` files using `vcf-merge` from the `VCFtoola` toolkit isn't working as expected. Investigating...
+
+
