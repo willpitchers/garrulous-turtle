@@ -29,7 +29,7 @@ module load picardTools/1.89
 # the PICARD commands – I could probably pipe then together, but this way less is lost if we crash
 java -jar ${PICARD}/SortSam.jar INPUT=${thisfile} OUTPUT=`basename ${thisfile} .aligned.sam`.sorted.sam SORT_ORDER=coordinate
 
-java -jar ${PICARD}/MarkDuplicates.jar INPUT=`basename ${thisfile} .aligned.sam`.sorted.sam OUTPUT=`basename ${thisfile} .aligned.sam`.dedup.bam M=`basename ${thisfile} aligned.sam`.metrics.txt
+java -jar ${PICARD}/MarkDuplicates.jar INPUT=`basename ${thisfile} .aligned.sam`.sorted.sam OUTPUT=`basename ${thisfile} .aligned.sam`.dedup.bam M=`basename ${thisfile} .aligned.sam`.metrics.txt
 
 java -jar ${PICARD}/BuildBamIndex.jar INPUT=`basename ${thisfile} .aligned.sam`.dedup.bam
 
@@ -54,4 +54,3 @@ fi
 
 #Print out the statistics for this job
 qstat -f ${PBS_JOBID}
-
