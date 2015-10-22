@@ -1,0 +1,40 @@
+#!/bin/bash -login
+#PBS -l nodes=1:ppn=4,walltime=04:00:00,mem=32gb
+#PBS -N vcf_sample_merge
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+#PBS -t 1-63
+
+## Set up some variables
+# where do the files live
+dir=/mnt/scratch/pitchers/eFISH/Illumina_2015/GATK-compatible/
+
+# Current job number
+n=${PBS_ARRAYID}
+MAXJOBID=63
+
+# load modules
+cd ${dir}
+module load tabix/0.2.6
+module load vcftools/4.2
+
+
+# the call to VCF tools with `remove-dulpicates` on for merging winth sample
+vcf-merge --remove-duplicates `head -${n} | tail -1 samples.list`*raw_variants.vcf.gz | bgzip -c > `head -${n} | tail -1 samples.list`_all_libraries.vcf.gz
+
+# re-indexing
+tabix `head -${n} | tail -1 samples.list`_all_libraries.vcf.gz
+        
+#Check to see if this is the last job and email user
+if [ ${n} -eq ${MAXJOBID} ]
+then
+    echo "." | mail -s "The vcf merging JOB ARRAY is finishing" ${USER}@msu.edu
+    cd $PBS_O_WORKDIR
+    qsub merge_all_vcfs.qsub
+fi
+
+#Print out the statistics for this job
+qstat -f ${PBS_JOBID}
+

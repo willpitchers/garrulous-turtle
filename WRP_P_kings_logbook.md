@@ -193,6 +193,25 @@ Thursday, 15 October 2015
 
 
 Friday, 16 October 2015
+
   - merging the `.vcf` files using `vcf-merge` from the `VCFtoola` toolkit isn't working as expected. Investigating...
+
+
+Tuesday, 20 October 2015
+
+  - I think that I've finally found the bug that was causing the merged vcf file to have 0 lines... testing fixed script.
+
+
+Wednesday, 21 October 2015
+
+  - I'm going to split the vcf merging into two steps for speed, since I can paralellize the first step.
+
+
+Thursday, 22 October 2015
+
+  - Irritatingly, the way I split the vcf-merging job caused the 'broken pipe' bug to return.
+  - I have also realized that it would be smarter to use the 'remove-duplicates' flag for the merge *within* samples (i.e. across libraries & lanes). Then the second merge step *among* samples can be run as is since the duplicates between samples are informative... To this end I have re-written the vcf-merge scripts *again*.
+
+
 
 

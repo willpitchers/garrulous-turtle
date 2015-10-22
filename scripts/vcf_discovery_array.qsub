@@ -47,7 +47,7 @@ if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The vcf_discovery JOB ARRAY is finishing" ${USER}@msu.edu
     cd ${PBS_O_WORKDIR}
-    qsub merge_vcfs.qsub
+    qsub compress_vcfs.qsub
 fi
 
 #Print out the statistics for this job

@@ -1,0 +1,38 @@
+#!/bin/bash -login
+#PBS -l nodes=1:ppn=4,walltime=01:00:00,mem=32gb
+#PBS -N compress_vcfs
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+
+# where do the files live
+dir=/mnt/scratch/pitchers/eFISH/Illumina_2015/GATK-compatible/
+
+cd ${dir}
+module load tabix/0.2.6
+module load vcftools/4.2
+
+# pre-processing for vcftools compatibility
+for file in *.raw_variants.vcf
+	do bgzip -c ${file} > ${file}.gz
+	tabix ${file}.gz
+done
+
+# make a list of all my vcfs
+ls -1 *.vcf.gz > temp
+
+# use the temp list to populate a list of samples, i.e. individual fish
+grep --color='never' -Eo '[A-Z]{3,4}_[0-9]{4}' temp | uniq > samples.list
+
+# remove temp list
+rm temp
+
+# start the next job in the pipeline
+cd ${PBS_O_WORKDIR}
+echo "." | mail -s "The compres_vcfs JOB is finishing" ${USER}@msu.edu
+#qsub vcf_merge_samples_array.qsub
+
+#Print out the statistics for this job
+qstat -f ${PBS_JOBID}
+
