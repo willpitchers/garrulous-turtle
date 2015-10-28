@@ -194,7 +194,7 @@ Thursday, 15 October 2015
 
 Friday, 16 October 2015
 
-  - merging the `.vcf` files using `vcf-merge` from the `VCFtoola` toolkit isn't working as expected. Investigating...
+  - merging the `.vcf` files using `vcf-merge` from the `VCFtools` toolkit isn't working as expected. Investigating...
 
 
 Tuesday, 20 October 2015
@@ -204,7 +204,7 @@ Tuesday, 20 October 2015
 
 Wednesday, 21 October 2015
 
-  - I'm going to split the vcf merging into two steps for speed, since I can paralellize the first step.
+  - I'm going to split the vcf merging into two steps for speed, since I can parallelize the first step.
 
 
 Thursday, 22 October 2015
@@ -213,5 +213,11 @@ Thursday, 22 October 2015
   - I have also realized that it would be smarter to use the 'remove-duplicates' flag for the merge *within* samples (i.e. across libraries & lanes). Then the second merge step *among* samples can be run as is since the duplicates between samples are informative... To this end I have re-written the vcf-merge scripts *again*.
 
 
+Monday, 26 October 2015
+
+  - I'm giving up on `vcf-merge` from the `VCFtools`... re-scripting using `CombineVariants` tool from GATK.
 
 
+Wednesday, 28 October 2015
+
+  - Added script to run Fst calculations for all possible pairwise population comparisons
