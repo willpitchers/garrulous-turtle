@@ -7,7 +7,7 @@
 #PBS -r n
 #PBS -t 0-200
 
-#Set manximum number of jobs for this run
+#Set maximum number of jobs for this run
 MAXJOBID=767
 
 #The JOBSCRIPT variable should be the name of this script
@@ -59,6 +59,3 @@ fi
 
 #Print out the statistics for this job
 qstat -f ${PBS_JOBID}
-
-
-
