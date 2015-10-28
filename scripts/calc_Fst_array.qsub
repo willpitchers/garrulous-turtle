@@ -1,0 +1,41 @@
+#!/bin/bash -login
+#PBS -l nodes=1:ppn=4,walltime=4:00:00,mem=32gb
+#PBS -N calc_Fsts
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+#PBS -t 0-14
+
+## Set up some variables
+# where do the files live
+dir=/mnt/scratch/pitchers/eFISH/Illumina_2015/GATK-compatible/
+popdir=/mnt/research/efish/2015_genomic_data/Populations/
+
+# load modules
+cd ${dir}
+module load vcftools/4.2
+
+# write some needed variables into memory
+MAXJOBID=14
+source ${popdir}pop_comparisons.sh
+n=${PBS_ARRAYID}
+input_data=all_variants_merged_27_10_2015.vcf
+
+POP1=population_${leftpop[${n}]}.txt
+POP2=population_${rightpop[${n}]}.txt
+OUTN=Fst_${leftpop[${n}]}_vs_${rightpop[${n}]}
+
+# the call to vcftools
+vcftools --vcf ${input_data} --weir-fst-pop ${popdir}${POP1} --weir-fst-pop ${popdir}${POP2} --fst-window-size 100000 --fst-window-step 50000 --out ${OUTN}
+
+#Check to see if this is the last job and email user
+if [ ${n} -eq ${MAXJOBID} ]
+then
+    echo "." | mail -s "The Fst JOB ARRAY is finishing" ${USER}@msu.edu
+    cd ${PBS_O_WORKDIR}
+#    qsub nextjerb
+fi
+
+#Print out the statistics for this job
+qstat -f ${PBS_JOBID}

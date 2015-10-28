@@ -1,5 +1,5 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=4,walltime=04:00:00,mem=32gb
+#PBS -l nodes=1:ppn=4,walltime=4:00:00,mem=32gb
 #PBS -N merge_all_vcfs
 #PBS -j oe
 #PBS -M pitchers@msu.edu
@@ -9,20 +9,31 @@
 ## Set up some variables
 # where do the files live
 dir=/mnt/scratch/pitchers/eFISH/Illumina_2015/GATK-compatible/
+ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
 
 # load modules
 cd ${dir}
 module load tabix/0.2.6
 module load vcftools/4.2
+module load GATK/3.4.46
 
+sample=(*libraries.vcf)
+samples=`for i in ${sample[@]} ; do echo --variant $i ; done | xargs`
 
 # the call to VCF tools
-vcf-merge *_all_libraries.vcf.gz | bgzip -c > all_variants_merged_`date '+%d_%m_%Y'`.vcf.gz
+# vcf-merge *_all_libraries.vcf.gz | bgzip -c > all_variants_merged_`date '+%d_%m_%Y'`.vcf.gz
+
+# the call to GATK
+java -Xmx10g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T CombineVariants -R ${ref} ${samples} -o all_variants_merged_`date '+%d_%m_%Y'`.vcf --genotypemergeoption UNIQUIFY
+
+# and re-index one last time
+tabix all_variants_merged_`date '+%d_%m_%Y'`.vcf
 
 # email user & start the next job
 echo "." | mail -s "The vcf_all_merge job is finished" ${USER}@msu.edu
 cd $PBS_O_WORKDIR
-#qsub next_jerb.qsub
+#input_data=all_variants_merged_`date '+%d_%m_%Y'`.vcf
+#qsub -V calc_Fst_array.qsub
 
 #Print out the statistics for this job
 qstat -f ${PBS_JOBID}

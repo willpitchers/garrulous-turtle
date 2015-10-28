@@ -1,5 +1,5 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=4,walltime=04:00:00,mem=32gb
+#PBS -l nodes=1:ppn=4,walltime=00:30:00,mem=32gb
 #PBS -N vcf_sample_merge
 #PBS -j oe
 #PBS -M pitchers@msu.edu
@@ -10,6 +10,7 @@
 ## Set up some variables
 # where do the files live
 dir=/mnt/scratch/pitchers/eFISH/Illumina_2015/GATK-compatible/
+ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
 
 # Current job number
 n=${PBS_ARRAYID}
@@ -19,18 +20,24 @@ MAXJOBID=63
 cd ${dir}
 module load tabix/0.2.6
 module load vcftools/4.2
+module load GATK/3.4.46
 
+sample=(`head -${n} samples.list | tail -1 `*raw_variants.vcf)
+samples=`for i in ${sample[@]} ; do echo --variant $i ; done | xargs`
 
 # the call to VCF tools with `remove-dulpicates` on for merging winth sample
-vcf-merge --remove-duplicates `head -${n} | tail -1 samples.list`*raw_variants.vcf.gz | bgzip -c > `head -${n} | tail -1 samples.list`_all_libraries.vcf.gz
+# vcf-merge --remove-duplicates `head -${n} samples.list | tail -1 `*raw_variants.vcf.gz | bgzip -c > `head -${n} samples.list | tail -1 `_all_libraries.vcf.gz
+
+# the call to GATK
+java -Xmx10g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T CombineVariants -R ${ref} ${samples} -o `head -${n} samples.list | tail -1 `_all_libraries.vcf --genotypemergeoption UNIQUIFY
 
 # re-indexing
-tabix `head -${n} | tail -1 samples.list`_all_libraries.vcf.gz
+tabix `head -${n} samples.list | tail -1 `_all_libraries.vcf
         
 #Check to see if this is the last job and email user
 if [ ${n} -eq ${MAXJOBID} ]
 then
-    echo "." | mail -s "The vcf merging JOB ARRAY is finishing" ${USER}@msu.edu
+    echo "." | mail -s "The vcf merging sample ARRAY is finishing" ${USER}@msu.edu
     cd $PBS_O_WORKDIR
     qsub merge_all_vcfs.qsub
 fi
