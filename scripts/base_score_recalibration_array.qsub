@@ -54,6 +54,7 @@ if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The base_score_recalibration JOB ARRAY is finishing" ${USER}@msu.edu
     cd ${PBS_O_WORKDIR}
+    zip base_recal_plots.zip *recal_plots.pdf
     qsub vcf_discovery_array.qsub
 fi
 
