@@ -221,3 +221,21 @@ Monday, 26 October 2015
 Wednesday, 28 October 2015
 
   - Added script to run Fst calculations for all possible pairwise population comparisons
+
+
+Week of 2nd-6th Nov.
+
+  + Minimal progress due to admin. issues not related to the project.
+  + Preliminary analysis of Fst output -- `Fst_plots.Rmd` added to project folder
+
+
+Week of 9th-13th Nov.
+
+  - adjusted Fst script to enable window_size & window_step adjustment -- submit with e.g. `sed s/WSIZE/x/ calc_Fst_array.qsub | sed s/WSTEP/y/ | qsub` for size & step == x & y respectively (in bp).
+    + now run at:
+    + 100kb window -- 50kb step
+    + 500kb window -- 100kb step
+  - re-scripted the base_score_recalibration_array as base_score_recal-boot_array to take the final, merged .vcf file as an input for the 'known SNPs' field in `BaseRecalibrator`. This forms the loop that we'll need to bootstrap ourselves a high-confidence variant call.
+    + looped once...
+    +
+  -

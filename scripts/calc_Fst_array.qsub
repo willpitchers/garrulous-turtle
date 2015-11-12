@@ -9,8 +9,13 @@
 
 ## Set up some variables
 
-window_size=500000
-window_step=100000
+### Adjust Here ###
+window_size=WSIZE
+window_step=WSTEP
+###################
+
+Wsz=$(( ${window_size} / 1000 ))kb
+Wst=$(( ${window_step} / 1000 ))kb
 
 # where do the files live
 dir=/mnt/scratch/pitchers/eFISH/Illumina_2015/GATK-compatible/
@@ -32,6 +37,8 @@ OUTN=Fst_${leftpop[${n}]}_vs_${rightpop[${n}]}
 
 # the call to vcftools
 vcftools --vcf ${input_data} --weir-fst-pop ${popdir}${POP1} --weir-fst-pop ${popdir}${POP2} --fst-window-size ${window_size} --fst-window-step ${window_step} --out ${OUTN}
+
+mv ${OUTN}.windowed.weir.fst ${OUTN}.windowed${Wsz}.step${Wst}.weir.fst
 
 #Check to see if this is the last job and email user
 if [ ${n} -eq ${MAXJOBID} ]
