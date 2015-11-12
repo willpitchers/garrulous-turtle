@@ -8,6 +8,10 @@
 #PBS -t 0-14
 
 ## Set up some variables
+
+window_size=500000
+window_step=100000
+
 # where do the files live
 dir=/mnt/scratch/pitchers/eFISH/Illumina_2015/GATK-compatible/
 popdir=/mnt/research/efish/2015_genomic_data/Populations/
@@ -27,7 +31,7 @@ POP2=population_${rightpop[${n}]}.txt
 OUTN=Fst_${leftpop[${n}]}_vs_${rightpop[${n}]}
 
 # the call to vcftools
-vcftools --vcf ${input_data} --weir-fst-pop ${popdir}${POP1} --weir-fst-pop ${popdir}${POP2} --fst-window-size 100000 --fst-window-step 50000 --out ${OUTN}
+vcftools --vcf ${input_data} --weir-fst-pop ${popdir}${POP1} --weir-fst-pop ${popdir}${POP2} --fst-window-size ${window_size} --fst-window-step ${window_step} --out ${OUTN}
 
 #Check to see if this is the last job and email user
 if [ ${n} -eq ${MAXJOBID} ]
