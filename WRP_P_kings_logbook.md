@@ -223,6 +223,10 @@ Wednesday, 28 October 2015
   - Added script to run Fst calculations for all possible pairwise population comparisons
 
 
+Thursday, 29th October 2015
+
+  - Adjusted the walltime and mem requirements of a few scripts based on how much time/memory they actually used -- keeping these demands realistically low will help me spend less time queueing.
+
 Week of 2nd-6th Nov.
 
   + Minimal progress due to admin. issues not related to the project.
@@ -235,7 +239,8 @@ Week of 9th-13th Nov.
     + now run at:
     + 100kb window -- 50kb step
     + 500kb window -- 100kb step
+    + 200kb window -- 100kb step
   - re-scripted the base_score_recalibration_array as base_score_recal-boot_array to take the final, merged .vcf file as an input for the 'known SNPs' field in `BaseRecalibrator`. This forms the loop that we'll need to bootstrap ourselves a high-confidence variant call.
     + looped once...
-    +
-  -
+    + looped twice?
+  - added `AnalysisPipeline.md` file to document the pipeline in order of operation (rather than chronologically as here) for ease of reference.

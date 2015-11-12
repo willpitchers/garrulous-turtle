@@ -1,0 +1,186 @@
+---
+title: "F~st~ Summary"
+author: "Will Pitchers"
+date: "9 November 2015"
+output: html_document
+---
+
+```{r set up env, results='hide', echo=FALSE, message=FALSE}
+
+setwd( "/Volumes/Old_HD/Dropbox (MSU Efish Lab)/WILL/genome_assembly/garrulous-turtle/" )
+
+require( dplyr )
+require( ggplot2 )
+require( ggExtra )
+require( reshape )
+
+APA_BAM <- read.table( "Fsts/Fst_APA_vs_BAM.windowed100kb.step50kb.weir.fst", header=TRUE )
+APA_BAVA <- read.table( "Fsts/Fst_APA_vs_BAVA.windowed100kb.step50kb.weir.fst", header=TRUE )
+APA_COB <- read.table( "Fsts/Fst_APA_vs_COB.windowed100kb.step50kb.weir.fst", header=TRUE )
+APA_IVI <- read.table( "Fsts/Fst_APA_vs_IVI.windowed100kb.step50kb.weir.fst", header=TRUE )
+APA_MOV <- read.table( "Fsts/Fst_APA_vs_MOV.windowed100kb.step50kb.weir.fst", header=TRUE )
+BAM_BAVA <- read.table( "Fsts/Fst_BAM_vs_BAVA.windowed100kb.step50kb.weir.fst", header=TRUE )
+BAM_COB <- read.table( "Fsts/Fst_BAM_vs_COB.windowed100kb.step50kb.weir.fst", header=TRUE )
+BAM_IVI <- read.table( "Fsts/Fst_BAM_vs_IVI.windowed100kb.step50kb.weir.fst", header=TRUE )
+BAM_MOV <- read.table( "Fsts/Fst_BAM_vs_MOV.windowed100kb.step50kb.weir.fst", header=TRUE )
+BAVA_COB <- read.table( "Fsts/Fst_BAVA_vs_COB.windowed100kb.step50kb.weir.fst", header=TRUE )
+BAVA_IVI <- read.table( "Fsts/Fst_BAVA_vs_IVI.windowed100kb.step50kb.weir.fst", header=TRUE )
+BAVA_MOV <- read.table( "Fsts/Fst_BAVA_vs_MOV.windowed100kb.step50kb.weir.fst", header=TRUE )
+COB_IVI <- read.table( "Fsts/Fst_COB_vs_IVI.windowed100kb.step50kb.weir.fst", header=TRUE )
+COB_MOV <- read.table( "Fsts/Fst_COB_vs_MOV.windowed100kb.step50kb.weir.fst", header=TRUE )
+IVI_MOV <- read.table( "Fsts/Fst_IVI_vs_MOV.windowed100kb.step50kb.weir.fst", header=TRUE )
+
+```
+
+These results draw from the results files generated with a 100kb window, stepped at 50kb intervals.
+
+```{r data munging, results='hide', echo=FALSE, message=FALSE}
+
+sum_APA_BAM <- group_by( APA_BAM, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+
+sum_APA_BAVA <- group_by( APA_BAVA, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+
+sum_APA_COB <- group_by( APA_COB, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+
+sum_APA_IVI <- group_by( APA_IVI, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+
+sum_APA_MOV <- group_by( APA_MOV, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+
+sum_BAM_BAVA <- group_by( BAM_BAVA, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+
+sum_BAM_COB <- group_by( BAM_COB, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+
+sum_BAM_IVI <- group_by( BAM_IVI, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+
+sum_BAM_MOV <- group_by( BAM_MOV, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+
+sum_BAVA_COB <- group_by( BAVA_COB, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+
+sum_BAVA_IVI <- group_by( BAVA_IVI, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+
+sum_BAVA_MOV <- group_by( BAVA_MOV, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+sum_COB_IVI <- group_by( COB_IVI, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+
+sum_COB_MOV <- group_by( COB_MOV, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+
+sum_IVI_MOV <- group_by( IVI_MOV, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+
+
+mydataframes <- list( sum_APA_BAM=sum_APA_BAM, sum_APA_BAVA=sum_APA_BAVA, sum_APA_COB=sum_APA_COB, sum_APA_IVI=sum_APA_IVI, sum_APA_MOV=sum_APA_MOV, sum_BAM_BAVA=sum_BAM_BAVA, sum_BAM_COB=sum_BAM_COB, sum_BAM_IVI=sum_BAM_IVI, sum_BAM_MOV=sum_BAM_MOV, sum_BAVA_COB=sum_BAVA_COB, sum_BAVA_IVI=sum_BAVA_IVI, sum_BAVA_MOV=sum_BAVA_MOV, sum_COB_IVI=sum_COB_IVI, sum_COB_MOV=sum_COB_MOV, sum_IVI_MOV=sum_IVI_MOV )
+
+cor_fst <- rep(NA, 15)
+
+for (i in 1:15) {
+  cor_fst[i] <- cor( mydataframes[[i]][2], mydataframes[[i]][3] )
+  new_names <- paste( names( mydataframes[i] ), names( mydataframes[[i]] ), sep='_', coll='' )
+  names( mydataframes[[i]] ) <- c( "SCAF", new_names[ 2:4 ] )
+}
+
+mean( cor_fst )
+
+fsts <- mydataframes$sum_APA_BAM
+
+for (i in 2:15) {
+fsts <- merge( fsts, mydataframes[[i]], by.x="SCAF", by.y="SCAF", all.x=TRUE )
+  }
+
+```
+
+Firstly, the VCFtools F~st~ calculator emits both 'raw' and 'adjusted' F~st~ values, so let's take a look at how closely these two measures predict one another... 
+
+The plot below shows the relationship of the two F~st~ estimates across all scaffolds and all 15 comparisons (the red line is 1:1). The R^2^ for the correlation here is `r round(mean( cor_fst ),2)`, suggesting that it *probably* doesn't matter a great deal which statistic we use -- though the adjusted F~st~ is generally somewhat higher.
+
+```{r fst vs adj fst plot, message=FALSE, echo=FALSE, results='hide', warning=FALSE, fig.width=7, fig.height=7}
+
+names(fsts)
+
+ggplot( fsts, aes( sum_APA_BAM_w_fst_, sum_APA_BAM_m_fst_ ) ) + geom_point( col=rgb( 0.1, 0.1, 0.1, 0.1 ) ) + 
+        geom_point( aes( sum_APA_BAVA_w_fst_, sum_APA_BAVA_m_fst_ ), col=rgb( 0.1, 0.1, 0.1, 0.1 ) ) +
+        geom_point( aes( sum_APA_COB_w_fst_, sum_APA_COB_m_fst_ ), col=rgb( 0.1, 0.1, 0.1, 0.1 ) ) +
+        geom_point( aes( sum_APA_IVI_w_fst_, sum_APA_IVI_m_fst_ ), col=rgb( 0.1, 0.1, 0.1, 0.1 ) ) +
+        geom_point( aes( sum_APA_MOV_w_fst_, sum_APA_MOV_m_fst_ ), col=rgb( 0.1, 0.1, 0.1, 0.1 ) ) +
+        geom_point( aes( sum_BAM_BAVA_w_fst_, sum_BAM_BAVA_m_fst_ ), col=rgb( 0.1, 0.1, 0.1, 0.1 ) ) +
+        geom_point( aes( sum_BAM_COB_w_fst_, sum_BAM_COB_m_fst_ ), col=rgb( 0.1, 0.1, 0.1, 0.1 ) ) +
+        geom_point( aes( sum_BAM_IVI_w_fst_, sum_BAM_IVI_m_fst_ ), col=rgb( 0.1, 0.1, 0.1, 0.1 ) ) +
+        geom_point( aes( sum_BAM_MOV_w_fst_, sum_BAM_MOV_m_fst_ ), col=rgb( 0.1, 0.1, 0.1, 0.1 ) ) +
+        geom_point( aes( sum_BAVA_COB_w_fst_, sum_BAVA_COB_m_fst_ ), col=rgb( 0.1, 0.1, 0.1, 0.1 ) ) +
+        geom_point( aes( sum_BAVA_IVI_w_fst_, sum_BAVA_IVI_m_fst_ ), col=rgb( 0.1, 0.1, 0.1, 0.1 ) ) +
+        geom_point( aes( sum_BAVA_MOV_w_fst_, sum_BAVA_MOV_m_fst_ ), col=rgb( 0.1, 0.1, 0.1, 0.1 ) ) +
+        geom_point( aes( sum_COB_IVI_w_fst_, sum_COB_IVI_m_fst_ ), col=rgb( 0.1, 0.1, 0.1, 0.1 ) ) +
+        geom_point( aes( sum_COB_MOV_w_fst_, sum_COB_MOV_m_fst_ ), col=rgb( 0.1, 0.1, 0.1, 0.1 ) ) +
+        geom_point( aes( sum_IVI_MOV_w_fst_, sum_COB_IVI_m_fst_ ), col=rgb( 0.1, 0.1, 0.1, 0.1 ) ) +
+    xlab( "adjusted Fst" ) + ylab( "Fst" ) + geom_abline( intercept=0, slope=1, col="red" )
+
+```
+
+However, there *does* seem to be a difference when it comes to the consistency of F~st~ bewteen scaffolds; here illustrated with just (the SSR-bearing) scaffolds 4, 8, 22, 60 & 77.
+
+
+```{r adj fst across SSR scafs, results='hide', echo=FALSE, }
+
+filter_fsts <- filter( fsts, SCAF=="Scaffold4" | SCAF=="Scaffold8" | SCAF=="Scaffold22" | SCAF=="Scaffold60" | SCAF=="Scaffold77" ) %>% melt()
+
+filter( filter_fsts,  variable %in% grep( "w_fst", levels(filter_fsts$variable), value=TRUE ) ) %>% 
+    ggplot( aes( SCAF, value, group=variable ) ) + geom_point( aes( col=variable )) + 
+      geom_line( aes( col=variable )) + scale_colour_discrete( name="comparison", 
+        labels=gsub( "sum_([A-Z]{3,4})_([A-Z]{3,4})_[wm]_[fstvar]{3}_", "\\1 vs. \\2", 
+                     levels(filter_fsts$variable))[seq(1, 45, 3)] ) +
+          ylab( "mean adjusted Fst" ) + xlab( "Scaffold" ) + ggtitle( "Adjusted Fst" )
+
+```
+
+Note the increase in crossing over and the greater variablility in some of the comparisons, particularly those involving *BAM* and *BAVA*.
+
+```{r fst across SSR scafs, results='hide', echo=FALSE, }
+
+filter( filter_fsts,  variable %in% grep( "m_fst", levels(filter_fsts$variable), value=TRUE ) ) %>% 
+    ggplot( aes( SCAF, value, group=variable ) ) + geom_point( aes( col=variable )) + 
+      geom_line( aes( col=variable )) + scale_colour_discrete( name="comparison", 
+        labels=gsub( "sum_([A-Z]{3,4})_([A-Z]{3,4})_[wm]_[fstvar]{3}_", "\\1 vs. \\2", 
+                     levels(filter_fsts$variable))[seq(1, 45, 3)] ) +
+          ylab( "mean Fst" ) + xlab( "Scaffold" ) + ggtitle( "'raw' Fst" )
+
+```
+
+
+
+```{r, echo=FALSE}
+
+# can we get a distribution of Fsts across the genome with varying window size?
+# distribution of Fst values *within* scaffolds?
+
+
+
+```
+
+
