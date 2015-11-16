@@ -16,11 +16,12 @@
 20150721_DNASeq_PE_qcQscores.pdf
 read_file_lines_plot.pdf
 read_file_size_plot.pdf
-Aug_Assemblies/
-BioNano/
-Illumina_2015/
-P_kings_genome/
+Aug_Assemblies/*
+BioNano/*
+Illumina_2015/*
+P_kings_genome/*
 scripts/logfiles/*
 scripts/*.o*
 Original_P_kings
 Fsts/*
+quast_results_ABySS64/*
