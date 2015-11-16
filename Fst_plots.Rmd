@@ -146,7 +146,7 @@ ggplot( fsts, aes( sum_APA_BAM_w_fst_, sum_APA_BAM_m_fst_ ) ) + geom_point( col=
 However, there *does* seem to be a difference when it comes to the consistency of F~st~ bewteen scaffolds; here illustrated with just (the SSR-bearing) scaffolds 4, 8, 22, 60 & 77.
 
 
-```{r adj fst across SSR scafs, results='hide', echo=FALSE, }
+```{r adj fst among SSR scafs, results='hide', echo=FALSE, }
 
 filter_fsts <- filter( fsts, SCAF=="Scaffold4" | SCAF=="Scaffold8" | SCAF=="Scaffold22" | SCAF=="Scaffold60" | SCAF=="Scaffold77" ) %>% melt()
 
@@ -161,7 +161,7 @@ filter( filter_fsts,  variable %in% grep( "w_fst", levels(filter_fsts$variable),
 
 Note the increase in crossing over and the greater variablility in some of the comparisons, particularly those involving *BAM* and *BAVA*.
 
-```{r fst across SSR scafs, results='hide', echo=FALSE, }
+```{r fst among SSR scafs, results='hide', echo=FALSE, }
 
 filter( filter_fsts,  variable %in% grep( "m_fst", levels(filter_fsts$variable), value=TRUE ) ) %>% 
     ggplot( aes( SCAF, value, group=variable ) ) + geom_point( aes( col=variable )) + 
@@ -172,15 +172,41 @@ filter( filter_fsts,  variable %in% grep( "m_fst", levels(filter_fsts$variable),
 
 ```
 
+Taking a slightly deeper look, lets see if we can get some idea of the variation *within* scaffolds -- I'll start with the SSR-bearing scaffolds for want of a more compelling place to start.
+
+```{r dist. Fst values along scaffolds, echo=FALSE, message=FALSE, warning=FALSE, fig.width=10}
+
+wholedataframes <- list( APA_BAM=APA_BAM, APA_BAVA=APA_BAVA, APA_COB=APA_COB, APA_IVI=APA_IVI, APA_MOV=APA_MOV, BAM_BAVA=BAM_BAVA, BAM_COB=BAM_COB, BAM_IVI=BAM_IVI, BAM_MOV=BAM_MOV, BAVA_COB=BAVA_COB, BAVA_IVI=BAVA_IVI, BAVA_MOV=BAVA_MOV, COB_IVI=COB_IVI, COB_MOV=COB_MOV, IVI_MOV=IVI_MOV )
+
+for (i in 1:15) {   wholedataframes[[i]] <- mutate( wholedataframes[[i]], COMP=factor( rep( names(wholedataframes[i]), dim( wholedataframes[[i]] )[1] )), 
+                                    BIN=paste( CHROM, "_", BIN_START, "_", BIN_END, coll="", sep="" ),
+                                    ScafN=sub( "Scaffold", "", CHROM ) ) %>% 
+                                  filter( WEIGHTED_FST > 0, MEAN_FST > 0 )  }
+
+all_fsts <- wholedataframes$APA_BAM
+
+for (i in 2:15) all_fsts <- rbind( all_fsts, wholedataframes[[i]] )
 
 
-```{r, echo=FALSE}
+filter( all_fsts, CHROM=="Scaffold4" | CHROM=="Scaffold8" | CHROM=="Scaffold22" | CHROM=="Scaffold60" | CHROM=="Scaffold77" ) %>% 
+      ggplot( aes( BIN_START, WEIGHTED_FST, col=COMP ) ) + geom_smooth( se=FALSE, method='loess' ) + facet_wrap( ~CHROM ) + 
+              scale_colour_discrete( name="comparison", labels=sub( "_", " vs. ", levels( all_fsts$COMP ) )) + 
+              xlab( "bin start coord." ) + ylab( "adjusted Fst" )
 
-# can we get a distribution of Fsts across the genome with varying window size?
-# distribution of Fst values *within* scaffolds?
+fst_var_scaf <- filter( all_fsts, CHROM=="Scaffold4" | CHROM=="Scaffold8" | CHROM=="Scaffold22" | CHROM=="Scaffold60" | CHROM=="Scaffold77" ) %>% 
+                        group_by( COMP, CHROM )  %>% summarise( fst_var=var( WEIGHTED_FST ) )
 
-
+FVSsum <- group_by( fst_var_scaf, COMP ) %>% summarise( MFV=mean( fst_var ) ) %>% arrange( desc( MFV ) )
 
 ```
+
+So in this plot we can see a few things; firstly, that the ordering of the comparisons doesn't change an awful lot between *or* along these scaffolds. Secondly, there is noticeably more variability along scaffolds 60 & 77 than along the (longer) 4, 22 & 8.
+
+To put that numerically the variance in F~st~ along these ranges from `r round(min(fst_var_scaf$fst_var),5)` to `r round(max(fst_var_scaf$fst_var),3)`. The `r FVSsum[1,1]` comparison is the most variable over all (mean var. of `r FVSsum[1,2]`), and `r FVSsum[15,1]` the least variable (mean var of `r FVSsum[15,2]`).
+
+```{r}
+# can we get a distribution of Fsts across the genome with varying window size?
+```
+
 
 

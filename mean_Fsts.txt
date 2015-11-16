@@ -1,0 +1,15 @@
+ Fst_APA_vs_BAM Weir and Cockerham mean Fst estimate: 0.025144
+ Fst_BAM_vs_BAVA Weir and Cockerham mean Fst estimate: 0.081802
+ Fst_BAM_vs_IVI Weir and Cockerham mean Fst estimate: 0.1437
+ Fst_BAVA_vs_MOV Weir and Cockerham mean Fst estimate: 0.18315
+ Fst_APA_vs_IVI Weir and Cockerham mean Fst estimate: 0.12011
+ Fst_BAM_vs_MOV Weir and Cockerham mean Fst estimate: 0.18446
+ Fst_APA_vs_MOV Weir and Cockerham mean Fst estimate: 0.16042
+ Fst_BAVA_vs_COB Weir and Cockerham mean Fst estimate: 0.13447
+ Fst_COB_vs_IVI Weir and Cockerham mean Fst estimate: 0.10951
+ Fst_IVI_vs_MOV Weir and Cockerham mean Fst estimate: 0.15467
+ Fst_APA_vs_BAVA Weir and Cockerham mean Fst estimate: 0.046927
+ Fst_BAM_vs_COB Weir and Cockerham mean Fst estimate: 0.11708
+ Fst_BAVA_vs_IVI Weir and Cockerham mean Fst estimate: 0.13657
+ Fst_COB_vs_MOV Weir and Cockerham mean Fst estimate: 0.13904
+ Fst_APA_vs_COB Weir and Cockerham mean Fst estimate: 0.091473

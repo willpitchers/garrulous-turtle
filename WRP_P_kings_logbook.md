@@ -236,11 +236,14 @@ Week of 2nd-6th Nov.
 Week of 9th-13th Nov.
 
   - adjusted Fst script to enable window_size & window_step adjustment -- submit with e.g. `sed s/WSIZE/x/ calc_Fst_array.qsub | sed s/WSTEP/y/ | qsub` for size & step == x & y respectively (in bp).
-    + now run at:
-    + 100kb window -- 50kb step
-    + 500kb window -- 100kb step
-    + 200kb window -- 100kb step
+    - now run at:
+      + 100kb window -- 50kb step
+      + 100kb window -- 100kb step
+      + 500kb window -- 100kb step
+      + 500kb window -- 50kb step
+      + 200kb window -- 100kb step
+      + 200kb window -- 50kb step
   - re-scripted the base_score_recalibration_array as base_score_recal-boot_array to take the final, merged .vcf file as an input for the 'known SNPs' field in `BaseRecalibrator`. This forms the loop that we'll need to bootstrap ourselves a high-confidence variant call.
-    + looped once...
-    + looped twice?
+    + looped once... waiting for scripts to run...
+      - not all scripts have finished properly... 1st order of business on Monday will be to work out why.
   - added `AnalysisPipeline.md` file to document the pipeline in order of operation (rather than chronologically as here) for ease of reference.

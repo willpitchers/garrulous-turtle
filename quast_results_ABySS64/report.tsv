@@ -1,0 +1,19 @@
+Assembly	20150707_DNASeq_PE_P_kings-unitigs	20150721_DNASeq_PE_P_kings-unitigs
+# contigs (>= 0 bp)	304688	61713
+# contigs (>= 1000 bp)	119	45
+Total length (>= 0 bp)	30858010	6215246
+Total length (>= 1000 bp)	165188	72680
+# contigs	814	267
+Largest contig	3652	5024
+Total length	620428	220758
+GC (%)	43.71	44.38
+N50	737	800
+N75	589	600
+L50	290	88
+L75	527	167
+# N's per 100 kbp	0.00	0.00
+# predicted genes (unique)	488	145
+# predicted genes (>= 0 bp)	488	145
+# predicted genes (>= 300 bp)	250	69
+# predicted genes (>= 1500 bp)	7	5
+# predicted genes (>= 3000 bp)	2	1
