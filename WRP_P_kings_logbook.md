@@ -247,3 +247,9 @@ Week of 9th-13th Nov.
     + looped once... waiting for scripts to run...
       - not all scripts have finished properly... 1st order of business on Monday will be to work out why.
   - added `AnalysisPipeline.md` file to document the pipeline in order of operation (rather than chronologically as here) for ease of reference.
+
+
+Week of 16th-22nd November
+
+  - restarted base_score_recal-boot_array as some jobs appear to have over-run their walltime
+  - 

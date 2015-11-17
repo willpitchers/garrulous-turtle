@@ -32,7 +32,7 @@ IVI_MOV <- read.table( "Fsts/Fst_IVI_vs_MOV.windowed100kb.step50kb.weir.fst", he
 
 ```
 
-These results draw from the results files generated with a 100kb window, stepped at 50kb intervals.
+The first section of these results draws from the results files generated with a 100kb window, stepped at 50kb intervals.
 
 ```{r data munging, results='hide', echo=FALSE, message=FALSE}
 
@@ -204,8 +204,195 @@ So in this plot we can see a few things; firstly, that the ordering of the compa
 
 To put that numerically the variance in F~st~ along these ranges from `r round(min(fst_var_scaf$fst_var),5)` to `r round(max(fst_var_scaf$fst_var),3)`. The `r FVSsum[1,1]` comparison is the most variable over all (mean var. of `r FVSsum[1,2]`), and `r FVSsum[15,1]` the least variable (mean var of `r FVSsum[15,2]`).
 
-```{r}
+---
+
+## Section 2
+
+For a quick comparison, I'm going to throw together the same plots using the results files generated with a 200kb window, stepped at 100kb intervals.
+
+```{r read in 2nd file set, results='hide', echo=FALSE, message=FALSE}
+
+APA_BAM <- read.table( "Fsts/Fst_APA_vs_BAM.windowed200kb.step100kb.weir.fst", header=TRUE )
+APA_BAVA <- read.table( "Fsts/Fst_APA_vs_BAVA.windowed200kb.step100kb.weir.fst", header=TRUE )
+APA_COB <- read.table( "Fsts/Fst_APA_vs_COB.windowed200kb.step100kb.weir.fst", header=TRUE )
+APA_IVI <- read.table( "Fsts/Fst_APA_vs_IVI.windowed200kb.step100kb.weir.fst", header=TRUE )
+APA_MOV <- read.table( "Fsts/Fst_APA_vs_MOV.windowed200kb.step100kb.weir.fst", header=TRUE )
+BAM_BAVA <- read.table( "Fsts/Fst_BAM_vs_BAVA.windowed200kb.step100kb.weir.fst", header=TRUE )
+BAM_COB <- read.table( "Fsts/Fst_BAM_vs_COB.windowed200kb.step100kb.weir.fst", header=TRUE )
+BAM_IVI <- read.table( "Fsts/Fst_BAM_vs_IVI.windowed200kb.step100kb.weir.fst", header=TRUE )
+BAM_MOV <- read.table( "Fsts/Fst_BAM_vs_MOV.windowed200kb.step100kb.weir.fst", header=TRUE )
+BAVA_COB <- read.table( "Fsts/Fst_BAVA_vs_COB.windowed200kb.step100kb.weir.fst", header=TRUE )
+BAVA_IVI <- read.table( "Fsts/Fst_BAVA_vs_IVI.windowed200kb.step100kb.weir.fst", header=TRUE )
+BAVA_MOV <- read.table( "Fsts/Fst_BAVA_vs_MOV.windowed200kb.step100kb.weir.fst", header=TRUE )
+COB_IVI <- read.table( "Fsts/Fst_COB_vs_IVI.windowed200kb.step100kb.weir.fst", header=TRUE )
+COB_MOV <- read.table( "Fsts/Fst_COB_vs_MOV.windowed200kb.step100kb.weir.fst", header=TRUE )
+IVI_MOV <- read.table( "Fsts/Fst_IVI_vs_MOV.windowed200kb.step100kb.weir.fst", header=TRUE )
+
+```
+
+```{r data munging 2, results='hide', echo=FALSE, message=FALSE}
+
+sum_APA_BAM <- group_by( APA_BAM, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+
+sum_APA_BAVA <- group_by( APA_BAVA, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+
+sum_APA_COB <- group_by( APA_COB, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+
+sum_APA_IVI <- group_by( APA_IVI, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+
+sum_APA_MOV <- group_by( APA_MOV, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+
+sum_BAM_BAVA <- group_by( BAM_BAVA, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+
+sum_BAM_COB <- group_by( BAM_COB, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+
+sum_BAM_IVI <- group_by( BAM_IVI, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+
+sum_BAM_MOV <- group_by( BAM_MOV, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+
+sum_BAVA_COB <- group_by( BAVA_COB, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+
+sum_BAVA_IVI <- group_by( BAVA_IVI, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+
+sum_BAVA_MOV <- group_by( BAVA_MOV, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+sum_COB_IVI <- group_by( COB_IVI, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+
+sum_COB_MOV <- group_by( COB_MOV, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+
+sum_IVI_MOV <- group_by( IVI_MOV, CHROM ) %>%
+                filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>%
+                summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+
+
+mydataframes <- list( sum_APA_BAM=sum_APA_BAM, sum_APA_BAVA=sum_APA_BAVA, sum_APA_COB=sum_APA_COB, sum_APA_IVI=sum_APA_IVI, sum_APA_MOV=sum_APA_MOV, sum_BAM_BAVA=sum_BAM_BAVA, sum_BAM_COB=sum_BAM_COB, sum_BAM_IVI=sum_BAM_IVI, sum_BAM_MOV=sum_BAM_MOV, sum_BAVA_COB=sum_BAVA_COB, sum_BAVA_IVI=sum_BAVA_IVI, sum_BAVA_MOV=sum_BAVA_MOV, sum_COB_IVI=sum_COB_IVI, sum_COB_MOV=sum_COB_MOV, sum_IVI_MOV=sum_IVI_MOV )
+
+cor_fst <- rep(NA, 15)
+
+for (i in 1:15) {
+  cor_fst[i] <- cor( mydataframes[[i]][2], mydataframes[[i]][3] )
+  new_names <- paste( names( mydataframes[i] ), names( mydataframes[[i]] ), sep='_', coll='' )
+  names( mydataframes[[i]] ) <- c( "SCAF", new_names[ 2:4 ] )
+}
+
+mean( cor_fst )
+
+fsts <- mydataframes$sum_APA_BAM
+
+for (i in 2:15) {
+fsts <- merge( fsts, mydataframes[[i]], by.x="SCAF", by.y="SCAF", all.x=TRUE )
+  }
+
+```
+
+The first thing to note is that the R^2^ for the correlation between the two F~st~ measures is still `r round(mean( cor_fst ),2)`.
+
+```{r adj fst among SSR scafs 2, results='hide', echo=FALSE, }
+
+filter_fsts <- filter( fsts, SCAF=="Scaffold4" | SCAF=="Scaffold8" | SCAF=="Scaffold22" | SCAF=="Scaffold60" | SCAF=="Scaffold77" ) %>% melt()
+
+filter( filter_fsts,  variable %in% grep( "w_fst", levels(filter_fsts$variable), value=TRUE ) ) %>% 
+    ggplot( aes( SCAF, value, group=variable ) ) + geom_point( aes( col=variable )) + 
+      geom_line( aes( col=variable )) + scale_colour_discrete( name="comparison", 
+        labels=gsub( "sum_([A-Z]{3,4})_([A-Z]{3,4})_[wm]_[fstvar]{3}_", "\\1 vs. \\2", 
+                     levels(filter_fsts$variable))[seq(1, 45, 3)] ) +
+          ylab( "mean adjusted Fst" ) + xlab( "Scaffold" ) + ggtitle( "Adjusted Fst" )
+
+```
+
+Secondly, we can see that this plot of mean adjusted F~st~ is *very* similar to the one above...
+
+```{r dist. Fst values along scaffolds 2, echo=FALSE, message=FALSE, warning=FALSE, fig.width=10}
+
+wholedataframes <- list( APA_BAM=APA_BAM, APA_BAVA=APA_BAVA, APA_COB=APA_COB, APA_IVI=APA_IVI, APA_MOV=APA_MOV, BAM_BAVA=BAM_BAVA, BAM_COB=BAM_COB, BAM_IVI=BAM_IVI, BAM_MOV=BAM_MOV, BAVA_COB=BAVA_COB, BAVA_IVI=BAVA_IVI, BAVA_MOV=BAVA_MOV, COB_IVI=COB_IVI, COB_MOV=COB_MOV, IVI_MOV=IVI_MOV )
+
+for (i in 1:15) {   wholedataframes[[i]] <- mutate( wholedataframes[[i]], COMP=factor( rep( names(wholedataframes[i]), dim( wholedataframes[[i]] )[1] )), 
+                                    BIN=paste( CHROM, "_", BIN_START, "_", BIN_END, coll="", sep="" ),
+                                    ScafN=sub( "Scaffold", "", CHROM ) ) %>% 
+                                  filter( WEIGHTED_FST > 0, MEAN_FST > 0 )  }
+
+all_fsts <- wholedataframes$APA_BAM
+
+for (i in 2:15) all_fsts <- rbind( all_fsts, wholedataframes[[i]] )
+
+
+filter( all_fsts, CHROM=="Scaffold4" | CHROM=="Scaffold8" | CHROM=="Scaffold22" | CHROM=="Scaffold60" | CHROM=="Scaffold77" ) %>% 
+      ggplot( aes( BIN_START, WEIGHTED_FST, col=COMP ) ) + geom_smooth( se=FALSE, method='loess' ) + facet_wrap( ~CHROM ) + 
+              scale_colour_discrete( name="comparison", labels=sub( "_", " vs. ", levels( all_fsts$COMP ) )) + 
+              xlab( "bin start coord." ) + ylab( "adjusted Fst" )
+
+fst_var_scaf <- filter( all_fsts, CHROM=="Scaffold4" | CHROM=="Scaffold8" | CHROM=="Scaffold22" | CHROM=="Scaffold60" | CHROM=="Scaffold77" ) %>% 
+                        group_by( COMP, CHROM )  %>% summarise( fst_var=var( WEIGHTED_FST ) )
+
+FVSsum <- group_by( fst_var_scaf, COMP ) %>% summarise( MFV=mean( fst_var ) ) %>% arrange( desc( MFV ) )
+
+```
+
+...and thirdly, the pattern of F~st~ along the SSR-bearing scaffolds also looks pretty much the same. So, do we actually see differences between the results from differing window sizes anywhere?
+
+```{r window effect plot, message=FALSE, echo=FALSE, results='hide', fig.width=15, fig.height=20}
 # can we get a distribution of Fsts across the genome with varying window size?
+
+comparisons <- c( "APA_vs_BAM", "APA_vs_BAVA", "APA_vs_COB", "APA_vs_IVI", "APA_vs_MOV", "BAM_vs_BAVA", "BAM_vs_COB", "BAM_vs_IVI", "BAM_vs_MOV", "BAVA_vs_COB", "BAVA_vs_IVI", "BAVA_vs_MOV", "COB_vs_IVI", "COB_vs_MOV", "IVI_vs_MOV" )
+
+windows <- c( ".windowed100kb.step50kb.weir.fst",
+              ".windowed100kb.step100kb.weir.fst",
+              ".windowed200kb.step50kb.weir.fst",
+              ".windowed200kb.step100kb.weir.fst",
+              # ".windowed500kb.step50kb.weir.fst",
+              ".windowed500kb.step100kb.weir.fst" )
+
+these_fsts <- data.frame()
+
+for (i in 1:15) {
+  for ( j in 1:length( windows ) ) {
+    filename <- paste( "Fsts/Fst_", comparisons[i], windows[j], coll='', sep='' )
+    filesize <- as.numeric( strsplit( gsub( '[ ]+', " ", system( paste( "wc -l ", filename, coll='', sep='' ),
+                                                                 intern=T )), " ")[[1]][2])
+    readin <- read.table( filename, header=TRUE, nrows=filesize  )
+    readin <- transmute( readin, scaf=factor( CHROM ), bin=as.numeric( BIN_START ), n_var=as.numeric( N_VARIANTS ), 
+                         fst=as.numeric( WEIGHTED_FST ), comp=factor( rep( comparisons[i], nrow( readin ) ) ),
+                         winstep=factor( rep( gsub( '[a-z]', '', windows[j] ), nrow( readin ) ) ),
+                         scaf_bin=factor( paste( scaf, '_', bin, sep='', coll='' ) ), 
+                         scaf_comp=factor( paste( scaf, '_', comp, sep='', coll='' )) )  %>%  filter( fst > 0 )
+    these_fsts <- rbind( these_fsts, readin )
+}}
+
+
+summary( these_fsts )
+
+filter( these_fsts, n_var > 50 ) %>%
+      ggplot( aes( scaf, fst, col=winstep ) ) + scale_colour_discrete( name="window/step (kb)" ) + 
+              geom_point( alpha=0.1 ) + facet_wrap( ~comp, ncol=3 )
+              
+
 ```
 
 
