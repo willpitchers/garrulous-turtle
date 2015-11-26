@@ -392,8 +392,36 @@ filter( these_fsts, n_var > 50 ) %>%
       ggplot( aes( scaf, fst, col=winstep ) ) + scale_colour_discrete( name="window/step (kb)" ) + 
               geom_point( alpha=0.1 ) + facet_wrap( ~comp, ncol=3 )
               
+```
+
+```{r fst density panel, echo=FALSE, message=FALSE, results='hide'}
+
+# 
+ggplot( these_fsts, aes( x=fst, col=comp ) ) + geom_density( fill="grey" ) + 
+        geom_vline( xintercept=quantile( these_fsts$fst, probs=0.95 ), lty=2 ) +
+        geom_vline( xintercept=quantile( these_fsts$fst, probs=0.9 ), lty=1 ) + facet_wrap( ~comp )
+
+summary( these_fsts$fst )
+length( these_fsts$fst[ these_fsts$winstep ==".100.50.." & these_fsts$fst > quantile( these_fsts$fst, probs=0.9 ) ] )
+length( these_fsts$fst[ these_fsts$winstep ==".100.100.." & these_fsts$fst > quantile( these_fsts$fst, probs=0.9 ) ] )
+length( these_fsts$fst[ these_fsts$winstep ==".200.50.." & these_fsts$fst > quantile( these_fsts$fst, probs=0.9 ) ] )
+length( these_fsts$fst[ these_fsts$winstep ==".200.100.." & these_fsts$fst > quantile( these_fsts$fst, probs=0.9 ) ] )
+length( these_fsts$fst[ these_fsts$winstep ==".500.100.." & these_fsts$fst > quantile( these_fsts$fst, probs=0.9 ) ] )
+
+length( these_fsts$fst[ these_fsts$comp == "APA_vs_BAM" & these_fsts$winstep ==".100.50.." & these_fsts$fst > quantile( these_fsts$fst, probs=0.9 ) ] )
+
+taco <- these_fsts[ these_fsts$comp == "APA_vs_BAM" & these_fsts$winstep ==".100.50.." & these_fsts$fst > quantile( these_fsts$fst, probs=0.9 ) ,]
+arrange( taco, fst )
+
+
 
 ```
+
+
+
+
+# how many SNPs per window?
+
 
 
 

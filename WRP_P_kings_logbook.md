@@ -252,4 +252,15 @@ Week of 9th-13th Nov.
 Week of 16th-22nd November
 
   - restarted base_score_recal-boot_array as some jobs appear to have over-run their walltime
-  - 
+    + added walltime may bot have been sufficient for all the jobs in the array... investigating.
+  - updated `Fst_plots.Rmd` to show effect of using different window/step sizes
+  - writing scripts to implement GWAS with plink & SKAT...
+  - the weather has turned cold -- this appears to have broken the HPC as is traditional
+
+
+Week of 24th-28th November
+
+  - NB: this week includes Thanksgiving & an HPC shutdown...
+  - Downloaded the VecScreen database of bacterial sequences to check for potential contaminants in our genome...
+    - built a blast DB for P_kings-supercontigs & blasted all ~5000 VecScreen sequences against it
+    - 
