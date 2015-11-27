@@ -394,7 +394,7 @@ filter( these_fsts, n_var > 50 ) %>%
               
 ```
 
-```{r fst density panel, echo=FALSE, message=FALSE, results='hide'}
+```{r fst density panel, echo=FALSE, message=FALSE, results='hide', fig.height=12, fig.width=12}
 
 # 
 ggplot( these_fsts, aes( x=fst, col=comp ) ) + geom_density( fill="grey" ) + 
@@ -411,7 +411,8 @@ length( these_fsts$fst[ these_fsts$winstep ==".500.100.." & these_fsts$fst > qua
 length( these_fsts$fst[ these_fsts$comp == "APA_vs_BAM" & these_fsts$winstep ==".100.50.." & these_fsts$fst > quantile( these_fsts$fst, probs=0.9 ) ] )
 
 taco <- these_fsts[ these_fsts$comp == "APA_vs_BAM" & these_fsts$winstep ==".100.50.." & these_fsts$fst > quantile( these_fsts$fst, probs=0.9 ) ,]
-arrange( taco, fst )
+
+arrange( taco, scaf )
 
 
 
@@ -420,7 +421,7 @@ arrange( taco, fst )
 
 
 
-# how many SNPs per window?
+Next thing to ponder: how many SNPs per window, and does that predict anything?
 
 
 

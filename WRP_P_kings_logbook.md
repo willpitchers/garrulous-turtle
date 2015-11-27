@@ -237,12 +237,12 @@ Week of 9th-13th Nov.
 
   - adjusted Fst script to enable window_size & window_step adjustment -- submit with e.g. `sed s/WSIZE/x/ calc_Fst_array.qsub | sed s/WSTEP/y/ | qsub` for size & step == x & y respectively (in bp).
     - now run at:
-      + 100kb window -- 50kb step
-      + 100kb window -- 100kb step
-      + 500kb window -- 100kb step
-      + 500kb window -- 50kb step
-      + 200kb window -- 100kb step
-      + 200kb window -- 50kb step
+      + 100kbp window -- 50kbp step
+      + 100kbp window -- 100kbp step
+      + 500kbp window -- 100kbp step
+      + 500kbp window -- 50kbp step
+      + 200kbp window -- 100kbp step
+      + 200kbp window -- 50kbp step
   - re-scripted the base_score_recalibration_array as base_score_recal-boot_array to take the final, merged .vcf file as an input for the 'known SNPs' field in `BaseRecalibrator`. This forms the loop that we'll need to bootstrap ourselves a high-confidence variant call.
     + looped once... waiting for scripts to run...
       - not all scripts have finished properly... 1st order of business on Monday will be to work out why.
@@ -263,4 +263,13 @@ Week of 24th-28th November
   - NB: this week includes Thanksgiving & an HPC shutdown...
   - Downloaded the VecScreen database of bacterial sequences to check for potential contaminants in our genome...
     - built a blast DB for P_kings-supercontigs & blasted all ~5000 VecScreen sequences against it
-    - 
+    - ~5500 results files; I used `grep -L  "No hits found" results* > vec_hits.txt` to list just those VecScreen sequences with hits in P_kings-supercontigs.
+    - hits on Scaffolds 1910, 3315, 3294 & 24, all with tiny 'E' values.
+      + Scaffolds 1910, 3315 & 3294 comprise only 4-5kbp each (and bear no SNPs), so I advocate simply discarding them
+      + Scaffold 24 is *much* larger at 3.8Mbp, so it'd be better not to lose it (or the 36k SNPs it contains) completely... lets look deeper:
+        + the matches on scaf1910 are both long (>1kbp) and near-perfect (99% & 100% with 0% gaps!)
+          - ID= gnl|uv|J02482.1:1-5386-49 Coliphage phi-X174
+        + the matches on scaf3315 & scaf3294 are shorter (both 145bp) and somewhat less convincing (80% with 6% gaps)
+          - ID= gnl|uv|JN874480.1:6795-9434 Cloning vector pHUGE-Red
+        + the match on scaf24 is the shortest (83bp) and similarly strong (85% with 2% gaps)
+          - ID= gnl|uv|AY390769.1:1-1000  Synthetic construct BigDye Terminator Cycle Sequencing Standard sequence... so pretty likely contamination then.
