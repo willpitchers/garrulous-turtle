@@ -273,3 +273,8 @@ Week of 24th-28th November
           - ID= gnl|uv|JN874480.1:6795-9434 Cloning vector pHUGE-Red
         + the match on scaf24 is the shortest (83bp) and similarly strong (85% with 2% gaps)
           - ID= gnl|uv|AY390769.1:1-1000  Synthetic construct BigDye Terminator Cycle Sequencing Standard sequence... so pretty likely contamination then.
+
+
+Week of 30th November - 4th December
+
+  - 

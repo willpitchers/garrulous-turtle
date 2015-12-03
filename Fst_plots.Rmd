@@ -394,12 +394,19 @@ filter( these_fsts, n_var > 50 ) %>%
               
 ```
 
+
+
 ```{r fst density panel, echo=FALSE, message=FALSE, results='hide', fig.height=12, fig.width=12}
 
 # 
 ggplot( these_fsts, aes( x=fst, col=comp ) ) + geom_density( fill="grey" ) + 
         geom_vline( xintercept=quantile( these_fsts$fst, probs=0.95 ), lty=2 ) +
         geom_vline( xintercept=quantile( these_fsts$fst, probs=0.9 ), lty=1 ) + facet_wrap( ~comp )
+
+```
+
+
+```{r}
 
 summary( these_fsts$fst )
 length( these_fsts$fst[ these_fsts$winstep ==".100.50.." & these_fsts$fst > quantile( these_fsts$fst, probs=0.9 ) ] )
@@ -419,9 +426,36 @@ arrange( taco, scaf )
 ```
 
 
-
-
 Next thing to ponder: how many SNPs per window, and does that predict anything?
+
+```{r}
+
+ggplot( these_fsts, aes( x=n_var, col=comp ) ) + geom_density( fill="grey" ) + ylim(0, 0.01) + facet_wrap( ~comp )
+
+ggplot( these_fsts, aes( y=fst, x=n_var, col=comp ) ) + geom_point() + facet_wrap( ~comp )
+
+ggplot( these_fsts, aes( x=scaf_bin, y=n_var ) ) + geom_point()
+
+```
+
+
+
+```{r}
+
+group_by( these_fsts, scaf ) %>% summarise( n_bins=n_distinct( scaf_bin ) ) %>% arrange( desc( n_bins )) %>% summary()
+
+
+# most scafs have only 1 bin. 3rd quartile at 2!
+by_scaf <- group_by( these_fsts, scaf ) %>% summarise( n_bins=n_distinct( scaf_bin ) ) %>% filter( n_bins >2 )
+
+fltr_fsts <- filter( these_fsts, scaf %in% droplevels(by_scaf$scaf) ) %>%  # dumping shorter scafs
+              filter( fst > quantile( these_fsts$fst, probs=0.9 ) ) %>%  # dumping low fst scafs
+              filter( scaf != "Scaffold1910" & scaf != "Scaffold3315" & 
+                        scaf != "Scaffold3294" & scaf != "Scaffold24" )  # dumping 4 scafs with contamination
+
+ggplot( fltr_fsts, aes( x=fst, col=comp ) ) + geom_density( fill="grey" ) + facet_wrap( ~comp )
+
+```
 
 
 

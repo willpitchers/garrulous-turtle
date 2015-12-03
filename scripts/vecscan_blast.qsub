@@ -1,0 +1,34 @@
+#!/bin/bash -login
+#PBS -l nodes=1:ppn=8,walltime=04:00:00,mem=32gb
+#PBS -N VecBlast_${PBS_ARRAYID}
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+
+## Set up some variables
+# where do the files live
+DBdir=/mnt/scratch/pitchers/UniVec/
+
+module load CUDA/4.2
+module load gpuBLAST/1.1
+module load SAMTools/1.2
+
+cd ${DBdir}
+
+for i in `seq 5456`
+do
+thislab=`grep --color=no ">" UniVec | head -${i} | tail -1 | cut -f 1 -d ' ' | cut -f 2 -d ">"`
+samtools faidx UniVec ${thislab} > seq${i}
+blastn -db ../eFISH/P_kings_genome/supercontigs.fasta -query seq${i} -out results${i}.out
+done
+
+# make a summary list and zip up the output to store
+grep -L  "No hits found" results* > vec_hits.txt
+zip vecscanout.zip results*
+
+# email to tell me that you're done
+echo "." | mail -s "The VecScan blast JOB is finished" ${USER}@msu.edu
+
+#Print out the statistics for this job
+qstat -f ${PBS_JOBID}
