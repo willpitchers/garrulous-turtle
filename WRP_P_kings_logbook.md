@@ -277,4 +277,13 @@ Week of 24th-28th November
 
 Week of 30th November - 4th December
 
-  - 
+  - 'scriptified' the analysis (above) of VecScan results to ensure reproducability
+  - further work on Fst analysis
+
+
+Week of 5th - 11th December
+
+  - this week my laptop's HDD died: backups should prevent any loss of data, but it wasted a lot of time
+  - I was able to do *some* work on the [Fst analysis](./Fst_plots.Rmd)
+  -
+

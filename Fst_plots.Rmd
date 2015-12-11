@@ -362,12 +362,14 @@ FVSsum <- group_by( fst_var_scaf, COMP ) %>% summarise( MFV=mean( fst_var ) ) %>
 
 comparisons <- c( "APA_vs_BAM", "APA_vs_BAVA", "APA_vs_COB", "APA_vs_IVI", "APA_vs_MOV", "BAM_vs_BAVA", "BAM_vs_COB", "BAM_vs_IVI", "BAM_vs_MOV", "BAVA_vs_COB", "BAVA_vs_IVI", "BAVA_vs_MOV", "COB_vs_IVI", "COB_vs_MOV", "IVI_vs_MOV" )
 
-windows <- c( ".windowed100kb.step50kb.weir.fst",
-              ".windowed100kb.step100kb.weir.fst",
+windows <- c( ".windowed100kb.step100kb.weir.fst",
               ".windowed200kb.step50kb.weir.fst",
-              ".windowed200kb.step100kb.weir.fst",
+              ".windowed500kb.step100kb.weir.fst",
+              ".windowed100kb.step50kb.weir.fst",
+              ".windowed300kb.step50kb.weir.fst",
               # ".windowed500kb.step50kb.weir.fst",
-              ".windowed500kb.step100kb.weir.fst" )
+              ".windowed200kb.step100kb.weir.fst",
+              ".windowed400kb.step50kb.weir.fst" )
 
 these_fsts <- data.frame()
 
@@ -394,7 +396,23 @@ filter( these_fsts, n_var > 50 ) %>%
               
 ```
 
+What's interesting here is the amount of overplotting; it seems to make very little difference which combination of window/step sizes I use, the points are mostly just stacking on top of one another. This may not be the most helpfuln way to look at the data however. I'm going to focus just on a subset of (semi-randomly picked) comparisons and see if I can't come up with a better way of looking at these data...
 
+```{r window effect alt, message=FALSE, echo=FALSE, results='hide', fig.height=12, fig.width=12}
+
+cowplot::plot_grid( filter( these_fsts, comp == "APA_vs_BAM" ) %>% ggplot( aes( x=fst, col=winstep ) ) + 
+                      geom_density( aes( fill=winstep ), alpha=0.1 ) + ggtitle( "APA_vs_BAM" ), 
+                    filter( these_fsts, comp == "APA_vs_COB" ) %>% ggplot( aes( x=fst, col=winstep ) ) + 
+                      geom_density( aes( fill=winstep ), alpha=0.1 ) + ggtitle( "APA_vs_COB" ), 
+                    filter( these_fsts, comp == "IVI_vs_MOV" ) %>% ggplot( aes( x=fst, col=winstep ) ) + 
+                      geom_density( aes( fill=winstep ), alpha=0.1 ) + ggtitle( "IVI_vs_MOV" ), 
+                    filter( these_fsts, comp == "IVI_vs_MOV" ) %>% ggplot( aes( x=fst, col=winstep ) ) + 
+                      geom_density( aes( fill=winstep ), alpha=0.1 ) + ggtitle( "IVI_vs_MOV" ), 
+                    align="h", ncol=2 )
+
+```
+
+Here we can see that the size of the window/step doesn't change the overall shape of the F~st~ distribution, but we *can* see that the differences are largest at height of the peaks. The choice of window/step sizes therefore may be more influential than we'd ideally like.
 
 ```{r fst density panel, echo=FALSE, message=FALSE, results='hide', fig.height=12, fig.width=12}
 
@@ -405,58 +423,61 @@ ggplot( these_fsts, aes( x=fst, col=comp ) ) + geom_density( fill="grey" ) +
 
 ```
 
+...and here is the plot of the distributions of (all) F~st~ values by comparison. Bear in mind that each of these distributions represents a superposition of distributions as above.
 
-```{r}
+# Narrowing the Search Space
 
-summary( these_fsts$fst )
-length( these_fsts$fst[ these_fsts$winstep ==".100.50.." & these_fsts$fst > quantile( these_fsts$fst, probs=0.9 ) ] )
-length( these_fsts$fst[ these_fsts$winstep ==".100.100.." & these_fsts$fst > quantile( these_fsts$fst, probs=0.9 ) ] )
-length( these_fsts$fst[ these_fsts$winstep ==".200.50.." & these_fsts$fst > quantile( these_fsts$fst, probs=0.9 ) ] )
-length( these_fsts$fst[ these_fsts$winstep ==".200.100.." & these_fsts$fst > quantile( these_fsts$fst, probs=0.9 ) ] )
-length( these_fsts$fst[ these_fsts$winstep ==".500.100.." & these_fsts$fst > quantile( these_fsts$fst, probs=0.9 ) ] )
+After discussing these distributions, we agreed to narrow down the set of values for me to work on. First up, let's concentrate on decently long scaffolds. Below is a summary of the distribution of scaffold sizes as measured (crudely) in no. windows (bins):
 
-length( these_fsts$fst[ these_fsts$comp == "APA_vs_BAM" & these_fsts$winstep ==".100.50.." & these_fsts$fst > quantile( these_fsts$fst, probs=0.9 ) ] )
+```{r n_bins summary, echo=FALSE, message=FALSE}
 
-taco <- these_fsts[ these_fsts$comp == "APA_vs_BAM" & these_fsts$winstep ==".100.50.." & these_fsts$fst > quantile( these_fsts$fst, probs=0.9 ) ,]
-
-arrange( taco, scaf )
-
-
+group_by( these_fsts, scaf ) %>% filter( winstep == ".500.100.." ) %>% summarise( n_bins=n_distinct( scaf_bin ) ) %>% arrange( desc( n_bins )) %>% summary()
 
 ```
 
+With the mean at ~5 and the 3rd quartile at 2 it's clear that the distribution is going to be super-skewed (which is not unexpected), but this plot shows just how skewed a set of lengths we are dealing with:-
 
-Next thing to ponder: how many SNPs per window, and does that predict anything?
+```{r n_bins density, echo=FALSE, message=FALSE, results='hide'}
 
-```{r}
-
-ggplot( these_fsts, aes( x=n_var, col=comp ) ) + geom_density( fill="grey" ) + ylim(0, 0.01) + facet_wrap( ~comp )
-
-ggplot( these_fsts, aes( y=fst, x=n_var, col=comp ) ) + geom_point() + facet_wrap( ~comp )
-
-ggplot( these_fsts, aes( x=scaf_bin, y=n_var ) ) + geom_point()
+group_by( these_fsts, scaf ) %>% filter( winstep == ".500.100.." ) %>% summarise( n_bins=n_distinct( scaf_bin ) ) %>% arrange( desc( n_bins )) %>% ggplot( aes(x=n_bins) ) + geom_density() + xlab( "Scaffold length (no. 500kb windows)" )
 
 ```
 
+Luckily for us there's a strong relationship between scaffold length and the no. variants (see below): perhaps unsurprisingly, the longer scaffolds tend to bear more SNPs etc. There's a pretty obvious inflection point in this relationship at ~30 windows
+(which is ~3.4Mb here) after which it becomes almost linear. This seems suggestive to me, but being conservative to start with I'm going to trim those scaffolds with length of <2 windows (~600kb); those on the left of the red line on the plot.
 
+```{r scaf length v no SNPs, echo=FALSE, message=FALSE, results='hide'}
 
-```{r}
+group_by( these_fsts, scaf ) %>% filter( winstep == ".500.100.." ) %>% summarise( n_bins=n_distinct( scaf_bin ), n_var=mean( n_var ) ) %>% arrange( desc( n_bins )) %>% mutate( badscaf=factor( ifelse( (scaf=="Scaffold1910" | scaf=="Scaffold3315" | scaf=="Scaffold3294" | scaf=="Scaffold24"), "C", "G")) ) %>% ggplot( aes(x=n_bins, y=n_var, col=badscaf) ) + geom_point() + geom_smooth( col="blue" ) + scale_x_log10() + xlab( "Scaffold length (log10 no. 500kb windows)" ) + ylab( "mean no. variants" ) + geom_vline( x=2.5, col="red", lty=2 ) + theme( legend.position="none" ) + scale_color_manual( values=c("red", "black") )
 
-group_by( these_fsts, scaf ) %>% summarise( n_bins=n_distinct( scaf_bin ) ) %>% arrange( desc( n_bins )) %>% summary()
+```
 
+By BLASTing the [VecScreen](http://www.ncbi.nlm.nih.gov/tools/vecscreen/univec/) sequences against our reference (see [my logbook](./WRP_P_kings_logbook.md)) I found evidence for potential contamination on 4 scaffolds. I'm simply going to exclude these from analysis as a first approach. Of these 4, only 1 (Scaffold24) is long enough to make it past the "length must be >2 windows" cutoff (marked in red on plot).
 
+Lastly, as discussed, I'm going to narrow down that data to only those F~st~ values that are greater than the 90th percentile for all F~st~s. After this threefold trimming, the data we are left with looks like this:
+
+```{r filter fsts, results='hide', echo=FALSE, message=FALSE}
 # most scafs have only 1 bin. 3rd quartile at 2!
 by_scaf <- group_by( these_fsts, scaf ) %>% summarise( n_bins=n_distinct( scaf_bin ) ) %>% filter( n_bins >2 )
 
 fltr_fsts <- filter( these_fsts, scaf %in% droplevels(by_scaf$scaf) ) %>%  # dumping shorter scafs
               filter( fst > quantile( these_fsts$fst, probs=0.9 ) ) %>%  # dumping low fst scafs
               filter( scaf != "Scaffold1910" & scaf != "Scaffold3315" & 
-                        scaf != "Scaffold3294" & scaf != "Scaffold24" )  # dumping 4 scafs with contamination
+                        scaf != "Scaffold3294" & scaf != "Scaffold24" )  # dumping all 4 scafs with contamination
 
-ggplot( fltr_fsts, aes( x=fst, col=comp ) ) + geom_density( fill="grey" ) + facet_wrap( ~comp )
+ggplot( fltr_fsts, aes( x=fst, col=comp ) ) + geom_density( fill="grey" ) + xlim(0,1) + facet_wrap( ~comp )
 
 ```
 
+# Does no. SNPs predict F~st~?
 
+Using the trimmed F~st~ dataset, can we see a relationship betweent the number of variants within a window and the F~st~ across that window...?
 
+```{r fst vs n_var, echo=FALSE, message=FALSE, results='hide'}
+
+ggplot( fltr_fsts, aes( y=fst, x=n_var, col=comp ) ) + geom_point() + facet_wrap(~comp)
+
+```
+
+There doesn't seem to be mush of a relationship there at all --- I confess that I'm not sure what to make of that yet.
 
