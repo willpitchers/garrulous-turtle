@@ -285,5 +285,9 @@ Week of 5th - 11th December
 
   - this week my laptop's HDD died: backups should prevent any loss of data, but it wasted a lot of time
   - I was able to do *some* work on the [Fst analysis](./Fst_plots.Rmd)
-  -
+
+
+Week of 14th – 17th December
+
+  - I have persuaded the base quality score recalibration scripts to run for the 1st iteration of the bootstrap. The sequence files needed dramatically different amounts of time/memory for the run, but that doesn't explain all of the crashes...
 
