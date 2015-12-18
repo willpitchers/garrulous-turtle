@@ -416,10 +416,17 @@ Here we can see that the size of the window/step doesn't change the overall shap
 
 ```{r fst density panel, echo=FALSE, message=FALSE, results='hide', fig.height=12, fig.width=12}
 
-# 
 ggplot( these_fsts, aes( x=fst, col=comp ) ) + geom_density( fill="grey" ) + 
         geom_vline( xintercept=quantile( these_fsts$fst, probs=0.95 ), lty=2 ) +
         geom_vline( xintercept=quantile( these_fsts$fst, probs=0.9 ), lty=1 ) + facet_wrap( ~comp )
+
+# # pick a win/step combination at semi-random:
+# pdf( "density_100kb_window_50kb_step.pdf", height = 10, width = 10 )
+#   filter( these_fsts, winstep == ".100.50.." ) %>% 
+#       ggplot( aes( x=fst, col=comp ) ) + geom_density( fill="grey" ) + 
+#           geom_vline( xintercept=quantile( these_fsts$fst, probs=0.95 ), lty=2 ) +
+#           geom_vline( xintercept=quantile( these_fsts$fst, probs=0.9 ), lty=1 ) + facet_wrap( ~comp ) + ggtitle( "100kb window, 50kb step" )
+# dev.off()
 
 ```
 

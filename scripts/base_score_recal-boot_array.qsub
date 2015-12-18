@@ -59,7 +59,7 @@ then
     echo "." | mail -s "The base_score_recalibration JOB ARRAY is finishing" ${USER}@msu.edu
 	zip base_recal_plots.boot.zip *recal_plots.pdf
     cd ${PBS_O_WORKDIR}
-#    sed s/"recalibrated.bam"/"recalibrated.boot.bam"/g vcf_discovery_array.qsub | qsub
+#    sed s/"recalibrated.bam"/"recalibrated.boot.bam"/g vcf_discovery_array.qsub | sed s/"raw_variants.vcf"/"raw_variants.boot.vcf"/g | qsub
 fi
 
 #Print out the statistics for this job

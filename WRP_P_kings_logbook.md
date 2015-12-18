@@ -73,7 +73,7 @@ Tuesday, 1st September 2015
 Wednesday, 2 September 2015
 
   - I'm going to pool this years' Illumina data into one folder, since there seems to be no benefit in trimming them separately.
-  - Moved my previous attemped assemblies into `Aug_Assemblies`.
+  - Moved my previous attempted assemblies into `Aug_Assemblies`.
   - `Quast` tool is probably not the most appropriate for this data (qv. discussion with Lex at NGS camp) -- ought to be using [`CEGMA`](http://korflab.ucdavis.edu/datasets/cegma/#SCT5) & [`BUSCO`](http://busco.ezlab.org/#software).
   - generated a bowtie2 index from the *P. kings* genome v0.1 using `bowtie2-build -f supercontigs.fasta Pkings`
   - set up some test runs to estimate timing.
@@ -277,7 +277,7 @@ Week of 24th-28th November
 
 Week of 30th November - 4th December
 
-  - 'scriptified' the analysis (above) of VecScan results to ensure reproducability
+  - 'scriptified' the analysis (above) of VecScan results to ensure reproducibility
   - further work on Fst analysis
 
 
@@ -290,4 +290,9 @@ Week of 5th - 11th December
 Week of 14th – 17th December
 
   - I have persuaded the base quality score recalibration scripts to run for the 1st iteration of the bootstrap. The sequence files needed dramatically different amounts of time/memory for the run, but that doesn't explain all of the crashes...
-
+  - After discussion with JG, we're going to take a look at Fst at smaller window sizes. Now running at:
+    + 5kbp window -- 5kbp step
+    + 10kbp window -- 10kbp step
+    + 10kbp window -- 5kbp step
+  - some bug fixes for vcf-merge post bootstrap
+  

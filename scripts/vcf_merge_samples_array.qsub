@@ -18,6 +18,11 @@ MAXJOBID=63
 
 # load modules
 cd ${dir}
+
+if [ ! -f samples.list ]
+  then cp /mnt/research/efish/2015_genomic_data/samples.list ./
+fi
+
 module load tabix/0.2.6
 module load vcftools/4.2
 module load GATK/3.4.46
@@ -33,15 +38,14 @@ java -Xmx10g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T CombineVariants -R ${r
 
 # re-indexing
 tabix `head -${n} samples.list | tail -1 `_all_libraries.vcf
-        
+
 #Check to see if this is the last job and email user
 if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The vcf merging sample ARRAY is finishing" ${USER}@msu.edu
     cd $PBS_O_WORKDIR
-    qsub merge_all_vcfs.qsub
+    # qsub merge_all_vcfs.qsub
 fi
 
 #Print out the statistics for this job
 qstat -f ${PBS_JOBID}
-
