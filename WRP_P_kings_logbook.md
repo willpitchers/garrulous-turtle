@@ -287,7 +287,7 @@ Week of 5th - 11th December
   - I was able to do *some* work on the [Fst analysis](./Fst_plots.Rmd)
 
 
-Week of 14th – 17th December
+Week of 14th – 18th December
 
   - I have persuaded the base quality score recalibration scripts to run for the 1st iteration of the bootstrap. The sequence files needed dramatically different amounts of time/memory for the run, but that doesn't explain all of the crashes...
   - After discussion with JG, we're going to take a look at Fst at smaller window sizes. Now running at:
@@ -295,4 +295,13 @@ Week of 14th – 17th December
     + 10kbp window -- 10kbp step
     + 10kbp window -- 5kbp step
   - some bug fixes for vcf-merge post bootstrap
-  
+
+
+Week of 21st – 25th December
+
+  - Xmas break week -- conveniently enough the iCER staff have partially shut down the HPC to fix some problem with scratch... inconveniently, that is where all our data lives.
+
+
+Week of 28th December – 1st January
+
+  - 

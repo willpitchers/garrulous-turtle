@@ -24,7 +24,8 @@ cd ${dir}
 filelist=(*recalibrated.bam)
 thisfile=${filelist[${n}]}
 
-module load GATK/3.4.46
+# module load GATK/3.4.46
+module load GATK/3.5.0
 
 
 if [ ! -f `basename ${thisfile} .recalibrated.bam`.raw_variants.vcf ]
@@ -48,13 +49,8 @@ if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The vcf_discovery JOB ARRAY is finishing" ${USER}@msu.edu
     cd ${PBS_O_WORKDIR}
-    qsub compress_vcfs.qsub
+    # qsub compress_vcfs.qsub
 fi
 
 #Print out the statistics for this job
 qstat -f ${PBS_JOBID}
-
-
-
-
-

@@ -18,14 +18,14 @@ MAXJOBID=63
 
 # load modules
 cd ${dir}
-
-if [ ! -f samples.list ]
-  then cp /mnt/research/efish/2015_genomic_data/samples.list ./
-fi
-
 module load tabix/0.2.6
 module load vcftools/4.2
 module load GATK/3.4.46
+
+# make sure that the samples.list file is available
+if [ ! -f samples.list ]
+  then cp /mnt/research/efish/2015_genomic_data/samples.list ./
+fi
 
 sample=(`head -${n} samples.list | tail -1 `*raw_variants.vcf)
 samples=`for i in ${sample[@]} ; do echo --variant $i ; done | xargs`

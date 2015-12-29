@@ -486,5 +486,19 @@ ggplot( fltr_fsts, aes( y=fst, x=n_var, col=comp ) ) + geom_point() + facet_wrap
 
 ```
 
-There doesn't seem to be mush of a relationship there at all --- I confess that I'm not sure what to make of that yet.
+There doesn't seem to be much of a relationship there at all --- I confess that I'm not sure what to make of that yet.
+
+## Section 3
+
+
+```{r}
+
+# Degree of overlap: loci of separation by drift should be arbitrary – can we ID regions where Fst is high in multiple comparisons (pop level and/or individual)
+
+group_by( these_fsts, comp ) %>% filter( fst > quantile( fst, probs=c(0.95) ) )
+
+
+```
+
+
 
