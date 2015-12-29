@@ -26,6 +26,7 @@ thisfile=${filelist[${n}]}
 
 module load GATK/3.4.46
 
+
 if [ ! -f `basename ${thisfile} .recalibrated.bam`.raw_variants.vcf ]
 then
 # the call to the GATK HaplotypeCaller
