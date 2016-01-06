@@ -1,5 +1,5 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=4,walltime=06:00:00,mem=32gb
+#PBS -l nodes=1:ppn=4,walltime=08:00:00,mem=16gb
 #PBS -N vcf_disco_${PBS_ARRAYID}
 #PBS -j oe
 #PBS -M pitchers@msu.edu

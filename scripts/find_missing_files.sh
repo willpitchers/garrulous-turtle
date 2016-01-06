@@ -1,6 +1,6 @@
 #! /bin/bash
 
-touch missing_files.txt
+rm missing_files.txt
 
 for a in *fastq.gz
   do
@@ -35,6 +35,13 @@ done
 
 for a in *aligned.sam
   do
+  if [ ! -f `basename ${a} .aligned.sam`.recalibrated.boot.bam ]
+    then echo `basename ${a} .aligned.sam`.recalibrated.boot.bam >> missing_files.txt
+  fi
+done
+
+for a in *aligned.sam
+  do
   if [ ! -f `basename ${a} .aligned.sam`.raw_variants.vcf ]
     then echo `basename ${a} .aligned.sam`.raw_variants.vcf >> missing_files.txt
   fi
@@ -46,3 +53,18 @@ for a in *aligned.sam
     then echo `basename ${a} .aligned.sam`.raw_variants.vcf.gz >> missing_files.txt
   fi
 done
+
+for a in *aligned.sam
+	do
+	if [ ! -f `basename ${a} .aligned.sam`.recalibrated.boot.bam ]
+	 then echo `basename ${a} .aligned.sam`.recalibrated.boot.bam >> missing_files.txt
+	fi
+done
+
+for a in *aligned.sam
+    do
+    if [ ! -f `basename ${a} .aligned.sam`.raw_variants.boot.vcf ]
+     then echo `basename ${a} .aligned.sam`.raw_variants.boot.vcf >> missing_files.txt
+    fi
+done
+
