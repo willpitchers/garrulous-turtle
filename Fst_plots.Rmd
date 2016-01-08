@@ -6,6 +6,7 @@ output: html_document
 ---
 
 ```{r set up env, results='hide', echo=FALSE, message=FALSE}
+rm( list=ls( ))
 
 setwd( "/Volumes/Old_HD/Dropbox (MSU Efish Lab)/WILL/genome_assembly/garrulous-turtle/" )
 
@@ -367,7 +368,6 @@ windows <- c( ".windowed100kb.step100kb.weir.fst",
               ".windowed500kb.step100kb.weir.fst",
               ".windowed100kb.step50kb.weir.fst",
               ".windowed300kb.step50kb.weir.fst",
-              # ".windowed500kb.step50kb.weir.fst",
               ".windowed200kb.step100kb.weir.fst",
               ".windowed400kb.step50kb.weir.fst" )
 
@@ -455,7 +455,7 @@ Luckily for us there's a strong relationship between scaffold length and the no.
 
 ```{r scaf length v no SNPs, echo=FALSE, message=FALSE, results='hide'}
 
-group_by( these_fsts, scaf ) %>% filter( winstep == ".500.100.." ) %>% summarise( n_bins=n_distinct( scaf_bin ), n_var=mean( n_var ) ) %>% arrange( desc( n_bins )) %>% mutate( badscaf=factor( ifelse( (scaf=="Scaffold1910" | scaf=="Scaffold3315" | scaf=="Scaffold3294" | scaf=="Scaffold24"), "C", "G")) ) %>% ggplot( aes(x=n_bins, y=n_var, col=badscaf) ) + geom_point() + geom_smooth( col="blue" ) + scale_x_log10() + xlab( "Scaffold length (log10 no. 500kb windows)" ) + ylab( "mean no. variants" ) + geom_vline( x=2.5, col="red", lty=2 ) + theme( legend.position="none" ) + scale_color_manual( values=c("red", "black") )
+group_by( these_fsts, scaf ) %>% filter( winstep == ".500.100.." ) %>% summarise( n_bins=n_distinct( scaf_bin ), n_var=mean( n_var ) ) %>% arrange( desc( n_bins )) %>% mutate( badscaf=factor( ifelse( (scaf=="Scaffold1910" | scaf=="Scaffold3315" | scaf=="Scaffold3294" | scaf=="Scaffold24"), "C", "G")) ) %>% ggplot( aes(x=n_bins, y=n_var, col=badscaf) ) + geom_point() + geom_smooth( col="blue" ) + scale_x_log10() + xlab( "Scaffold length (log10 no. 500kb windows)" ) + ylab( "mean no. variants" ) + geom_vline( xintercept=2.5, col="red", lty=2 ) + theme( legend.position="none" ) + scale_color_manual( values=c("red", "black") )
 
 ```
 
@@ -468,9 +468,9 @@ Lastly, as discussed, I'm going to narrow down that data to only those F~st~ val
 by_scaf <- group_by( these_fsts, scaf ) %>% summarise( n_bins=n_distinct( scaf_bin ) ) %>% filter( n_bins >2 )
 
 fltr_fsts <- filter( these_fsts, scaf %in% droplevels(by_scaf$scaf) ) %>%  # dumping shorter scafs
-              filter( fst > quantile( these_fsts$fst, probs=0.9 ) ) %>%  # dumping low fst scafs
               filter( scaf != "Scaffold1910" & scaf != "Scaffold3315" & 
-                        scaf != "Scaffold3294" & scaf != "Scaffold24" )  # dumping all 4 scafs with contamination
+                        scaf != "Scaffold3294" & scaf != "Scaffold24" )  %>% # dumping all 4 scafs with contamination
+              group_by( comp ) %>% filter( fst > quantile( fst, probs=0.9 ) ) # dumping low fst scafs *within* comp
 
 ggplot( fltr_fsts, aes( x=fst, col=comp ) ) + geom_density( fill="grey" ) + xlim(0,1) + facet_wrap( ~comp )
 
@@ -490,15 +490,279 @@ There doesn't seem to be much of a relationship there at all --- I confess that 
 
 ## Section 3
 
+```{r window effect plot 2, message=FALSE, echo=FALSE, results='hide', fig.width=15, fig.height=20}
+# can we get a distribution of Fsts across the genome with varying window size?
 
-```{r}
+comparisons <- c( "APA_vs_BAM", "APA_vs_BAVA", "APA_vs_COB", "APA_vs_IVI", "APA_vs_MOV", "BAM_vs_BAVA", "BAM_vs_COB", "BAM_vs_IVI", "BAM_vs_MOV", "BAVA_vs_COB", "BAVA_vs_IVI", "BAVA_vs_MOV", "COB_vs_IVI", "COB_vs_MOV", "IVI_vs_MOV" )
 
-# Degree of overlap: loci of separation by drift should be arbitrary – can we ID regions where Fst is high in multiple comparisons (pop level and/or individual)
+windows <- c( ".windowed100kb.step100kb.weir.fst",
+              ".windowed200kb.step50kb.weir.fst",
+              ".windowed500kb.step100kb.weir.fst",
+              ".windowed100kb.step50kb.weir.fst",
+              ".windowed300kb.step50kb.weir.fst",
+              ".windowed200kb.step100kb.weir.fst",
+              ".windowed400kb.step50kb.weir.fst", 
+              ".windowed10kb.step10kb.weir.fst", 
+              ".windowed10kb.step5kb.weir.fst", 
+              ".windowed5kb.step5kb.weir.fst" )
 
-group_by( these_fsts, comp ) %>% filter( fst > quantile( fst, probs=c(0.95) ) )
+these_fsts <- data.frame()
 
+for (i in 1:15) {
+  for ( j in 1:length( windows ) ) {
+    filename <- paste( "Fsts/Fst_", comparisons[i], windows[j], coll='', sep='' )
+    filesize <- as.numeric( strsplit( gsub( '[ ]+', " ", system( paste( "wc -l ", filename, coll='', sep='' ),
+                                                                 intern=T )), " ")[[1]][2])
+    readin <- read.table( filename, header=TRUE, nrows=filesize  )
+    readin <- transmute( readin, scaf=factor( CHROM ), bin=as.numeric( BIN_START ), n_var=as.numeric( N_VARIANTS ), 
+                         fst=as.numeric( WEIGHTED_FST ), comp=factor( rep( comparisons[i], nrow( readin ) ) ),
+                         winstep=factor( rep( gsub( '[a-z]', '', windows[j] ), nrow( readin ) ) ),
+                         scaf_bin=factor( paste( scaf, '_', bin, sep='', coll='' ) ), 
+                         scaf_comp=factor( paste( scaf, '_', comp, sep='', coll='' )) )  %>%  filter( fst > 0 )
+    these_fsts <- rbind( these_fsts, readin )
+}}
+
+
+summary( these_fsts )
+
+# filter( these_fsts, n_var > 50 ) %>%
+#       ggplot( aes( scaf, fst, col=winstep ) ) + scale_colour_discrete( name="window/step (kb)" ) + 
+#               geom_point( alpha=0.1 ) + facet_wrap( ~comp, ncol=3 )
+              
+```
+
+OK, so here I wanted to assess how much signal we're losing by using longer window sizes. Here I'm plotting the distributions of F~st~ values for each combination of window size and step size. Note that the sets of stats with smaller window sizes are more right-tail-heavy in *all* comparisons, more strongly so in some than others. On this basis I'mn going to semi-arbitraily use the 5kb and 10kb non-overlapping-window result sets for the next bit...
+
+```{r window effect alt panel, message=FALSE, echo=FALSE, results='hide', fig.height=26, fig.width=12}
+
+cowplot::plot_grid( filter( these_fsts, comp == "APA_vs_BAM" ) %>% ggplot( aes( x=fst, col=winstep ) ) + 
+                      geom_density( aes( fill=winstep ), alpha=0.1 ) + ggtitle( "APA_vs_BAM" ), 
+                    filter( these_fsts, comp == "APA_vs_BAVA" ) %>% ggplot( aes( x=fst, col=winstep ) ) + 
+                      geom_density( aes( fill=winstep ), alpha=0.1 ) + ggtitle( "APA_vs_BAVA" ), 
+                    filter( these_fsts, comp == "APA_vs_COB" ) %>% ggplot( aes( x=fst, col=winstep ) ) + 
+                      geom_density( aes( fill=winstep ), alpha=0.1 ) + ggtitle( "APA_vs_COB" ), 
+                    filter( these_fsts, comp == "APA_vs_IVI" ) %>% ggplot( aes( x=fst, col=winstep ) ) + 
+                      geom_density( aes( fill=winstep ), alpha=0.1 ) + ggtitle( "APA_vs_IVI" ), 
+                    filter( these_fsts, comp == "APA_vs_MOV" ) %>% ggplot( aes( x=fst, col=winstep ) ) + 
+                      geom_density( aes( fill=winstep ), alpha=0.1 ) + ggtitle( "APA_vs_MOV" ), 
+                    filter( these_fsts, comp == "BAM_vs_BAVA" ) %>% ggplot( aes( x=fst, col=winstep ) ) + 
+                      geom_density( aes( fill=winstep ), alpha=0.1 ) + ggtitle( "BAM_vs_BAVA" ), 
+                    filter( these_fsts, comp == "BAM_vs_COB" ) %>% ggplot( aes( x=fst, col=winstep ) ) + 
+                      geom_density( aes( fill=winstep ), alpha=0.1 ) + ggtitle( "BAM_vs_COB" ), 
+                    filter( these_fsts, comp == "BAM_vs_IVI" ) %>% ggplot( aes( x=fst, col=winstep ) ) + 
+                      geom_density( aes( fill=winstep ), alpha=0.1 ) + ggtitle( "BAM_vs_IVI" ), 
+                    filter( these_fsts, comp == "BAM_vs_MOV" ) %>% ggplot( aes( x=fst, col=winstep ) ) + 
+                      geom_density( aes( fill=winstep ), alpha=0.1 ) + ggtitle( "BAM_vs_MOV" ), 
+                    filter( these_fsts, comp == "BAVA_vs_COB" ) %>% ggplot( aes( x=fst, col=winstep ) ) + 
+                      geom_density( aes( fill=winstep ), alpha=0.1 ) + ggtitle( "BAVA_vs_COB" ), 
+                    filter( these_fsts, comp == "BAVA_vs_IVI" ) %>% ggplot( aes( x=fst, col=winstep ) ) + 
+                      geom_density( aes( fill=winstep ), alpha=0.1 ) + ggtitle( "BAVA_vs_IVI" ), 
+                    filter( these_fsts, comp == "BAVA_vs_MOV" ) %>% ggplot( aes( x=fst, col=winstep ) ) + 
+                      geom_density( aes( fill=winstep ), alpha=0.1 ) + ggtitle( "BAVA_vs_MOV" ), 
+                    filter( these_fsts, comp == "COB_vs_IVI" ) %>% ggplot( aes( x=fst, col=winstep ) ) + 
+                      geom_density( aes( fill=winstep ), alpha=0.1 ) + ggtitle( "COB_vs_IVI" ), 
+                    filter( these_fsts, comp == "COB_vs_MOV" ) %>% ggplot( aes( x=fst, col=winstep ) ) + 
+                      geom_density( aes( fill=winstep ), alpha=0.1 ) + ggtitle( "COB_vs_MOV" ), 
+                    filter( these_fsts, comp == "IVI_vs_MOV" ) %>% ggplot( aes( x=fst, col=winstep ) ) + 
+                      geom_density( aes( fill=winstep ), alpha=0.1 ) + ggtitle( "IVI_vs_MOV" ), 
+                    align="h", ncol=3 )
+
+# ggplot( these_fsts, aes( x=fst, col=winstep ) ) + geom_density( aes( fill=winstep ), alpha=0.1 ) + facet_wrap( ~comp, ncol=3 )
 
 ```
 
+So, taking those results from the 5kb and 10kb non-overlapping-windows, I'm going to filter again in a similar way to above: dropping scaffolds shorter than 2 bins, dropping the 4 scafflods with potential contamination, and keeping the highest 10% of F~st~ values within each comparison.
 
+```{r filter fsts again, results='hide', echo=FALSE, message=FALSE}
+# most scafs have only 1 bin. 3rd quartile at 2!
+by_scaf <- group_by( these_fsts, scaf ) %>% summarise( n_bins=n_distinct( scaf_bin ) ) %>% filter( n_bins >2 )
+
+# here I'm selecting just the non-overlapping 5kb windows
+fltr_fsts_5_5 <- filter( these_fsts, scaf %in% droplevels(by_scaf$scaf) ) %>%  # dumping shorter scafs
+                 filter( scaf != "Scaffold1910" & scaf != "Scaffold3315" & 
+                        scaf != "Scaffold3294" & scaf != "Scaffold24" )  %>% # dumping all 4 scafs with contamination
+                  filter( winstep ==".5.5.." ) %>%    # selecting just the short non-overlapping windows
+                  group_by( comp ) %>% filter( fst > quantile( fst, probs=0.9 ) ) # dumping low fst scafs *within* comp.
+
+# and here I'm selecting just the non-overlapping 10kb windows
+fltr_fsts_10_10 <- filter( these_fsts, scaf %in% droplevels(by_scaf$scaf) ) %>%  # dumping shorter scafs
+                   filter( scaf != "Scaffold1910" & scaf != "Scaffold3315" & 
+                        scaf != "Scaffold3294" & scaf != "Scaffold24" )  %>% # dumping all 4 scafs with contamination
+                    filter( winstep ==".10.10.." ) %>%    # selecting just the short non-overlapping windows
+                  group_by( comp ) %>% filter( fst > quantile( fst, probs=0.9 ) ) # dumping low fst scafs *within* comp.
+
+ggplot( fltr_fsts_5_5, aes( x=fst, col=comp ) ) + geom_density( fill="grey" ) + xlim(0,1) + facet_wrap( ~comp )
+
+```
+
+With that filtered list of F~st~s, I'm then going to look for bins that occur in *both* comparisons between fixed penetrating & fixed non-penetrating stalks (BAVA vs. MOV & BAVA vs. IVI). Then I ask which of those bins *do not* occur in the comparison bewteen the phenotypically similar IVI & MOV populations. Finally I narrow down which of *those* bins also have elevated F~st~s in the comparison between the phenotypically mixed populations (APA vs. BAM).
+
+```{r estimating numbers of divergent regions 90quant, results='hide', echo=FALSE, message=FALSE}
+# Degree of overlap: loci of separation by drift should be arbitrary – can we ID regions where Fst is high in multiple comparisons (pop level and/or individual)
+
+# BAVA p0 absent vs. IVI p0 present, MOV p0 present
+# Add APA vs. BAM
+# check if NAN's make it through
+
+BAVA_vs_MOV_5_5_90 <- fltr_fsts_5_5$scaf_bin[ fltr_fsts_5_5$comp == "BAVA_vs_MOV" ]  # absent vs. present
+BAVA_vs_IVI_5_5_90 <- fltr_fsts_5_5$scaf_bin[ fltr_fsts_5_5$comp == "BAVA_vs_IVI" ]  # absent vs. present
+IVI_vs_MOV_5_5_90  <- fltr_fsts_5_5$scaf_bin[ fltr_fsts_5_5$comp == "IVI_vs_MOV" ]   # present vs. present
+APA_vs_BAM_5_5_90  <- fltr_fsts_5_5$scaf_bin[ fltr_fsts_5_5$comp == "APA_vs_BAM" ]   # mostly present vs. mostly absent
+
+#### 5kb by 5kb regions
+length( intersect( BAVA_vs_MOV_5_5_90, BAVA_vs_IVI_5_5_90 ) ) # 2036 5kb bins appear in both absent vs. present comparisons...
+length( setdiff( intersect( BAVA_vs_MOV_5_5_90, BAVA_vs_IVI_5_5_90 ), IVI_vs_MOV_5_5_90 ) )  # 1622 5kb bins appear in both absent vs. present comparisons *but not* in present vs. present comparison
+length( intersect( setdiff( intersect( BAVA_vs_MOV_5_5_90, BAVA_vs_IVI_5_5_90 ), IVI_vs_MOV_5_5_90 ), APA_vs_BAM_5_5_90) )  # 51 5kb bins...*and* still notable in the messier comparison
+
+###################
+
+BAVA_vs_MOV_10_10_90 <- fltr_fsts_10_10$scaf_bin[ fltr_fsts_10_10$comp == "BAVA_vs_MOV" ]  # absent vs. present
+BAVA_vs_IVI_10_10_90 <- fltr_fsts_10_10$scaf_bin[ fltr_fsts_10_10$comp == "BAVA_vs_IVI" ]  # absent vs. present
+IVI_vs_MOV_10_10_90  <- fltr_fsts_10_10$scaf_bin[ fltr_fsts_10_10$comp == "IVI_vs_MOV" ]   # present vs. present
+APA_vs_BAM_10_10_90  <- fltr_fsts_10_10$scaf_bin[ fltr_fsts_10_10$comp == "APA_vs_BAM" ]   # mostly present vs. mostly absent
+
+#### 10kb by 10kb regions
+length( intersect( BAVA_vs_MOV_10_10_90, BAVA_vs_IVI_10_10_90 ) ) # 1327 10kb bins appear in both absent vs. present comparisons...
+length( setdiff( intersect( BAVA_vs_MOV_10_10_90, BAVA_vs_IVI_10_10_90 ), IVI_vs_MOV_10_10_90 ) )  # 959 10kb bins appear in both absent vs. present comparisons *but not* in present vs. present comparison
+length( intersect( setdiff( intersect( BAVA_vs_MOV_10_10_90, BAVA_vs_IVI_10_10_90 ), IVI_vs_MOV_10_10_90 ), APA_vs_BAM_10_10_90) )  # 33 5kb bins...*and* still notable in the messier comparison
+
+```
+
+That done, I redid the whole proceedure, keeping the top 5% of values, rather than the top 10%.
+
+```{r estimating numbers of divergent regions 95quant, results='hide', echo=FALSE, message=FALSE}
+# Degree of overlap: loci of separation by drift should be arbitrary – can we ID regions where Fst is high in multiple comparisons (pop level and/or individual)
+
+fltr_fsts_5_5 <- filter( these_fsts, scaf %in% droplevels(by_scaf$scaf) ) %>%  # dumping shorter scafs
+                 filter( scaf != "Scaffold1910" & scaf != "Scaffold3315" & 
+                        scaf != "Scaffold3294" & scaf != "Scaffold24" )  %>% # dumping all 4 scafs with contamination
+                  filter( winstep ==".5.5.." ) %>%    # selecting just the short non-overlapping windows
+                  group_by( comp ) %>% filter( fst > quantile( fst, probs=0.95 ) ) # dumping low fst scafs *within* comp.
+
+fltr_fsts_10_10 <- filter( these_fsts, scaf %in% droplevels(by_scaf$scaf) ) %>%  # dumping shorter scafs
+                   filter( scaf != "Scaffold1910" & scaf != "Scaffold3315" & 
+                        scaf != "Scaffold3294" & scaf != "Scaffold24" )  %>% # dumping all 4 scafs with contamination
+                    filter( winstep ==".10.10.." ) %>%    # selecting just the short non-overlapping windows
+                  group_by( comp ) %>% filter( fst > quantile( fst, probs=0.95 ) ) # dumping low fst scafs *within* comp.
+
+# BAVA p0 absent vs. IVI p0 present, MOV p0 present
+
+BAVA_vs_MOV_5_5_95 <- fltr_fsts_5_5$scaf_bin[ fltr_fsts_5_5$comp == "BAVA_vs_MOV" ]  # absent vs. present
+BAVA_vs_IVI_5_5_95 <- fltr_fsts_5_5$scaf_bin[ fltr_fsts_5_5$comp == "BAVA_vs_IVI" ]  # absent vs. present
+IVI_vs_MOV_5_5_95  <- fltr_fsts_5_5$scaf_bin[ fltr_fsts_5_5$comp == "IVI_vs_MOV" ]   # present vs. present
+APA_vs_BAM_5_5_95  <- fltr_fsts_5_5$scaf_bin[ fltr_fsts_5_5$comp == "APA_vs_BAM" ]   # mostly present vs. mostly absent
+
+#### 5kb by 5kb regions
+length( intersect( BAVA_vs_MOV_5_5_95, BAVA_vs_IVI_5_5_95 ) ) # 901 5kb bins appear in both absent vs. present comparisons...
+length( setdiff( intersect( BAVA_vs_MOV_5_5_95, BAVA_vs_IVI_5_5_95 ), IVI_vs_MOV_5_5_95 ) )  # 901 5kb bins appear in both absent vs. present comparisons *but not* in present vs. present comparison
+length( intersect( setdiff( intersect( BAVA_vs_MOV_5_5_95, BAVA_vs_IVI_5_5_95 ), IVI_vs_MOV_5_5_95 ), APA_vs_BAM_5_5_95) )  # 51 5kb bins...*and* still notable in the messier comparison
+
+
+###################
+
+BAVA_vs_MOV_10_10_95 <- fltr_fsts_10_10$scaf_bin[ fltr_fsts_10_10$comp == "BAVA_vs_MOV" ]  # absent vs. present
+BAVA_vs_IVI_10_10_95 <- fltr_fsts_10_10$scaf_bin[ fltr_fsts_10_10$comp == "BAVA_vs_IVI" ]  # absent vs. present
+IVI_vs_MOV_10_10_95  <- fltr_fsts_10_10$scaf_bin[ fltr_fsts_10_10$comp == "IVI_vs_MOV" ]   # present vs. present
+APA_vs_BAM_10_10_95  <- fltr_fsts_10_10$scaf_bin[ fltr_fsts_10_10$comp == "APA_vs_BAM" ]   # mostly present vs. mostly absent
+
+#### 10kb by 10kb regions
+length( intersect( BAVA_vs_MOV_10_10_95, BAVA_vs_IVI_10_10_95 ) ) # 559 10kb bins appear in both absent vs. present comparisons...
+length( setdiff( intersect( BAVA_vs_MOV_10_10_95, BAVA_vs_IVI_10_10_95 ), IVI_vs_MOV_10_10_95 ) )  # 435 10kb bins appear in both absent vs. present comparisons *but not* in present vs. present comparison
+length( intersect( setdiff( intersect( BAVA_vs_MOV_10_10_95, BAVA_vs_IVI_10_10_95 ), IVI_vs_MOV_10_10_95 ), APA_vs_BAM_10_10_95) ) # 33 10kb bins...*and* still notable in the messier comparison
+
+```
+
+### Comparisons using *local* (i.e. within-comparison) F~st~ cutoff
+
+window size | step size | %age Fst cutoff | # windows in both P vs. NP | ...**& not** in P vs. P | ...**and** in P~dominant~ vs. NP~dominant~
+------------|-----------|-----------------|----------------------------|-------------------------|--------------------------------------------
+5kb | 5kb | 90  | `r length( intersect( BAVA_vs_MOV_5_5_90, BAVA_vs_IVI_5_5_90 ) )`     | `r length( setdiff( intersect( BAVA_vs_MOV_5_5_90, BAVA_vs_IVI_5_5_90 ), IVI_vs_MOV_5_5_90 ) )`  | `r length( intersect( setdiff( intersect( BAVA_vs_MOV_5_5_90, BAVA_vs_IVI_5_5_90 ), IVI_vs_MOV_5_5_90 ), APA_vs_BAM_5_5_90) )`
+10kb  | 10kb  | 90  | `r length( intersect( BAVA_vs_MOV_10_10_90, BAVA_vs_IVI_10_10_90 ) )` | `r length( setdiff( intersect( BAVA_vs_MOV_10_10_90, BAVA_vs_IVI_10_10_90 ), IVI_vs_MOV_10_10_90 ) )`  | `r length( intersect( setdiff( intersect( BAVA_vs_MOV_10_10_90, BAVA_vs_IVI_10_10_90 ), IVI_vs_MOV_10_10_90 ), APA_vs_BAM_10_10_90) )`
+5kb | 5kb | 95 | `r length( intersect( BAVA_vs_MOV_5_5_95, BAVA_vs_IVI_5_5_95 ) )`     | `r length( setdiff( intersect( BAVA_vs_MOV_5_5_95, BAVA_vs_IVI_5_5_95 ), IVI_vs_MOV_5_5_95 ) )`  | `r length( intersect( setdiff( intersect( BAVA_vs_MOV_5_5_95, BAVA_vs_IVI_5_5_95 ), IVI_vs_MOV_5_5_95 ), APA_vs_BAM_5_5_95) )`
+10kb  | 10kb  | 95 | `r length( intersect( BAVA_vs_MOV_10_10_95, BAVA_vs_IVI_10_10_95 ) )` | `r length( setdiff( intersect( BAVA_vs_MOV_10_10_95, BAVA_vs_IVI_10_10_95 ), IVI_vs_MOV_10_10_95 ) )`  | `r length( intersect( setdiff( intersect( BAVA_vs_MOV_10_10_95, BAVA_vs_IVI_10_10_95 ), IVI_vs_MOV_10_10_95 ), APA_vs_BAM_10_10_95) )`
+
+### ...Incorporating how many Scaffolds?
+
+window size | step size | %age Fst cutoff | # windows in both P vs. NP | ...**& not** in P vs. P | ...**and** in P~dominant~ vs. NP~dominant~
+------------|-----------|-----------------|----------------------------|-------------------------|--------------------------------------------
+5kb         | 5kb       |  90             | `r nlevels(droplevels(fltr_fsts_5_5$scaf[fltr_fsts_5_5$scaf_bin %in% intersect( BAVA_vs_MOV_5_5_90, BAVA_vs_IVI_5_5_90 )]))` | `r nlevels(droplevels(fltr_fsts_5_5$scaf[fltr_fsts_5_5$scaf_bin %in% setdiff( intersect( BAVA_vs_MOV_5_5_90, BAVA_vs_IVI_5_5_90 ), IVI_vs_MOV_5_5_90 )]))` | `r nlevels(droplevels(fltr_fsts_5_5$scaf[fltr_fsts_5_5$scaf_bin %in% intersect( setdiff( intersect( BAVA_vs_MOV_5_5_90, BAVA_vs_IVI_5_5_90 ), IVI_vs_MOV_5_5_90 ), APA_vs_BAM_5_5_90)]))`
+10kb        | 10kb      |  90             | `r nlevels(droplevels(fltr_fsts_10_10$scaf[fltr_fsts_10_10$scaf_bin %in% intersect( BAVA_vs_MOV_10_10_90, BAVA_vs_IVI_10_10_90 )]))` | `r nlevels(droplevels(fltr_fsts_10_10$scaf[fltr_fsts_10_10$scaf_bin %in% setdiff( intersect( BAVA_vs_MOV_10_10_90, BAVA_vs_IVI_10_10_90 ), IVI_vs_MOV_10_10_90 )]))` | `r nlevels(droplevels(fltr_fsts_10_10$scaf[fltr_fsts_10_10$scaf_bin %in% intersect( setdiff( intersect( BAVA_vs_MOV_10_10_90, BAVA_vs_IVI_10_10_90 ), IVI_vs_MOV_10_10_90 ), APA_vs_BAM_10_10_90)]))`
+5kb         | 5kb       |  95             | `r nlevels(droplevels(fltr_fsts_5_5$scaf[fltr_fsts_5_5$scaf_bin %in% intersect( BAVA_vs_MOV_5_5_95, BAVA_vs_IVI_5_5_95 )]))` | `r nlevels(droplevels(fltr_fsts_5_5$scaf[fltr_fsts_5_5$scaf_bin %in% setdiff( intersect( BAVA_vs_MOV_5_5_95, BAVA_vs_IVI_5_5_95 ), IVI_vs_MOV_5_5_95 )]))` | `r nlevels(droplevels(fltr_fsts_5_5$scaf[fltr_fsts_5_5$scaf_bin %in% intersect( setdiff( intersect( BAVA_vs_MOV_5_5_95, BAVA_vs_IVI_5_5_95 ), IVI_vs_MOV_5_5_95 ), APA_vs_BAM_5_5_95)]))`
+10kb        | 10kb      |  95             | `r nlevels(droplevels(fltr_fsts_10_10$scaf[fltr_fsts_10_10$scaf_bin %in% intersect( BAVA_vs_MOV_10_10_95, BAVA_vs_IVI_10_10_95 )]))` | `r nlevels(droplevels(fltr_fsts_10_10$scaf[fltr_fsts_10_10$scaf_bin %in% setdiff( intersect( BAVA_vs_MOV_10_10_95, BAVA_vs_IVI_10_10_95 ), IVI_vs_MOV_10_10_95 )]))` | `r nlevels(droplevels(fltr_fsts_10_10$scaf[fltr_fsts_10_10$scaf_bin %in% intersect( setdiff( intersect( BAVA_vs_MOV_10_10_95, BAVA_vs_IVI_10_10_95 ), IVI_vs_MOV_10_10_95 ), APA_vs_BAM_10_10_95)]))`
+
+```{r no. div. regions w.global cutoff, echo=FALSE, message=FALSE, results='hide'}
+
+by_scaf <- group_by( these_fsts, scaf ) %>% summarise( n_bins=n_distinct( scaf_bin ) ) %>% filter( n_bins >2 )
+
+fltr_fsts_5_5_90 <- filter( these_fsts, scaf %in% droplevels(by_scaf$scaf) ) %>%  # dumping shorter scafs
+                    filter( scaf != "Scaffold1910" & scaf != "Scaffold3315" & 
+                        scaf != "Scaffold3294" & scaf != "Scaffold24" )  %>% # dumping all 4 scafs with contamination
+                    filter( winstep ==".5.5.." ) %>% filter( fst > quantile( fst, probs=0.9 )) # selecting the short windows & dumping low fst scafs globally
+
+fltr_fsts_10_10_90 <- filter( these_fsts, scaf %in% droplevels(by_scaf$scaf) ) %>%  # dumping shorter scafs
+                      filter( scaf != "Scaffold1910" & scaf != "Scaffold3315" & 
+                        scaf != "Scaffold3294" & scaf != "Scaffold24" )  %>% # dumping all 4 scafs with contamination
+                      filter( winstep ==".10.10.." ) %>% filter( fst > quantile( fst, probs=0.9 )) # selecting the short windows & dumping low fst scafs globally
+
+fltr_fsts_5_5_95 <- filter( these_fsts, scaf %in% droplevels(by_scaf$scaf) ) %>%  # dumping shorter scafs
+                    filter( scaf != "Scaffold1910" & scaf != "Scaffold3315" & 
+                        scaf != "Scaffold3294" & scaf != "Scaffold24" )  %>% # dumping all 4 scafs with contamination
+                    filter( winstep ==".5.5.." ) %>% filter( fst > quantile( fst, probs=0.95 )) # selecting the short windows & dumping low fst scafs globally
+
+fltr_fsts_10_10_95 <- filter( these_fsts, scaf %in% droplevels(by_scaf$scaf) ) %>%  # dumping shorter scafs
+                      filter( scaf != "Scaffold1910" & scaf != "Scaffold3315" & 
+                        scaf != "Scaffold3294" & scaf != "Scaffold24" )  %>% # dumping all 4 scafs with contamination
+                      filter( winstep ==".10.10.." ) %>% filter( fst > quantile( fst, probs=0.95 )) # selecting the short windows & dumping low fst scafs globally
+
+BAVA_vs_MOV_5_5_90 <- fltr_fsts_5_5_90$scaf_bin[ fltr_fsts_5_5_90$comp == "BAVA_vs_MOV" ]  # absent vs. present
+BAVA_vs_IVI_5_5_90 <- fltr_fsts_5_5_90$scaf_bin[ fltr_fsts_5_5_90$comp == "BAVA_vs_IVI" ]  # absent vs. present
+IVI_vs_MOV_5_5_90  <- fltr_fsts_5_5_90$scaf_bin[ fltr_fsts_5_5_90$comp == "IVI_vs_MOV" ]   # present vs. present
+APA_vs_BAM_5_5_90  <- fltr_fsts_5_5_90$scaf_bin[ fltr_fsts_5_5_90$comp == "APA_vs_BAM" ]   # mostly present vs. mostly absent
+
+BAVA_vs_MOV_10_10_90 <- fltr_fsts_10_10_90$scaf_bin[ fltr_fsts_10_10_90$comp == "BAVA_vs_MOV" ]  # absent vs. present
+BAVA_vs_IVI_10_10_90 <- fltr_fsts_10_10_90$scaf_bin[ fltr_fsts_10_10_90$comp == "BAVA_vs_IVI" ]  # absent vs. present
+IVI_vs_MOV_10_10_90  <- fltr_fsts_10_10_90$scaf_bin[ fltr_fsts_10_10_90$comp == "IVI_vs_MOV" ]   # present vs. present
+APA_vs_BAM_10_10_90  <- fltr_fsts_10_10_90$scaf_bin[ fltr_fsts_10_10_90$comp == "APA_vs_BAM" ]   # mostly present vs. mostly absent
+
+BAVA_vs_MOV_5_5_95 <- fltr_fsts_5_5_95$scaf_bin[ fltr_fsts_5_5_95$comp == "BAVA_vs_MOV" ]  # absent vs. present
+BAVA_vs_IVI_5_5_95 <- fltr_fsts_5_5_95$scaf_bin[ fltr_fsts_5_5_95$comp == "BAVA_vs_IVI" ]  # absent vs. present
+IVI_vs_MOV_5_5_95  <- fltr_fsts_5_5_95$scaf_bin[ fltr_fsts_5_5_95$comp == "IVI_vs_MOV" ]   # present vs. present
+APA_vs_BAM_5_5_95  <- fltr_fsts_5_5_95$scaf_bin[ fltr_fsts_5_5_95$comp == "APA_vs_BAM" ]   # mostly present vs. mostly absent
+
+BAVA_vs_MOV_10_10_95 <- fltr_fsts_10_10_95$scaf_bin[ fltr_fsts_10_10_95$comp == "BAVA_vs_MOV" ]  # absent vs. present
+BAVA_vs_IVI_10_10_95 <- fltr_fsts_10_10_95$scaf_bin[ fltr_fsts_10_10_95$comp == "BAVA_vs_IVI" ]  # absent vs. present
+IVI_vs_MOV_10_10_95  <- fltr_fsts_10_10_95$scaf_bin[ fltr_fsts_10_10_95$comp == "IVI_vs_MOV" ]   # present vs. present
+APA_vs_BAM_10_10_95  <- fltr_fsts_10_10_95$scaf_bin[ fltr_fsts_10_10_95$comp == "APA_vs_BAM" ]   # mostly present vs. mostly absent
+
+```
+
+After discussion, I re-ran the analyses again, but this time I imposed the 90th (or 95th) percentile cutoff *globally* (i.e. basing the percentile on the pooled distribution of all F~st~s across all comparisons).
+
+### Comparisons using *global* F~st~ cutoff
+
+### Numbers of bins (windows)
+
+window size | step size | %age Fst cutoff | # windows in both P vs. NP | ...**& not** in P vs. P | ...**and** in P~dominant~ vs. NP~dominant~
+------------|-----------|-----------------|----------------------------|-------------------------|--------------------------------------------
+5kb         | 5kb       |  90             | `r length( intersect( BAVA_vs_MOV_5_5_90, BAVA_vs_IVI_5_5_90 ) )`     | `r length( setdiff( intersect( BAVA_vs_MOV_5_5_90, BAVA_vs_IVI_5_5_90 ), IVI_vs_MOV_5_5_90 ) )`  | `r length( intersect( setdiff( intersect( BAVA_vs_MOV_5_5_90, BAVA_vs_IVI_5_5_90 ), IVI_vs_MOV_5_5_90 ), APA_vs_BAM_5_5_90) )`
+10kb        | 10kb      |  90             | `r length( intersect( BAVA_vs_MOV_10_10_90, BAVA_vs_IVI_10_10_90 ) )` | `r length( setdiff( intersect( BAVA_vs_MOV_10_10_90, BAVA_vs_IVI_10_10_90 ), IVI_vs_MOV_10_10_90 ) )`  | `r length( intersect( setdiff( intersect( BAVA_vs_MOV_10_10_90, BAVA_vs_IVI_10_10_90 ), IVI_vs_MOV_10_10_90 ), APA_vs_BAM_10_10_90) )`
+5kb         | 5kb       |  95             | `r length( intersect( BAVA_vs_MOV_5_5_95, BAVA_vs_IVI_5_5_95 ) )`     | `r length( setdiff( intersect( BAVA_vs_MOV_5_5_95, BAVA_vs_IVI_5_5_95 ), IVI_vs_MOV_5_5_95 ) )`  | `r length( intersect( setdiff( intersect( BAVA_vs_MOV_5_5_95, BAVA_vs_IVI_5_5_95 ), IVI_vs_MOV_5_5_95 ), APA_vs_BAM_5_5_95) )`
+10kb        | 10kb      |  95             | `r length( intersect( BAVA_vs_MOV_10_10_95, BAVA_vs_IVI_10_10_95 ) )` | `r length( setdiff( intersect( BAVA_vs_MOV_10_10_95, BAVA_vs_IVI_10_10_95 ), IVI_vs_MOV_10_10_95 ) )`  | `r length( intersect( setdiff( intersect( BAVA_vs_MOV_10_10_95, BAVA_vs_IVI_10_10_95 ), IVI_vs_MOV_10_10_95 ), APA_vs_BAM_10_10_95) )`
+
+### ...Incorporating how many Scaffolds?
+
+window size | step size | %age Fst cutoff | # windows in both P vs. NP | ...**& not** in P vs. P | ...**and** in P~dominant~ vs. NP~dominant~
+------------|-----------|-----------------|----------------------------|-------------------------|--------------------------------------------
+5kb         | 5kb       |  90             | `r nlevels(droplevels(fltr_fsts_5_5_90$scaf[fltr_fsts_5_5_90$scaf_bin %in% intersect( BAVA_vs_MOV_5_5_90, BAVA_vs_IVI_5_5_90 )]))` | `r nlevels(droplevels(fltr_fsts_5_5_90$scaf[fltr_fsts_5_5_90$scaf_bin %in% setdiff( intersect( BAVA_vs_MOV_5_5_90, BAVA_vs_IVI_5_5_90 ), IVI_vs_MOV_5_5_90 )]))` | `r nlevels(droplevels(fltr_fsts_5_5_90$scaf[fltr_fsts_5_5_90$scaf_bin %in% intersect( setdiff( intersect( BAVA_vs_MOV_5_5_90, BAVA_vs_IVI_5_5_90 ), IVI_vs_MOV_5_5_90 ), APA_vs_BAM_5_5_90)]))`
+10kb        | 10kb      |  90             | `r nlevels(droplevels(fltr_fsts_10_10_90$scaf[fltr_fsts_10_10_90$scaf_bin %in% intersect( BAVA_vs_MOV_10_10_90, BAVA_vs_IVI_10_10_90 )]))` | `r nlevels(droplevels(fltr_fsts_10_10_90$scaf[fltr_fsts_10_10_90$scaf_bin %in% setdiff( intersect( BAVA_vs_MOV_10_10_90, BAVA_vs_IVI_10_10_90 ), IVI_vs_MOV_10_10_90 )]))` | `r nlevels(droplevels(fltr_fsts_10_10_90$scaf[fltr_fsts_10_10_90$scaf_bin %in% intersect( setdiff( intersect( BAVA_vs_MOV_10_10_90, BAVA_vs_IVI_10_10_90 ), IVI_vs_MOV_10_10_90 ), APA_vs_BAM_10_10_90)]))`
+5kb         | 5kb       |  95             | `r nlevels(droplevels(fltr_fsts_5_5_95$scaf[fltr_fsts_5_5_95$scaf_bin %in% intersect( BAVA_vs_MOV_5_5_95, BAVA_vs_IVI_5_5_95 )]))` | `r nlevels(droplevels(fltr_fsts_5_5_95$scaf[fltr_fsts_5_5_95$scaf_bin %in% setdiff( intersect( BAVA_vs_MOV_5_5_95, BAVA_vs_IVI_5_5_95 ), IVI_vs_MOV_5_5_95 )]))` | `r nlevels(droplevels(fltr_fsts_5_5_95$scaf[fltr_fsts_5_5_95$scaf_bin %in% intersect( setdiff( intersect( BAVA_vs_MOV_5_5_95, BAVA_vs_IVI_5_5_95 ), IVI_vs_MOV_5_5_95 ), APA_vs_BAM_5_5_95)]))`
+10kb        | 10kb      |  95             | `r nlevels(droplevels(fltr_fsts_10_10_95$scaf[fltr_fsts_10_10_95$scaf_bin %in% intersect( BAVA_vs_MOV_10_10_95, BAVA_vs_IVI_10_10_95 )]))` | `r nlevels(droplevels(fltr_fsts_10_10_95$scaf[fltr_fsts_10_10_95$scaf_bin %in% setdiff( intersect( BAVA_vs_MOV_10_10_95, BAVA_vs_IVI_10_10_95 ), IVI_vs_MOV_10_10_95 )]))` | `r nlevels(droplevels(fltr_fsts_10_10_95$scaf[fltr_fsts_10_10_95$scaf_bin %in% intersect( setdiff( intersect( BAVA_vs_MOV_10_10_95, BAVA_vs_IVI_10_10_95 ), IVI_vs_MOV_10_10_95 ), APA_vs_BAM_10_10_95)]))`
+
+
+
+```{r}
+
+# dim( filter( fltr_fsts_10_10_95, comp=="APA_vs_BAM" ))
+
+```
 

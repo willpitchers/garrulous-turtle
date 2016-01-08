@@ -5,7 +5,6 @@
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
-#PBS -t 0-14
 
 ## Set up some variables
 # where do the files live
@@ -22,20 +21,22 @@ source ${popdir}pop_comparisons.sh
 n=${PBS_ARRAYID}
 input_data=all_variants_merged_27_10_2015.vcf
 
-POP1=population_${leftpop[${n}]}.txt
-POP2=population_${rightpop[${n}]}.txt
-OUTN=Fst_${leftpop[${n}]}_vs_${rightpop[${n}]}
+#POP1=population_${leftpop[${n}]}.txt
+#POP2=population_${rightpop[${n}]}.txt
+#OUTN=Fst_${leftpop[${n}]}_vs_${rightpop[${n}]}
 
 # the call to vcftools
-vcftools --vcf ${input_data} --weir-fst-pop ${popdir}${POP1} --weir-fst-pop ${popdir}${POP2} --fst-window-size 100000 --fst-window-step 50000 --out ${OUTN}
+#vcftools --vcf ${input_data} --weir-fst-pop ${popdir}${POP1} --weir-fst-pop ${popdir}${POP2} --fst-window-size 100000 --fst-window-step 50000 --out ${OUTN}
+
+vcftools --vcf ${input_data} --TajimaD
 
 #Check to see if this is the last job and email user
-if [ ${n} -eq ${MAXJOBID} ]
-then
-    echo "." | mail -s "The Fst JOB ARRAY is finishing" ${USER}@msu.edu
-    cd ${PBS_O_WORKDIR}
+#if [ ${n} -eq ${MAXJOBID} ]
+#then
+#    echo "." | mail -s "The TajD job is finishing" ${USER}@msu.edu
+#    cd ${PBS_O_WORKDIR}
 #    qsub nextjerb
-fi
+#fi
 
 #Print out the statistics for this job
 qstat -f ${PBS_JOBID}
