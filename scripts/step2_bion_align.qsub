@@ -16,8 +16,8 @@
 # -r n : tells it not to re-run the script in the case of an error (so it doesn't overwrite any results
 # -t : Submits a Array Job with n identical tasks.
 
-indir=/mnt/scratch/pitchers/eFISH/Illumina_2015/
-outdir=/mnt/scratch/pitchers/eFISH/Illumina_2015/
+indir=/mnt/scratch/pitchers/eFISH/Analysis/
+outdir=/mnt/scratch/pitchers/eFISH/Analysis/
 #reference=/mnt/scratch/pitchers/eFISH/P_kings_genome/Pkings
 reference=/mnt/scratch/pitchers/eFISH/bionano/super_scaffold/Pkings_BN
 
