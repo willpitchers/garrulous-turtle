@@ -18,7 +18,7 @@ Wsz=$(( ${window_size} / 1000 ))kb
 Wst=$(( ${window_step} / 1000 ))kb
 
 # where do the files live
-dir=/mnt/scratch/pitchers/eFISH/Illumina_2015/GATK-compatible/
+dir=/mnt/scratch/pitchers/eFISH/Analysis/
 popdir=/mnt/research/efish/2015_genomic_data/Populations/
 
 # load modules

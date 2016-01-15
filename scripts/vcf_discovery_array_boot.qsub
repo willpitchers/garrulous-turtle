@@ -15,7 +15,7 @@ JOBSCRIPT=vcf_discovery_array_boot.qsub
 
 ## Set up some variables
 # where do the files live
-dir=/mnt/scratch/pitchers/eFISH/Illumina_2015/GATK-compatible/
+dir=/mnt/scratch/pitchers/eFISH/Analysis/
 ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
 # Current job number
 n=${PBS_ARRAYID}

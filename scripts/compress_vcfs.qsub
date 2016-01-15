@@ -7,7 +7,7 @@
 #PBS -r n
 
 # where do the files live
-dir=/mnt/scratch/pitchers/eFISH/Illumina_2015/GATK-compatible/
+dir=/mnt/scratch/pitchers/eFISH/Analysis/
 
 cd ${dir}
 module load tabix/0.2.6

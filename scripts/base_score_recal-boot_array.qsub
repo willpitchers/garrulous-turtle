@@ -19,7 +19,7 @@ JOBSCRIPT=base_score_recal-boot_array.qsub
 KNOWNSNPS=all_variants_merged_27_10_2015.vcf
 
 # where do the files live
-dir=/mnt/scratch/pitchers/eFISH/Illumina_2015/GATK-compatible/
+dir=/mnt/scratch/pitchers/eFISH/Analysis/
 ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
 # Current job number
 n=${PBS_ARRAYID}
