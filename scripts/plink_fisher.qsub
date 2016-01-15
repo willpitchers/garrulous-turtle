@@ -1,5 +1,5 @@
 #!/bin/bash -login
-#PBS -o /mnt/scratch/pitchers/eFISH/logfiles
+#PBS -o /mnt/research/efish/2015_genomic_data/scripts
 #PBS -l nodes=1:ppn=1,walltime=04:00:00,mem=32gb
 #PBS -N PLINK_fisher
 #PBS -j oe
@@ -15,9 +15,27 @@ module load plink/1.07
 
 mydata=`basename all_variants_merged_27_10_2015.vcf .vcf`
 
-awk -F "[\t ]" '{ pop=substr( $1, 1, 4) } { if ( pop=="6494" || pop=="6496" || pop=="6497" || pop=="6498" || pop=="6499" || pop=="6500" || pop=="6501" || pop=="6502" || pop=="6597" || pop=="6598" || pop=="6599" || pop=="6602" || pop=="6603" || pop=="6604" || pop=="6605" || pop=="6619" || pop=="6620" || pop=="6621" || pop=="6622" || pop=="6623" || pop=="6624" || pop=="6625" || pop=="6626" || pop=="6627" ) {pheno="NP"} else if ( pop=="4004" || pop=="4006" || pop=="4018" || pop=="4019" || pop=="4027" || pop=="4029" ) { pheno="-9" } else {pheno="P"} } { print $1,'\t',$2,'\t',$3,'\t',$4,'\t',$5,pheno}' all_variants_merged_27_10_2015.fam > all_variants_merged_27_10_2015.fam.out
+##### this little awk program works like this:
 
-plink --bfile $mydata --fisher --out ${mydata}.out
+# awk -Field separated by tabs/space { $pop <- the 1st 4 characters of the 1st field }
+	# if $pop == a BAM value OR
+	# ... $pop == a BAVA value, $pheno <- absent (coded as )
+	# else if $pop == a COB value, $pheno <- missing (coded as -9)
+	# else $pheno <- present (coded as , to catch the remainders: APA, IVI, MOV)
+	# print the line back out, replacing element 6 with $pheno
+	# read in from ...fam and write out to ...fam.out
+
+awk -F "[\t ]" '{ pop=substr( $1, 1, 4) } \
+	{ if ( pop=="6494" || pop=="6496" || pop=="6497" || pop=="6498" || pop=="6499" || pop=="6500" || pop=="6501" || pop=="6502" || pop=="6597" || pop=="6598" || pop=="6599" || pop=="6602" || pop=="6603" || pop=="6604" || pop=="6605" || \
+	pop=="6619" || pop=="6620" || pop=="6621" || pop=="6622" || pop=="6623" || pop=="6624" || pop=="6625" || pop=="6626" || pop=="6627" ) {pheno="NP"} \
+	else if ( pop=="4004" || pop=="4006" || pop=="4018" || pop=="4019" || pop=="4027" || pop=="4029" ) { pheno="-9" } \
+	else {pheno="P"} } \
+	{ print $1,"\t",$2,"\t",$3,"\t",$4,"\t",$5,pheno}' \
+	all_variants_merged_27_10_2015.fam > all_variants_merged_27_10_2015.fam.out
+
+mv all_variants_merged_27_10_2015.fam.out all_variants_merged_27_10_2015.fam
+
+plink --bfile ${mydata} --fisher --out ${mydata}
 
 
 echo "." | mail -s "The PLINK JOB is finishing" ${USER}@msu.edu
