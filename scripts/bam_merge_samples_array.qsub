@@ -1,0 +1,46 @@
+#!/bin/bash -login
+#PBS -l nodes=1:ppn=4,walltime=04:00:00,mem=16gb
+#PBS -o /mnt/research/efish/2015_genomic_data/scripts
+#PBS -N vcf_sample_merge
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+#PBS -t 1-63
+
+## Set up some variables
+# where do the files live
+dir=/mnt/scratch/pitchers/eFISH/Analysis/
+ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
+
+# Current job number
+n=${PBS_ARRAYID}
+MAXJOBID=63
+
+# load modules
+cd ${dir}
+module load SAMTools/1.2
+
+# make sure that the samples.list file is available
+if [ ! -f samples.list ]
+  then cp /mnt/research/efish/2015_genomic_data/samples.list ./
+fi
+
+individual=`head -${n} samples.list | tail -1 `
+sample=(${individual}*recalibrated.boot.bam)
+samples=`for i in ${sample[@]} ; do echo $i ; done | xargs`
+
+# the call to SAMTools
+samtools merge ${individual}_all_libraries.bam ${samples}
+
+
+#Check to see if this is the last job and email user
+if [ ${n} -eq ${MAXJOBID} ]
+then
+    echo "." | mail -s "The BAM merging ARRAY is finishing" ${USER}@msu.edu
+    cd $PBS_O_WORKDIR
+    qsub breakdancer.qsub
+fi
+
+#Print out the statistics for this job
+qstat -f ${PBS_JOBID}

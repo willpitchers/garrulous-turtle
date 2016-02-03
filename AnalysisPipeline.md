@@ -26,6 +26,4 @@ Once data reaches the **Statistical Analysis** stage it may become necessary for
 8. | | `vcf_merge_samples_array.qsub` | tabix/0.2.6 & vcftools/4.2 | `--remove-duplicates` | `Sample_library_Lane_RX_Ye.raw_variants.vcf.gz` | `Sample_all_libraries.vcf.gz` | vcf files merged at the level of population
 9. | | `merge_all_vcfs.qsub` | tabix/0.2.6 & vcftools/4.2 | | `Sample_all_libraries.vcf.gz` | `all_variants_merged_$date$.vcf.gz` | this is a long step; merging all the sample-level vcfs into one file for passing to SKAT
 10. | **Statistical Analysis** | `calc_Fst_array` | vcftools/4.2 | `--fst-window-size` & `--fst-window-step` | `all_variants_merged_${date}.vcf` | `Fst_POP1_vs_POP2.windowedXkb.stepYkb.weir.fst` | Fst stat. calculated for all pairwise between-pop comparisons. Options passed into output filenames.
-
-
-plink? SKAT?
+11. | | `plink_vcf_convert.qsub`, `plink_prep.qsub`, & `plink_fisher.qsub` | vcftools/4.2 & plink/1.07 | `--maf` & `--geno` (missingness) | `all_variants_merged_${date}.vcf` | `all_variants_merged_${date}.assoc.fisher`, `*.ped`, `*.bed`, `*.bim`, `*.fam`, `*.log`, `*.map` & `*.nosex` | Association with Fisher's exact test and simplified presence/absence phenotype data.

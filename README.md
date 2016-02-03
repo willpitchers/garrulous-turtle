@@ -1,4 +1,4 @@
-Genome Assembly of Illumina and BioNano reads for *Paramormyrops kingsleyae*
+Genome Assembly for *Paramormyrops kingsleyae*, and Association Analysis for EOD Phenotype
 ===
 
 *started by WRP on Wednesday, 12 August 2015*

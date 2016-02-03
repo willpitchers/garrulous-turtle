@@ -762,7 +762,12 @@ window size | step size | %age Fst cutoff | # windows in both P vs. NP | ...**& 
 
 ```{r}
 
-# dim( filter( fltr_fsts_10_10_95, comp=="APA_vs_BAM" ))
+fsts_out <- droplevels( fltr_fsts_5_5_90[fltr_fsts_5_5_90$scaf_bin %in% 
+                        intersect( setdiff( intersect( BAVA_vs_MOV_5_5_90, BAVA_vs_IVI_5_5_90 ),
+                                            IVI_vs_MOV_5_5_90 ),
+                                            APA_vs_BAM_5_5_90), ])
+
+write.csv( fsts_out, "Fst_shortlist.csv", row.names=FALSE, quote=FALSE )
 
 ```
 

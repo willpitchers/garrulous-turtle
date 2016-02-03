@@ -297,11 +297,34 @@ Week of 14th – 18th December
   - some bug fixes for vcf-merge post bootstrap
 
 
-Week of 21st – 25th December
+21st December – 1st January
 
   - Xmas break week -- conveniently enough the iCER staff have partially shut down the HPC to fix some problem with scratch... inconveniently, that is where all our data lives.
 
 
-Week of 28th December – 1st January
+Week of 4th – 8th January
 
-  - 
+  -
+
+
+Week of 11th – 15th January
+
+  - things
+
+
+Week of 18th – 22nd January
+
+  - ran an genome-wide association with Fisher's exact test using PLINK v.1.07
+  - wrote `PLINK_assoc_results.Rmd` report
+
+
+Week of 25th – 29th January
+
+  - re-ran the genome-wide association with the bootstrapped `.vcf` file
+  - wrote `PLINK_assoc_results_PostBS.Rmd` report
+
+
+Week of 1st – 5th February
+
+  - rewrote `PLINK_assoc_results_PostBS.Rmd` report
+  - worked out how to get `BreakDancer` running...
