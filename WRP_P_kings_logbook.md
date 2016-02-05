@@ -304,17 +304,25 @@ Week of 14th – 18th December
 
 Week of 4th – 8th January
 
-  -
+  - Fst results at smaller window sizes look to be giving us a much more high-resolution picture of the genotypic differences – as expected...
+  - updated `Fst_plots.Rmd` to include comparisons of newer vs. older results
+  - after discussion with JG, filtered Fst results based on:
+    - bins that have high Fst in *both* comparisons between fixed penetrating & fixed non-penetrating pop.s...
+    - ...and have *low* Fst in the comparison between the phenotypically similar pops...
+    - ...and have elevated Fst in the comparison between the *mixed* populations.
+  - `Fst_plots.Rmd` updated to include tables of the top 10% and 5% of the filtered 'hits' from this schema
 
 
 Week of 11th – 15th January
 
-  - things
+  - Looking into running an GWAS with the [PLINK](http://pngu.mgh.harvard.edu/~purcell/plink/index.shtml) toolkit.
+  - data needs to be converted into the right formats – scripted array jobs for this using vcftools
+  - problem: phenotype data needs to be added to `.ped` files *before* converting to `.bim`/`.fam`, otherwise PLINK throws an error message... wrote an AWK program to do this, based on pop-level phenotype summary in `pheno_pop.txt`
 
 
 Week of 18th – 22nd January
 
-  - ran an genome-wide association with Fisher's exact test using PLINK v.1.07
+  - ran an genome-wide association with Fisher's exact test using PLINK v.1.07 (NB: preliminary, since phenotypes are coded on a pop. level but the data is for *individuals*)
   - wrote `PLINK_assoc_results.Rmd` report
 
 
@@ -328,3 +336,4 @@ Week of 1st – 5th February
 
   - rewrote `PLINK_assoc_results_PostBS.Rmd` report
   - worked out how to get `BreakDancer` running...
+  - `BreakDancer` run appears not to have finished cleanly... the problem seems to be in the `.bam` files. Investigating...

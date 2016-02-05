@@ -144,7 +144,7 @@ ggplot( fsts, aes( sum_APA_BAM_w_fst_, sum_APA_BAM_m_fst_ ) ) + geom_point( col=
 
 ```
 
-However, there *does* seem to be a difference when it comes to the consistency of F~st~ bewteen scaffolds; here illustrated with just (the SSR-bearing) scaffolds 4, 8, 22, 60 & 77.
+However, there *does* seem to be a difference when it comes to the consistency of F~st~ between scaffolds; here illustrated with just (the SSR-bearing) scaffolds 4, 8, 22, 60 & 77.
 
 
 ```{r adj fst among SSR scafs, results='hide', echo=FALSE, }
@@ -160,7 +160,7 @@ filter( filter_fsts,  variable %in% grep( "w_fst", levels(filter_fsts$variable),
 
 ```
 
-Note the increase in crossing over and the greater variablility in some of the comparisons, particularly those involving *BAM* and *BAVA*.
+Note the increase in crossing over and the greater variability in some of the comparisons, particularly those involving *BAM* and *BAVA*.
 
 ```{r fst among SSR scafs, results='hide', echo=FALSE, }
 
@@ -396,7 +396,7 @@ filter( these_fsts, n_var > 50 ) %>%
               
 ```
 
-What's interesting here is the amount of overplotting; it seems to make very little difference which combination of window/step sizes I use, the points are mostly just stacking on top of one another. This may not be the most helpfuln way to look at the data however. I'm going to focus just on a subset of (semi-randomly picked) comparisons and see if I can't come up with a better way of looking at these data...
+What's interesting here is the amount of overplotting; it seems to make very little difference which combination of window/step sizes I use, the points are mostly just stacking on top of one another. This may not be the most helpful way to look at the data however. I'm going to focus just on a subset of (semi-randomly picked) comparisons and see if I can't come up with a better way of looking at these data...
 
 ```{r window effect alt, message=FALSE, echo=FALSE, results='hide', fig.height=12, fig.width=12}
 
@@ -478,7 +478,7 @@ ggplot( fltr_fsts, aes( x=fst, col=comp ) ) + geom_density( fill="grey" ) + xlim
 
 # Does no. SNPs predict F~st~?
 
-Using the trimmed F~st~ dataset, can we see a relationship betweent the number of variants within a window and the F~st~ across that window...?
+Using the trimmed F~st~ dataset, can we see a relationship between the number of variants within a window and the F~st~ across that window...?
 
 ```{r fst vs n_var, echo=FALSE, message=FALSE, results='hide'}
 
@@ -531,7 +531,7 @@ summary( these_fsts )
               
 ```
 
-OK, so here I wanted to assess how much signal we're losing by using longer window sizes. Here I'm plotting the distributions of F~st~ values for each combination of window size and step size. Note that the sets of stats with smaller window sizes are more right-tail-heavy in *all* comparisons, more strongly so in some than others. On this basis I'mn going to semi-arbitraily use the 5kb and 10kb non-overlapping-window result sets for the next bit...
+OK, so here I wanted to assess how much signal we're losing by using longer window sizes. Here I'm plotting the distributions of F~st~ values for each combination of window size and step size. Note that the sets of stats with smaller window sizes are more right-tail-heavy in *all* comparisons, more strongly so in some than others. On this basis I'm going to semi-arbitrarily use the 5kb and 10kb non-overlapping-window result sets for the next bit...
 
 ```{r window effect alt panel, message=FALSE, echo=FALSE, results='hide', fig.height=26, fig.width=12}
 
@@ -571,7 +571,7 @@ cowplot::plot_grid( filter( these_fsts, comp == "APA_vs_BAM" ) %>% ggplot( aes( 
 
 ```
 
-So, taking those results from the 5kb and 10kb non-overlapping-windows, I'm going to filter again in a similar way to above: dropping scaffolds shorter than 2 bins, dropping the 4 scafflods with potential contamination, and keeping the highest 10% of F~st~ values within each comparison.
+So, taking those results from the 5kb and 10kb non-overlapping-windows, I'm going to filter again in a similar way to above: dropping scaffolds shorter than 2 bins, dropping the 4 scaffolds with potential contamination, and keeping the highest 10% of F~st~ values within each comparison.
 
 ```{r filter fsts again, results='hide', echo=FALSE, message=FALSE}
 # most scafs have only 1 bin. 3rd quartile at 2!
@@ -595,7 +595,7 @@ ggplot( fltr_fsts_5_5, aes( x=fst, col=comp ) ) + geom_density( fill="grey" ) + 
 
 ```
 
-With that filtered list of F~st~s, I'm then going to look for bins that occur in *both* comparisons between fixed penetrating & fixed non-penetrating stalks (BAVA vs. MOV & BAVA vs. IVI). Then I ask which of those bins *do not* occur in the comparison bewteen the phenotypically similar IVI & MOV populations. Finally I narrow down which of *those* bins also have elevated F~st~s in the comparison between the phenotypically mixed populations (APA vs. BAM).
+With that filtered list of F~st~s, I'm then going to look for bins that occur in *both* comparisons between fixed penetrating & fixed non-penetrating stalks (BAVA vs. MOV & BAVA vs. IVI). Then I ask which of those bins *do not* occur in the comparison between the phenotypically similar IVI & MOV populations. Finally I narrow down which of *those* bins also have elevated F~st~s in the comparison between the phenotypically mixed populations (APA vs. BAM).
 
 ```{r estimating numbers of divergent regions 90quant, results='hide', echo=FALSE, message=FALSE}
 # Degree of overlap: loci of separation by drift should be arbitrary – can we ID regions where Fst is high in multiple comparisons (pop level and/or individual)
@@ -628,7 +628,7 @@ length( intersect( setdiff( intersect( BAVA_vs_MOV_10_10_90, BAVA_vs_IVI_10_10_9
 
 ```
 
-That done, I redid the whole proceedure, keeping the top 5% of values, rather than the top 10%.
+That done, I redid the whole procedure, keeping the top 5% of values, rather than the top 10%.
 
 ```{r estimating numbers of divergent regions 95quant, results='hide', echo=FALSE, message=FALSE}
 # Degree of overlap: loci of separation by drift should be arbitrary – can we ID regions where Fst is high in multiple comparisons (pop level and/or individual)

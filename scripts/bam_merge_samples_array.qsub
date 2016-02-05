@@ -32,7 +32,6 @@ samples=`for i in ${sample[@]} ; do echo $i ; done | xargs`
 # the call to SAMTools
 samtools merge ${individual}_all_libraries.bam ${samples}
 
-
 #Check to see if this is the last job and email user
 if [ ${n} -eq ${MAXJOBID} ]
 then

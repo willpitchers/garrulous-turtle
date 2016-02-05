@@ -1,0 +1,136 @@
+---
+title: "PLINK association"
+author: "Will Pitchers"
+date: "19 January 2016"
+output: html_document
+---
+
+```{r read in plink output, message=FALSE, echo=FALSE, results='hide'}
+
+require( fdrtool )
+require( ggplot2 )
+require( ggrepel )
+require( dplyr )
+
+R.Version()
+
+filename <- "all_variants_merged_27_10_2015.assoc.fisher"
+
+setwd( "/Volumes/Old_HD/Dropbox (MSU Efish Lab)/WILL/genome_assembly/garrulous-turtle/" )
+assoc <- read.table( filename,  header=TRUE )
+
+str( assoc )
+head( assoc )
+
+```
+
+This summary is for the results from association analysis using PLINK version 1.07 using the command:
+
+``` plink --bfile ${mydata} --allow-no-sex --maf 0.01 --geno 0.95 --fisher --out ${mydata} ```
+
+The input data was `r sub( "assoc.fisher", "", filename )`. The options selected are ```--maf 0.01``` excludes from the analysis variants with a minor allele frequency of <1%, ```--geno 0.95``` which sets the maximum per-SNP missingness at 95%. The ```--allow-no-sex``` option is needed because PLINK will, by default, exclude individuals without a determined sex. This analysis is preliminary, and probably overly liberal.
+
+The PLINK association output looks like this:
+
+Header | Description                                | Summary info.
+-------|--------------------------------------------|---------------
+  CHR  | Chromosome                                 | 'scaffold' in our case (1764 make it)
+  SNP  | SNP ID                                     | semi-arbitrary SNP ID number
+  BP   | Physical position (base-pair)              | bp coords on the scaffold
+  A1   | Minor allele name (based on whole sample)  | Minor SNP/INDEL genotype
+  F_A  | Frequency of this allele in cases          | varies from `r min(na.omit(assoc$F_A))` to `r max(na.omit(assoc$F_A))`
+  F_U  | Frequency of this allele in controls       | varies from `r min(na.omit(assoc$F_U))` to `r max(na.omit(assoc$F_U))`
+  A2   | Major allele name                          | Major SNP/INDEL genotype
+  P    | Exact p-value for this test                | Fisher's exact *P*
+  OR   | Estimated odds ratio (for A1)              | 
+
+The only statistic that I'll add to these right now is a false discovery rate adjustment. I used the ```fdrtool``` package to calculate a q-value and a localized FDR.
+
+```{r q-value adjustment, message=FALSE, echo=FALSE, results='hide'}
+
+assoc$CHR <- factor( sub( ":\\d+", "", assoc$SNP ))
+
+assoc$QVAL <- fdrtool( assoc$P, statistic="pvalue", plot=FALSE )$qval
+assoc$LFDR <- fdrtool( assoc$P, statistic="pvalue", plot=FALSE )$lfdr
+
+```
+
+So now I'll take a look at the shape of the data. In the following plot, note that the p-values (in blue) show a pleasant-looking non-uniformity, with a left-hand peak of potentially interesting variants. The q-values (in green) are comparatively shrunk to the left but other show a similar-shaped distribution to the p-values. The distribution of the local FDR values (in red) is quite different, with a very heavy tail on the right -- this seems to be pretty conservative.
+
+```{r what does the data look like, message=FALSE, echo=FALSE, results='hide'}
+
+ggplot( assoc, aes( x=P ) ) + geom_density( fill="blue", alpha=0.25 ) + annotate( geom="text", x=0.5, y=9, label="p-values", color="blue" ) +
+        geom_density( aes( x=QVAL ), fill="green", alpha=0.25 ) + annotate( geom="text", x=0.5, y=8, label="q-values", color="green" ) +
+        geom_density( aes( x=LFDR ), fill="red", alpha=0.25 ) + annotate( geom="text", x=0.5, y=7, label="local FDR", color="red" ) +
+        xlab( "statistic" )
+
+```
+
+To visualise the level of conservatism that we're applying here; here's how the local FDR relates to the p-values & q-values.
+
+```{r how do the stats relate, message=FALSE, echo=FALSE, results='hide', fig.height=6, fig.width=6}
+
+ggplot( assoc, aes( x=LFDR, y=QVAL )) + geom_point( col="green", alpha=0.5 ) + geom_abline( intercept=0, slope=1, color="red" ) +
+        geom_point( aes( x=LFDR, y=P ), col="blue", alpha=0.5 ) + xlab( "Local FDR" ) + ylab( "p-value/Q-value" ) +
+        annotate( geom="text", x=0.2, y=0.85, label="q-values", color="green" ) +
+        annotate( geom="text", x=0.2, y=0.75, label="p-values", color="blue" )
+
+```
+
+Based on the relationship between the stats I'm going to take a look at the associations with both the Q-values and the local FDR. Here are 2 equivalent manhattan-style plots, in both cases I've negatively log10 transformed the statistics, so that values of 0.1, 0.01 & 0.001 scale to 1, 2 & 3 etc... On the x-axes, the scaffolds are (semi-arbitrarily) listed in increasing numerical order.
+
+The red cut-off lines are at 4 in both cases, so a q-value/local FDR of 0.0001. Happily, the patterns are *very* similar, with the majority of the really strong 'hits' being in the large (i.e. low-numbered) scaffolds.
+
+```{r manhattan-ish plot, message=FALSE, echo=FALSE, results='hide', fig.width=10}
+
+mutate( assoc, scafno=as.numeric( sub( "Scaffold", "", assoc$CHR ) ) ) %>%
+          ggplot( aes( x=scafno, y=-log10( QVAL ) ) ) + geom_point() + ylab( "-log(10) Q value" ) + 
+                xlab( "Scaffold" ) + geom_hline( color="red", yintercept=4 ) + ggtitle( "Q value Manhattan" )
+
+mutate( assoc, scafno=as.numeric( sub( "Scaffold", "", assoc$CHR ) ) ) %>%
+          ggplot( aes( x=scafno, y=-log10( LFDR ) ) ) + geom_point() + ylab( "-log(10) Local FDR" ) + 
+                xlab( "Scaffold" ) + geom_hline( color="red", yintercept=4 ) + ggtitle( "Local FDR Manhattan" )
+
+```
+
+Since most of the excitement seems to be on the first few scaffolds, these next plots are 'zoomed in' to show *only* scaffolds 0-100.
+
+```{r manhattan-zoom, message=FALSE, echo=FALSE, results='hide', fig.width=10}
+
+assoc_100 <- mutate( assoc, scafno=as.numeric( sub( "Scaffold", "", CHR ) ) ) %>% 
+                    mutate( sig=factor( ifelse( LFDR<0.0001, "LFDR<0.0001", "LFDR>0.0001" )) ) %>%
+                            filter( scafno < 100 )
+
+  ggplot( assoc_100, aes( x=scafno, y=-log10( LFDR ) ) ) + geom_point( aes(col=sig) ) + ylab( "-log(10) Local FDR" ) + 
+        xlab( "Scaffold" ) + #geom_hline( color="red", yintercept=4 ) +
+        geom_text_repel( data=filter( assoc_100, LFDR<0.0001 ), aes( label=factor(scafno) ))
+
+  
+assoc_100 <- mutate( assoc, scafno=as.numeric( sub( "Scaffold", "", CHR ) ) ) %>% 
+                    mutate( sig=factor( ifelse( QVAL<0.0001, "q<0.0001", "q>0.0001" )) ) %>%
+                            filter( scafno < 100 )
+  
+  ggplot( assoc_100, aes( x=scafno, y=-log10( QVAL ) ) ) + geom_point( aes(col=sig) ) + ylab( "-log(10) Q-value" ) + 
+        xlab( "Scaffold" ) + #geom_hline( color="red", yintercept=4 ) + 
+        geom_text_repel( data=filter( assoc_100, QVAL<0.0001 ), aes( label=factor(scafno) ))
+
+
+tophits <- droplevels( assoc[ assoc$LFDR <0.0001 ,])
+# tophits <- droplevels( assoc[ assoc$QVAL <0.0001 ,])
+
+```
+
+Lastly, a comparison with the F~st~ results: unfortunately there appear to be no scaffolds that appear in both the lists of 'hits'.
+
+```{r quick compare fsts, message=FALSE, echo=TRUE}
+
+write.csv( tophits, "tophits_plink_1.csv", quote=FALSE, row.names=FALSE )
+
+fsthits <- read.csv( "Fst_shortlist.csv", header=TRUE )
+
+overlap <- intersect( levels(fsthits$scaf), levels(tophits$CHR) )
+length( overlap )
+
+```
+
+
