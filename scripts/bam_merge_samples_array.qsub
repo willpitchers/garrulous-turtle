@@ -1,5 +1,5 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=4,walltime=02:00:00,mem=16gb
+#PBS -l nodes=1:ppn=2,walltime=02:00:00,mem=16gb
 #PBS -o /mnt/research/efish/2015_genomic_data/scripts
 #PBS -N BAM_sample_merge
 #PBS -j oe
@@ -36,7 +36,7 @@ samples=`for i in ${sample[@]} ; do echo I=${i} ; done | xargs`
 # samtools merge ${individual}_all_libraries.bam ${samples}
 
 # the call to Picard
-java -jar $PICARD/MergeSamFiles ${samples} O=${individual}_all_libraries.bam
+java -jar $PICARD/MergeSamFiles.jar ${samples} O=${individual}_all_libraries.bam
 
 #Check to see if this is the last job and email user
 if [ ${n} -eq ${MAXJOBID} ]

@@ -16,9 +16,13 @@ cd ${dir}
 module load SAMTools/1.2
 module load BreakDancer/1.1.2
 
+ls -lathr *analysis.cfg
+
 # set up a configuration file
-bamfiles=*recalibrated.boot.bam
+bamfiles=*libraries.bam
 bam2cfg.pl -g -h ${bamfiles} > breakdancer_`date '+%d_%m_%Y'`_analysis.cfg
+
+ls -lathr *analysis.cfg
 
 # run breakdancer
 filename=breakdancer_`date '+%d_%m_%Y'`_analysis
