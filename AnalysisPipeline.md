@@ -29,3 +29,13 @@ Once data reaches the **Statistical Analysis** stage it may become necessary for
 11. | | `plink_vcf_convert.qsub`, `plink_prep.qsub`, & `plink_fisher.qsub` | vcftools/4.2 & plink/1.07 | `--maf` & `--geno` (missingness) | `all_variants_merged_${date}.vcf` | `all_variants_merged_${date}.assoc.fisher`, `*.ped`, `*.bed`, `*.bim`, `*.fam`, `*.log`, `*.map` & `*.nosex` | Association with Fisher's exact test and simplified presence/absence phenotype data.
 12. | **Find Structural Variants** | `bam_merge_samples_array.qsub ` | picardTools/1.89 | | `*.bam` | `${individual}_all_libraries.bam` | ...
 13. | | `breakdancer.qsub` | BreakDancer/1.1.2 & SAMTools/1.2 | `-t -q 10 -d` | `${individual}_all_libraries.bam` | `breakdancer_${date}_analysis.cfg` & `...ctx` | Detects structural variants...
+
+
+## Important Files to be preserved
+
+  - Original read files - 512 x `${individual}_[GATC]_[GATC]_L00[1-8]_R[12]_00[12].fastq.gz`
+  - First-pass variant calls for all individuals – `all_variants_merged_21_01_2016.vcf`
+    - PLINK association results from the above `all_variants_merged_21_01_2016.assoc.fisher`
+  - Second-pass variant calls for all individuals – `all_variants_merged_27_10_2015.vcf`
+    - PLINK association results from the above `all_variants_merged_27_10_2015.assoc.fisher`
+  - 

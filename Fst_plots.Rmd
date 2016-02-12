@@ -771,3 +771,16 @@ write.csv( fsts_out, "Fst_shortlist.csv", row.names=FALSE, quote=FALSE )
 
 ```
 
+```{r plots for lab meeting, echo=FALSE}
+
+# filter(these_fsts, winstep==".5.5..") %>% 
+#   filter( comp=="BAVA_vs_MOV" | comp=="IVI_vs_MOV" | comp=="BAVA_vs_IVI" |  comp=="APA_vs_BAM" ) %>%
+#   ggplot( aes( x=fst ) ) + geom_density( aes( col=comp, fill=comp ), alpha=0.3 )
+# 
+# 
+# taco <- droplevels(fltr_fsts_5_5_95[fltr_fsts_5_5_95$scaf_bin %in% intersect( setdiff( intersect( BAVA_vs_MOV_5_5_95, BAVA_vs_IVI_5_5_95 ), IVI_vs_MOV_5_5_95 ), APA_vs_BAM_5_5_95),])
+# 
+#   ggplot( taco, aes( x=scaf, y=fst ) ) + geom_point( col="blue" )
+
+```
+
