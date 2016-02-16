@@ -31,6 +31,42 @@ Once data reaches the **Statistical Analysis** stage it may become necessary for
 13. | | `breakdancer.qsub` | BreakDancer/1.1.2 & SAMTools/1.2 | `-t -q 10 -d` | `${individual}_all_libraries.bam` | `breakdancer_${date}_analysis.cfg` & `...ctx` | Detects structural variants...
 
 
+## Output Formats
+
+  - **VCFtools ...weir.fst**
+    1. CHROM      - Scaffold in our case
+    2. BIN_START  - bp coordinate at start of window
+    3. BIN_END    - bp coordinate at end of window
+    4. N_VARIANTS - no. variants within the window
+    5. WEIGHTED_FST
+    6. MEAN_FST   - mean Fst across the window
+  - **PLINK ..assoc.fisher**
+    1. CHR - Scaffold in our case
+    2. SNP - SNP ID
+    3. BP - Physical position (base-pair)
+    4. A1 - Minor allele name (based on whole sample)
+    5. F_A - Frequency of this allele in cases
+    6. F_U - Frequency of this allele in controls
+    7. A2 - Major allele name
+    8. P - Exact p-value for this test
+    9. OR - Estimated odds ratio (for A1)
+  - **BreakDancer**
+    1. Chromosome               - Scaffold number in our case
+    2. Position 1
+    3. Orientation 1
+    4. Chromosome 2
+    5. Position 2
+    6. Orientation 2
+    7. Type of a SV             - DEL, INS, INV, ITX (intra-chromo. trans.), CTX (inter-chromo. trans.) or Unknown
+    8. Size of a SV             - length of SV in bp (meaningless for CTX)
+    9. Confidence Score
+    10. No. supporting read pairs
+    11. No. supporting read pairs from each map file
+    12. Estimated allele freq.  - this estimate is not to be trusted at the current version
+    13. Software version        -
+    14. The run parameters
+
+
 ## Important Files to be preserved
 
   - Original read files - 512 x `${individual}_[GATC]_[GATC]_L00[1-8]_R[12]_00[12].fastq.gz`
@@ -38,4 +74,4 @@ Once data reaches the **Statistical Analysis** stage it may become necessary for
     - PLINK association results from the above `all_variants_merged_21_01_2016.assoc.fisher`
   - Second-pass variant calls for all individuals – `all_variants_merged_27_10_2015.vcf`
     - PLINK association results from the above `all_variants_merged_27_10_2015.assoc.fisher`
-  - 
+  -
