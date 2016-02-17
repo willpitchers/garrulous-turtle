@@ -1,5 +1,6 @@
 #!/bin/bash -login
 #PBS -l nodes=1:ppn=4,walltime=01:00:00,mem=32gb
+#PBS -o /mnt/research/efish/2015_genomic_data/scripts
 #PBS -N compress_vcfs
 #PBS -j oe
 #PBS -M pitchers@msu.edu
@@ -30,8 +31,8 @@ rm temp
 
 # start the next job in the pipeline
 cd ${PBS_O_WORKDIR}
-echo "." | mail -s "The compres_vcfs JOB is finishing" ${USER}@msu.edu
-#qsub vcf_merge_samples_array.qsub
+echo "." | mail -s "The compress_vcfs JOB is finishing" ${USER}@msu.edu
+qsub vcf_merge_samples_array.qsub
 
 #Print out the statistics for this job
 qstat -f ${PBS_JOBID}

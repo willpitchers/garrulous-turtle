@@ -28,7 +28,8 @@ if [ ! -f samples.list ]
 fi
 
 individual=`head -${n} samples.list | tail -1 `
-sample=(${individual}*recalibrated.boot.bam)
+#sample=(${individual}*recalibrated.boot.bam)
+sample=(${individual}*.boot.bam)
 # samples=`for i in ${sample[@]} ; do echo $i ; done | xargs`
 samples=`for i in ${sample[@]} ; do echo I=${i} ; done | xargs`
 
