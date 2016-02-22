@@ -8,7 +8,7 @@
 #PBS -r n
 #PBS -t 1-63
 
-## Set up some variables
+## Set up some variables
 # where do the files live
 dir=/mnt/scratch/pitchers/eFISH/Analysis/
 ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta

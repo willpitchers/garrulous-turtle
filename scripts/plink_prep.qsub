@@ -18,15 +18,15 @@ cd ${dir}
 module load vcftools/4.2
 module load plink/1.07
 
-#input_data=all_variants_merged_27_10_2015
-input_data=all_variants_merged_21_01_2016
+# input_data=all_variants_merged_27_10_2015
+# input_data=all_variants_merged_21_01_2016
 
 vcftools --vcf ${input_data}.vcf --out ${input_data} --plink
 
 # email user & start the next job
 echo "." | mail -s "the plink_prep job is finished" ${USER}@msu.edu
 cd $PBS_O_WORKDIR
-qsub plink_pheno.qsub
+qsub plink_pheno.qsub -v input_data=${input_data}
 
 #Print out the statistics for this job
 qstat -f ${PBS_JOBID}

@@ -13,12 +13,13 @@ cd $dir
 
 module load plink/1.07
 
-#mydata=`basename all_variants_merged_27_10_2015.vcf .vcf`
-mydata=all_variants_merged_21_01_2016
+# mydata=`basename all_variants_merged_27_10_2015.vcf .vcf`
+# mydata=all_variants_merged_21_01_2016
+mydata=${input_data}
 
 plink --bfile ${mydata} --allow-no-sex --maf 0.01 --geno 0.95 --fisher --out ${mydata}
 
-echo "." | mail -s "The PLINK job is finishing" ${USER}@msu.edu
+echo "." | mail -s "The PLINK assoc job is finishing" ${USER}@msu.edu
 cd ${PBS_O_WORKDIR}
 #    qsub nextjerb
 

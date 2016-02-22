@@ -13,8 +13,9 @@ cd $dir
 
 module load plink/1.07
 
-#mydata=`basename all_variants_merged_27_10_2015.vcf .vcf`
-mydata=all_variants_merged_21_01_2016
+# mydata=`basename all_variants_merged_27_10_2015.vcf .vcf`
+# mydata=all_variants_merged_21_01_2016
+mydata=${input_data}
 
 ##### this little awk program works like this:
 
@@ -37,7 +38,7 @@ mv ${mydata}.ped.out ${mydata}.ped
 
 echo "." | mail -s "The PLINK pheno job is finishing" ${USER}@msu.edu
 cd ${PBS_O_WORKDIR}
-qsub plink_bed.qsub
+qsub plink_bed.qsub -v input_data=${input_data}
 
 #Print out the statistics for this job
 qstat -f ${PBS_JOBID}

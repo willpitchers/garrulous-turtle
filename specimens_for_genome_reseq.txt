@@ -1,0 +1,68 @@
+fn	Locality	Subpop	SL	Sex	wn	Xcoord	YCoord	Duration	ap0	P0 Present	GenomeSequencing?
+4004	Cocobeach01	Cocobeach	83	male	1	0.932583333	9.574316667	1.391358749	-0.004773665	NO	Yes
+4004	Cocobeach01	Cocobeach								No	Yes
+4005	Cocobeach01	Cocobeach								No	Yes
+4006	Cocobeach01	Cocobeach								No	Yes
+4007	Cocobeach01	Cocobeach								No	Yes
+4018	Cocobeach01	Cocobeach	118	male	1	0.870483333	9.584616667	1.571534702	-0.254439565	YES	Yes
+4019	Cocobeach01	Cocobeach								YES	Yes
+4029	Cocobeach01	Cocobeach								No	Yes
+4030	Cocobeach01	Cocobeach								No	Yes
+4816	Bale99	Bale creek rotenone station under bridge; also hoop nets	0	0	1	0	0	1.736695992	-0.792932483	YES	Yes
+4832	Bale99	Bale creek rotenone station under bridge; also hoop nets	0	0	1	0	0	1.291260997	-0.587386049	YES	Yes
+4834	Bale99	Bale creek rotenone station under bridge; also hoop nets	0	0	1	0	0	0.715698925	-1.213324602	YES	Yes
+4893	Bale99	Lower Balé creek below the bridge near IRET field station.	0	0	1	0	0	1.166138807	-0.451771442	YES	Yes
+4894	Bale99	Lower Balé creek below the bridge near IRET field station.	0	0	1	0	0	1.511476051	-0.738881568	YES	Yes
+4895	Bale99	Lower Balé creek below the bridge near IRET field station.	0	0	1	0	0	1.361329423	-0.192973528	YES	Yes
+4896	Bale99	Lower Balé creek below the bridge near IRET field station.	0	0	1	0	0	0.610596285	-1.732343455	YES	Yes
+4897	Bale99	Lower Balé creek below the bridge near IRET field station.	0	0	1	0	0	1.356324536	-0.777304492	YES	Yes
+4921	Bale99	Lower Balé creek below the bridge near IRET field station.	0	0	1	0	0	5.662765022	-0.6761121	YES	Yes
+4923	Bale99	Lower Balé creek below the bridge near IRET field station.	0	0	2	0	0	1.320644846	-0.536075556	YES	Yes
+4925	Bale99	Lower Balé creek below the bridge near IRET field station.	0	0	1	0	0	1.255613092	-1.046306599	YES	Yes
+6494	Bambomo09	Bambomo Creek	69.5	juvinille	3	-2.163416667	11.46185	1.77086468	-0.126801212	YES	Yes
+6496	Bambomo09	Bambomo Creek	62	juvinille	2	-2.163416667	11.46185	1.510737665	0.009236098	NO	Yes
+6497	Bambomo09	Bambomo Creek	46	juvinille	2	-2.163416667	11.46185	1.290630191	-0.123255984	YES	Yes
+6498	Bambomo09	Bambomo Creek	44	juvinille	2	-2.163416667	11.46185	1.380674157	0.006638411	NO	Yes
+6499	Bambomo09	Bambomo Creek	43	juvinille	3	-2.163416667	11.46185	1.420693698	-0.034147398	NO	Yes
+6500	Bambomo09	Bambomo Creek	44.5	juvinille	4	-2.163416667	11.46185	1.100537372	-0.093936003	YES	Yes
+6501	Bambomo09	Bambomo Creek	0	0	1	0	0	1.62324	0.015996503	NO	Yes
+6502	Bambomo09	Bambomo Creek	40	juvinille	2	-2.163416667	11.46185	1.340654617	0.074974835	NO	Yes
+6597	Bambomo09	Bambomo Creek	59	juvinille	1	-2.1634167	11.46185	1.230600879	-0.553922	YES	Yes
+6598	Bambomo09	Bambomo Creek	42.5	juvinille	2	-2.1634167	11.46185	1.060517831	0.031781237	NO	Yes
+6599	Bambomo09	Bambomo Creek	47	juvinille	2	-2.1634167	11.46185	0.910444553	-0.002441688	NO	Yes
+6602	Bambomo09	Bambomo Creek	52	juvinille	3	-2.1634167	11.46185	1.240605765	0.00779938	NO	Yes
+6603	Bambomo09	Bambomo Creek	47	juvinille	2	-2.1634167	11.46185	1.240605765	0.025070576	NO	Yes
+6604	Bambomo09	Bambomo Creek	44	juvinille	3	-2.1634167	11.46185	0.990483635	-0.048703291	NO	Yes
+6605	Bambomo09	Bambomo Creek	51	juvinille	3	-2.1634167	11.46185	1.200586224	-0.071859027	NO	Yes
+6489	Bambomo09	Bambomo Creek	74.5	juvinille	1	-2.163416667	11.46185	1.620791402	-0.084030418	YES	Yes
+6619	Bavavela09	Bavelela Creek Washing Area	50	juvinille	2	-2.242483333	11.556	1.02049829	0.010311946	NO	Yes
+6620	Bavavela09	Bavelela Creek Washing Area	58	juvinille	2	-2.242483333	11.556	1.100537372	-0.007238562	NO	Yes
+6621	Bavavela09	Bavelela Creek Washing Area	49	juvinille	2	-2.242483333	11.556	1.140556913	0.008507345	NO	Yes
+6622	Bavavela09	Bavelela Creek Washing Area	56	juvinille	1	-2.242483333	11.556	1.180576453	-0.002878916	NO	Yes
+6623	Bavavela09	Bavelela Creek Washing Area	64	juvinille	2	-2.242483333	11.556	1.170571568	0.00842684	NO	Yes
+6624	Bavavela09	Bavelela Creek Washing Area	60	juvinille	1	-2.242483333	11.556	1.260615535	-0.014841965	NO	Yes
+6625	Bavavela09	Bavelela Creek Washing Area	55	juvinille	2	-2.242483333	11.556	1.160566683	-0.013112548	NO	Yes
+6626	Bavavela09	Bavelela Creek Washing Area	53	juvinille	1	-2.242483333	11.556	1.150561798	0.013749377	NO	Yes
+6627	Bavavela09	Bavelela Creek Washing Area	53	juvinille	2	-2.242483333	11.556	1.120547142	0.007035629	NO	Yes
+6675	Apassa09	Apassa (spp?); Affluent of Moussabou	89	male	1	-2.211633333	11.45966667	1.760859795	-0.411148971	YES	Yes
+6676	Apassa09	Apassa (spp?); Affluent of Moussabou	58	male?	1	-2.211633333	11.45966667	1.340654617	-0.42820296	YES	Yes
+6677	Apassa09	Apassa (spp?); Affluent of Moussabou	55	female	1	-2.211633333	11.45966667	1.25061065	-0.338054488	YES	Yes
+6678	Apassa09	Apassa (spp?); Affluent of Moussabou	61	female	2	-2.211633333	11.45966667	1.510737665	-0.434802964	YES	Yes
+6679	Apassa09	Apassa (spp?); Affluent of Moussabou	51	juvinille	2	-2.211633333	11.45966667	1.290630191	-0.189353965	YES	Yes
+6680	Apassa09	Apassa (spp?); Affluent of Moussabou	52	juvinille	2	-2.211633333	11.45966667	1.530747435	-0.328676197	YES	Yes
+6681	Apassa09	Apassa (spp?); Affluent of Moussabou	50	juvinille	2	-2.211633333	11.45966667	1.630796287	-0.016396875	NO	Yes
+6682	Apassa09	Apassa (spp?); Affluent of Moussabou	84	male?	1	-2.211633333	11.45966667	1.670815828	-0.572050076	YES	Yes
+6683	Apassa09	Apassa (spp?); Affluent of Moussabou	49	juvinille	1	-2.211633333	11.45966667	1.130552027	-0.288230625	YES	Yes
+6684	Apassa09	Apassa (spp?); Affluent of Moussabou	46	juvinille	2	-2.211633333	11.45966667	1.220595994	-0.412168567	YES	Yes
+6685	Apassa09	Apassa (spp?); Affluent of Moussabou	69	female?	1	-2.211633333	11.45966667	1.730845139	-0.208817829	YES	Yes
+6716	Mouvanga09	Mouvanga Creek	92.5	juvinille	1	-2.328033333	11.68583333	1.720840254	-0.353877113	YES	Yes
+6717	Mouvanga09	Mouvanga Creek	94	juvinille	1	-2.328033333	11.68583333	1.900928188	-0.37872215	YES	Yes
+6718	Mouvanga09	Mouvanga Creek	91	juvinille	1	-2.328033333	11.68583333	1.860908647	-0.381746793	YES	Yes
+6719	Mouvanga09	Mouvanga Creek	86.5	juvinille	1	-2.328033333	11.68583333	1.830893991	-0.301447021	YES	Yes
+6720	Mouvanga09	Mouvanga Creek	102	juvinille	1	-2.328033333	11.68583333	1.650806058	-0.346304629	YES	Yes
+6721	Mouvanga09	Mouvanga Creek	85	juvinille	3	-2.328033333	11.68583333	1.77086468	-0.386866963	YES	Yes
+6722	Mouvanga09	Mouvanga Creek	89	juvinille	1	-2.328033333	11.68583333	1.640801172	-0.362526064	YES	Yes
+6723	Mouvanga09	Mouvanga Creek	100	juvinille	1	-2.328033333	11.68583333	1.840898876	-0.507889839	YES	Yes
+6724	Mouvanga09	Mouvanga Creek	100	juvinille	1	-2.328033333	11.68583333	1.860908647	-0.275945031	YES	Yes
+6725	Mouvanga09	Mouvanga Creek	103	male	1	-2.328033333	11.68583333	1.850903762	-0.34447433	YES	Yes
+6737	Apassa09	Apassa (spp?); Affluent of Moussabou	48.5	juvinille	2	-2.211633333	11.45966667	1.180576453	-0.217242971	YES	Yes

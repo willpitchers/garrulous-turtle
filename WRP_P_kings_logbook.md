@@ -353,5 +353,11 @@ Week of 15 - 19th February
 
   - 2nd GATK vcf-bootstrap continues
   - recreating the `.bam` files from the start of the pipeline to try and fix the EOF problem...
-  - split up the operations involved in the plink analysis to make the jobs shorter and easier to scheduler
-  - 
+    - no luck... time to come up with plan E.
+  - split up the operations involved in the plink analysis to make the jobs shorter and easier to schedule
+  - downloaded Gar genome from [ensembl](http://useast.ensembl.org/Lepisosteus_oculatus/Info/Index?redirect=no) for coding sequences to BLAST against our scaffolds... hopefully identification of syntenic regions will help us bridge some scaffold gaps
+
+
+Week of 22nd – 26th February
+
+  - things
