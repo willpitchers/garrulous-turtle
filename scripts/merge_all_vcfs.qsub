@@ -1,5 +1,6 @@
 #!/bin/bash -login
 #PBS -l nodes=1:ppn=4,walltime=4:00:00,mem=32gb
+#PBS -o /mnt/research/efish/2015_genomic_data/scripts
 #PBS -N merge_all_vcfs
 #PBS -j oe
 #PBS -M pitchers@msu.edu
