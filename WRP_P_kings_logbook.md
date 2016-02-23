@@ -360,4 +360,5 @@ Week of 15 - 19th February
 
 Week of 22nd – 26th February
 
-  - things
+  - JG provided spreadsheet with individual phenotypes: `Dropbox/Projects/Paramormyrops_Reseq/specimens_for_genome_reseq.xlsx` saved as `Dropbox/WILL/genome_assembly/garrulous-turtle/specimens_for_genome_reseq.txt`
+  - 

@@ -1,0 +1,34 @@
+#!/bin/bash -login
+#PBS -o /mnt/research/efish/2015_genomic_data/scripts
+#PBS -l nodes=1:ppn=1,walltime=03:00:00,mem=16gb
+#PBS -N plink_ind_pheno
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+
+dir=/mnt/scratch/pitchers/eFISH/Analysis/
+
+cd $dir
+module load plink/1.07
+
+# mydata=`basename all_variants_merged_27_10_2015.vcf .vcf`
+# mydata=all_variants_merged_21_01_2016
+mydata=${input_data}
+
+# derive a simple lookup table from the phenotype file (P0 absent=1, P0 present=2)
+if [ ! -f individual.list ]
+  then cat /mnt/research/efish/2015_genomic_data/specimens_for_genome_reseq.txt | tail -67 | cut -f 1,11 | sed 's/[yesYES]\{3\}/2/g' | sed 's/[noNO]\{2\}/1/g' | sed 's/[\t ]\+/ /g' > individual.list
+fi
+
+# call my python script to write the phenotype codes into the .ped file
+python pheno_lookup.py individual.list ${input_data}.ped ${mydata}.ped.out
+
+mv ${mydata}.ped > ${mydata}.ped.out
+
+echo "." | mail -s "The PLINK pheno job is finishing" ${USER}@msu.edu
+cd ${PBS_O_WORKDIR}
+qsub plink_bed.qsub -v input_data=${input_data}
+
+#Print out the statistics for this job
+qstat -f ${PBS_JOBID}
