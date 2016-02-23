@@ -14,7 +14,6 @@ ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
 
 # load modules
 cd ${dir}
-
 module load vcftools/4.2
 module load plink/1.07
 

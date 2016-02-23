@@ -361,4 +361,10 @@ Week of 15 - 19th February
 Week of 22nd – 26th February
 
   - JG provided spreadsheet with individual phenotypes: `Dropbox/Projects/Paramormyrops_Reseq/specimens_for_genome_reseq.xlsx` saved as `Dropbox/WILL/genome_assembly/garrulous-turtle/specimens_for_genome_reseq.txt`
-  - 
+  - discovered a suspected [typo](https://msuefishlab.slack.com/files/willpitchers/F0NLE0963/specimens_for_genome_reseq_wp.xlsx) in the phenotype file.
+    - confirmed by [JG](https://msuefishlab.slack.com/archives/D0G6C7RJM/p1456247717000003)
+    - simplest fix is to add a line to `plink_ind_pheno.qsub` to use the (incorrect) ID number to associate the correct phenotype with the mis-named sequence files. (`sed -i s/4923/3923/ individual.list`)
+  - added `plink_ind_pheno.qsub` and `pheno_lookup.py` to scripts to read the individual-level phenotype data from `specimens_for_genome_reseq.txt` into the existing PLINK GWAS analysis.
+    - set GWAS mk.2 running 23/02/2016
+  - trying plan E re: BreakDancer .bam EOF problem
+  -

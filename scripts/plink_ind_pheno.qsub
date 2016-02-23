@@ -21,6 +21,10 @@ if [ ! -f individual.list ]
   then cat /mnt/research/efish/2015_genomic_data/specimens_for_genome_reseq.txt | tail -67 | cut -f 1,11 | sed 's/[yesYES]\{3\}/2/g' | sed 's/[noNO]\{2\}/1/g' | sed 's/[\t ]\+/ /g' > individual.list
 fi
 
+### seq. data filenames contain a typo; IVI_3923 should have been IVI_4923 (discovered 23/02/2016)
+### this line alters the phenotype lookup table so that the mis-named reads get the correct phenotype.
+sed -i s/4923/3923/ individual.list
+
 # call my python script to write the phenotype codes into the .ped file
 python pheno_lookup.py individual.list ${input_data}.ped ${mydata}.ped.out
 
