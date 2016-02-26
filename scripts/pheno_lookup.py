@@ -33,7 +33,7 @@ def read_ped( pedfile, outfile ):
         Line = line.strip().split()
         ID = line.strip().split()[ 0 ].split( '.' )[ 0 ]
         pheno = return_pheno( ID, pheno_dict )
-        Line[ 6 ] = pheno
+        Line[5] = pheno
         Lineout = ' '.join( Line )
         outped.write( Lineout + '\n' )
 
