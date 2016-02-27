@@ -366,5 +366,8 @@ Week of 22nd – 26th February
     - simplest fix is to add a line to `plink_ind_pheno.qsub` to use the (incorrect) ID number to associate the correct phenotype with the mis-named sequence files. (`sed -i s/4923/3923/ individual.list`)
   - added `plink_ind_pheno.qsub` and `pheno_lookup.py` to scripts to read the individual-level phenotype data from `specimens_for_genome_reseq.txt` into the existing PLINK GWAS analysis.
     - set GWAS mk.2 running 23/02/2016
-  - trying plan E re: BreakDancer .bam EOF problem
-  -
+      - this run failed seemingly because of a *2nd* [typo](https://msuefishlab.slack.com/files/willpitchers/F0NS88DHU/specimens_for_genome_reseq_wp.xlsx)...
+    - set GWAS mk.3 running 24/02/2016
+      - *this* run failed with `FEXACT error 3` message... message appears unknown to the FAQ.
+  - trying plan E re: BreakDancer `.bam` EOF problem...
+  - 
