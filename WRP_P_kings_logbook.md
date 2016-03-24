@@ -370,4 +370,24 @@ Week of 22nd – 26th February
     - set GWAS mk.3 running 24/02/2016
       - *this* run failed with `FEXACT error 3` message... message appears unknown to the FAQ.
   - trying plan E re: BreakDancer `.bam` EOF problem...
-  - 
+
+
+Week of 29th Feb. – 4th March
+
+  - BreakDancer still failing... got as far as sample BAVA_6623. I am going to back-track to the recalibration step to (hopefully) find where the file got truncated/lost its EOF.
+    - there seem to be quite a few of the original pool of 768 bam files that left the recalibration step with a malformed EOF (but not severely enough to break the variant caller)... checking them all.
+  - the HPC is replacing a rack of storage, so there's been much waiting/crashing.
+
+Week of 7th – 11th March
+
+  - Traveling...
+  - HPC is *barely* functioning...
+
+Week of 14th – 18th March
+
+  - HPC is still barely functioning...
+
+Week of 21st - 25th March
+
+  - prepping for ICN2016
+  - Traveling...

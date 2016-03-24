@@ -14,6 +14,7 @@ require( dplyr )
 require( ggplot2 )
 require( ggExtra )
 require( reshape )
+require( cowplot )
 
 APA_BAM <- read.table( "Fsts/Fst_APA_vs_BAM.windowed100kb.step50kb.weir.fst", header=TRUE )
 APA_BAVA <- read.table( "Fsts/Fst_APA_vs_BAVA.windowed100kb.step50kb.weir.fst", header=TRUE )
@@ -385,7 +386,7 @@ for (i in 1:15) {
                          scaf_bin=factor( paste( scaf, '_', bin, sep='', coll='' ) ), 
                          scaf_comp=factor( paste( scaf, '_', comp, sep='', coll='' )) )  %>%  filter( fst > 0 )
     these_fsts <- rbind( these_fsts, readin )
-}}
+} }
 
 
 summary( these_fsts )
@@ -781,6 +782,68 @@ write.csv( fsts_out, "Fst_shortlist.csv", row.names=FALSE, quote=FALSE )
 # taco <- droplevels(fltr_fsts_5_5_95[fltr_fsts_5_5_95$scaf_bin %in% intersect( setdiff( intersect( BAVA_vs_MOV_5_5_95, BAVA_vs_IVI_5_5_95 ), IVI_vs_MOV_5_5_95 ), APA_vs_BAM_5_5_95),])
 # 
 #   ggplot( taco, aes( x=scaf, y=fst ) ) + geom_point( col="blue" )
+
+```
+
+
+```{r plot for ICN poster}
+
+distances <- c( "APA_vs_BAM" = 5.7, "APA_vs_BAVA" = 11.4, "APA_vs_COB" = 411.8, "APA_vs_IVI" = 341.2, "APA_vs_MOV" = 27.9, "BAM_vs_BAVA" = 13.4, "BAM_vs_COB" = 411.8, "BAM_vs_IVI" = 329.4, "BAM_vs_MOV" = 34.3, "BAVA_vs_COB" = 411.8, "BAVA_vs_IVI" = 329.5, "BAVA_vs_MOV" = 17.1, "COB_vs_IVI" = 364.7, "COB_vs_MOV" = 429.4, "IVI_vs_MOV" = 341.2 )
+
+png( "~/Downloads/fst_vs_dist.png" )
+  filter( these_fsts, winstep==".5.5.." ) %>% mutate( geodist= distances[ comp ] ) %>% 
+          ggplot( aes( x=fst, y=geodist ) ) + geom_point( alpha=0.005 ) + scale_y_log10() + ylab( "Distance (log10 km) " ) + xlab( "Fst" )
+dev.off()
+
+################
+
+filter( these_fsts, winstep==".5.5.." ) %>%
+    ggplot( aes( x=fst ) ) + geom_density( aes( col=comp, fill=comp ) ) + facet_wrap( ~comp )
+
+
+
+mycols <- RColorBrewer::display.brewer.all( 10, type="all", colorblindFriendly=TRUE )
+
+
+png( "~/Downloads/fst_matrix.png", height=1000, width=1000 )
+
+theme_set( theme_gray() + theme( axis.title=element_text( size=20 ), plot.title=element_text( size=20 ) ))
+# mycols <- rep( RColorBrewer::brewer.pal( 3, "Blues" ), 4)
+mycols <- rep( "#3182BD", 10 )
+
+plot_grid( filter( these_fsts, winstep==".5.5..", comp=="IVI_vs_MOV" ) %>% ggplot( aes( x=fst) ) + geom_density( col=mycols[4], fill=mycols[4] ) + 
+                  theme(legend.position = "none") + ylim(0, 7) + xlab("") + ylab("Ivindo") + ggtitle( "Mouvanga" ) +
+                  annotate( "text", 0.5, 5, label="~265km", col="dark orange", cex=8 ),
+          filter( these_fsts, winstep==".5.5..", comp=="BAVA_vs_IVI" ) %>% ggplot( aes( x=fst) ) + geom_density( col=mycols[7], fill=mycols[7] ) + 
+                  theme(legend.position = "none") + ylim(0, 7) + xlab("") + ylab("") + ggtitle( "Bavelela" ) +
+                  annotate( "text", 0.5, 5, label="~215km", col="dark orange", cex=8 ),
+          filter( these_fsts, winstep==".5.5..", comp=="BAM_vs_IVI" ) %>% ggplot( aes( x=fst) ) + geom_density( col=mycols[9], fill=mycols[9] ) + 
+                  theme(legend.position = "none") + ylim(0, 7) + xlab("") + ylab("") + ggtitle( "Bambomo" ) +
+                  annotate( "text", 0.5, 5, label="~205km", col="dark orange", cex=8 ),
+          filter( these_fsts, winstep==".5.5..", comp=="APA_vs_IVI" ) %>% ggplot( aes( x=fst) ) + geom_density( col=mycols[10], fill=mycols[10] ) + 
+                  theme(legend.position = "none") + ylim(0, 7) + xlab("Fst") + ylab("") + ggtitle( "Apassa" ) +
+                  annotate( "text", 0.5, 5, label="~200km", col="dark orange", cex=8 ),
+          filter( these_fsts, winstep==".5.5..", comp=="APA_vs_MOV" ) %>% ggplot( aes( x=fst) ) + geom_density( col=mycols[3], fill=mycols[3] ) + 
+                  theme(legend.position = "none") + ylim(0, 7) + xlab("") + ylab("Apassa") +
+                  annotate( "text", 0.5, 5, label="~65km", col="dark orange", cex=8 ),
+          filter( these_fsts, winstep==".5.5..", comp=="APA_vs_BAVA" ) %>% ggplot( aes( x=fst) ) + geom_density( col=mycols[6], fill=mycols[6] ) +
+                  theme(legend.position = "none") + ylim(0, 7) + xlab("") + ylab("") + 
+                  annotate( "text", 0.5, 5, label="~15km", col="dark orange", cex=8 ),
+          filter( these_fsts, winstep==".5.5..", comp=="APA_vs_BAM" ) %>% ggplot( aes( x=fst) ) + geom_density( col=mycols[8], fill=mycols[8] ) + 
+                  theme(legend.position = "none") + ylim(0, 7) + xlab("Fst") + ylab("") +
+                  annotate( "text", 0.5, 5, label="~5km", col="dark orange", cex=8 ), NULL,
+          filter( these_fsts, winstep==".5.5..", comp=="BAM_vs_MOV" ) %>% ggplot( aes( x=fst) ) + geom_density( col=mycols[1], fill=mycols[1] ) + 
+                  theme(legend.position = "none") + ylim(0, 7) + xlab("") + ylab("Bambomo") +
+                  annotate( "text", 0.5, 5, label="~60km", col="dark orange", cex=8 ),
+          filter( these_fsts, winstep==".5.5..", comp=="BAM_vs_BAVA" ) %>% ggplot( aes( x=fst) ) + geom_density( col=mycols[5], fill=mycols[5] ) + 
+                  theme(legend.position = "none") + ylim(0, 7) + xlab("Fst") + ylab("") + 
+                  annotate( "text", 0.5, 5, label="~10km", col="dark orange", cex=8 ), NULL, NULL,
+          filter( these_fsts, winstep==".5.5..", comp=="BAVA_vs_MOV" ) %>% ggplot( aes( x=fst) ) + geom_density( col=mycols[1], fill=mycols[1] ) + 
+                  theme(legend.position = "none") + ylim(0, 7) + xlab("Fst") + ylab("Bavelela") +
+                  annotate( "text", 0.5, 5, label="~50km", col="dark orange", cex=8 ), NULL, NULL, NULL, 
+          ncol=4, nrow=4 )
+
+dev.off()
 
 ```
 
