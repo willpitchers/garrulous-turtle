@@ -19,7 +19,8 @@ module load BreakDancer/1.1.2
 ls -lathr *analysis.cfg
 
 # set up a configuration file
-bamfiles=*libraries.bam
+# bamfiles=*libraries.bam
+bamfiles=*recalibrated.bam
 bam2cfg.pl -g -h ${bamfiles} > breakdancer_`date '+%d_%m_%Y'`_analysis.cfg
 
 ls -lathr *analysis.cfg
