@@ -5,7 +5,7 @@
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
-#PBS -t 0-200
+#PBS -t 0-63
 
 #Set manximum number of jobs for this run
 MAXJOBID=767
@@ -21,7 +21,8 @@ ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
 n=${PBS_ARRAYID}
 # build a list of file names
 cd ${dir}
-filelist=(*recalibrated.bam)
+filelist=(*all_libraries.bam)
+#filelist=(*recalibrated.bam)
 thisfile=${filelist[${n}]}
 
 # module load GATK/3.4.46
@@ -35,21 +36,21 @@ java -Xmx10g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T HaplotypeCaller -R ${r
 fi
 
 # Calculate next job to run
-NEXT=$(( ${n} + 200 ))
+#NEXT=$(( ${n} + 200 ))
 
 #Check to see if next job is past the maximum job id
-if [ ${NEXT} -le ${MAXJOBID} ]
-then
-    cd ${PBS_O_WORKDIR}
-    qsub -t ${NEXT} ${JOBSCRIPT}
-fi
+#if [ ${NEXT} -le ${MAXJOBID} ]
+#then
+#    cd ${PBS_O_WORKDIR}
+#    qsub -t ${NEXT} ${JOBSCRIPT}
+#fi
 
 #Check to see if this is the last job and email user
 if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The vcf_discovery JOB ARRAY is finishing" ${USER}@msu.edu
     cd ${PBS_O_WORKDIR}
-    # qsub compress_vcfs.qsub
+#    qsub compress_vcfs.qsub
 fi
 
 #Print out the statistics for this job
