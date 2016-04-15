@@ -391,3 +391,19 @@ Week of 21st - 25th March
 
   - prepping for ICN2016
   - Traveling...
+
+28th March – 7th April
+
+  - ICN2016, efish satellite meeting, and trapped in Uruguay
+
+Week of 11th – 15th April
+
+  - Make subset `.vcf` for JG:
+    - output list of 'hits' from `PLINK_assoc_results.Rmd` -> `top_hit_variants`
+    - `vcftools --gzvcf all_variants_merged_27_10_2015.vcf.gz --out "tophits_" --positions ${DIR}top_hit_variants --recode`
+  - rescripting the vcf-merging step to use the `CatVariants` tool in place of the `CombineVariants` tool (both from GATK) to try and get the vcf to list *individuals* rather than *libraries*.
+  - having so much difficulty with the HPC that I'm going to try and set up an EC2 instance...
+    - `wget https://www.dropbox.com/s/q5bwd3n54sed4cq/EC2_setup_script.sh` and run to set up machine
+    - trying on an c3.4xlarge, Ubuntu 14
+  - alternate solution: trying to `BLCR longjob` my stuff to help it slide into small queue gaps, then snapshot itself and hop back in the queue...
+  

@@ -21,7 +21,8 @@ ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
 n=${PBS_ARRAYID}
 # build a list of file names
 cd ${dir}
-filelist=(*recalibrated.bam)
+#filelist=(*recalibrated.bam)
+filelist=(*all_libraries.bam)
 thisfile=${filelist[${n}]}
 
 # module load GATK/3.4.46
