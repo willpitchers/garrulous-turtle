@@ -378,23 +378,28 @@ Week of 29th Feb. – 4th March
     - there seem to be quite a few of the original pool of 768 bam files that left the recalibration step with a malformed EOF (but not severely enough to break the variant caller)... checking them all.
   - the HPC is replacing a rack of storage, so there's been much waiting/crashing.
 
+
 Week of 7th – 11th March
 
   - Traveling...
   - HPC is *barely* functioning...
 
+
 Week of 14th – 18th March
 
   - HPC is still barely functioning...
+
 
 Week of 21st - 25th March
 
   - prepping for ICN2016
   - Traveling...
 
+
 28th March – 7th April
 
   - ICN2016, efish satellite meeting, and trapped in Uruguay
+
 
 Week of 11th – 15th April
 
@@ -406,4 +411,27 @@ Week of 11th – 15th April
     - `wget https://www.dropbox.com/s/q5bwd3n54sed4cq/EC2_setup_script.sh` and run to set up machine
     - trying on an c3.4xlarge, Ubuntu 14
   - alternate solution: trying to `BLCR longjob` my stuff to help it slide into small queue gaps, then snapshot itself and hop back in the queue...
-  
+
+
+Weeks of 18th - 22nd & 25th - 29th April
+
+  - focused on manuscript preparation
+
+
+3rd - 11th May
+
+  - Will in Seattle
+
+
+Week of 16th - 20th May
+
+  - `vcftools --vcf top100.recode.vcf --extract-FORMAT-info GT --out GT_top100`
+    - `sed s/"\.\/\."/"0\/0"/g GT_top100.GT.FORMAT | sed s/"0\/0"/"R"/g | sed s/"0\/1"/"H"/g | sed s/"1\/1"/"A"/g > hits.geno`
+  - trying to test PLINK sensitivity using simulated data:
+    - build fake vcf rows -> append to subset of real vcf file
+    - use vcftools to convert altered vcf file -> plink files
+    - use awk to edit phenotypes in doctored plink files –> run plink
+  - We think that a proportion of the apparently missing-data codes in the multi-individual vcf files may in fact represent homozygous loci for the reference allele... [seqanswers](http://seqanswers.com/forums/archive/index.php/t-28325.html) suggests that this is a know 'feature' of GATK.
+    - a few hours of poking through manuals/googling suggests that the best way to fix this is to detour around the problem by moving the coalescence-of-individuals point further up the pipeline.
+    - 1st attempt: coalesce individuals as recalibrated BAM files immediately prior to vcf discovery run..
+    
