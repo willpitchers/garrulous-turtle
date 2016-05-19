@@ -1,0 +1,34 @@
+#!/bin/bash -login
+#PBS -l nodes=1:ppn=4,walltime=08:00:00,mem=16gb
+#PBS -N vcf_disco_${PBS_ARRAYID}
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+
+## Set up some variables
+# where do the files live
+dir=/mnt/scratch/pitchers/eFISH/Analysis/
+ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
+
+cd ${dir}
+# module load GATK/3.4.46
+module load GATK/3.5.0
+
+
+if [ ! -f `basename ${thisfile} .recalibrated.bam`.raw_variants.vcf ]
+then
+# the call to the GATK HaplotypeCaller
+java -Xmx10g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T HaplotypeCaller -R ${ref} -I ${thisfile} --genotyping_mode DISCOVERY -stand_emit_conf 10 -stand_call_conf 30 -o `basename ${thisfile} .recalibrated.bam`.raw_variants.vcf
+fi
+
+#Check to see if this is the last job and email user
+if [ ${n} -eq ${MAXJOBID} ]
+then
+    echo "." | mail -s "The vcf_discovery job is finishing" ${USER}@msu.edu
+    cd ${PBS_O_WORKDIR}
+#    qsub compress_vcfs.qsub
+fi
+
+#Print out the statistics for this job
+qstat -f ${PBS_JOBID}
