@@ -35,7 +35,7 @@ samples=`for i in ${sample[@]} ; do echo --variant $i ; done | xargs`
 # vcf-merge --remove-duplicates `head -${n} samples.list | tail -1 `*raw_variants.vcf.gz | bgzip -c > `head -${n} samples.list | tail -1 `_all_libraries.vcf.gz
 
 # the call to GATK
-java -Xmx10g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T CombineVariants -R ${ref} ${samples} -o `head -${n} samples.list | tail -1 `_all_libraries.vcf --genotypemergeoption UNIQUIFY
+java -Xmx10g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T CombineVariants -R ${ref} ${samples} -o `head -${n} samples.list | tail -1 `_all_libraries.vcf #--genotypemergeoption UNIQUIFY
 
 # re-indexing
 tabix `head -${n} samples.list | tail -1 `_all_libraries.vcf

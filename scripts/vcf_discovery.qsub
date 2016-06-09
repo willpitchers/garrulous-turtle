@@ -1,5 +1,5 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=4,walltime=08:00:00,mem=16gb
+#PBS -l nodes=1:ppn=4,walltime=40:00:00,mem=16gb
 #PBS -N vcf_disco_${PBS_ARRAYID}
 #PBS -j oe
 #PBS -M pitchers@msu.edu
@@ -15,20 +15,20 @@ cd ${dir}
 # module load GATK/3.4.46
 module load GATK/3.5.0
 
+thisfile=${inputdata}
 
-if [ ! -f `basename ${thisfile} .recalibrated.bam`.raw_variants.vcf ]
-then
 # the call to the GATK HaplotypeCaller
-java -Xmx10g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T HaplotypeCaller -R ${ref} -I ${thisfile} --genotyping_mode DISCOVERY -stand_emit_conf 10 -stand_call_conf 30 -o `basename ${thisfile} .recalibrated.bam`.raw_variants.vcf
-fi
+java -Xmx10g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T HaplotypeCaller -R ${ref} \
+                      -I ${thisfile} --genotyping_mode DISCOVERY \
+                      -stand_emit_conf 10 -stand_call_conf 30 \
+                      -o `basename ${thisfile} .bam`.raw_variants.vcf \
+                      --output_mode EMIT_ALL_CONFIDENT_SITES \
+                      --num_threads 1 --num_cpu_threads_per_data_thread 4
 
 #Check to see if this is the last job and email user
-if [ ${n} -eq ${MAXJOBID} ]
-then
-    echo "." | mail -s "The vcf_discovery job is finishing" ${USER}@msu.edu
-    cd ${PBS_O_WORKDIR}
-#    qsub compress_vcfs.qsub
-fi
+echo "." | mail -s "The vcf_discovery job is finishing" ${USER}@msu.edu
+cd ${PBS_O_WORKDIR}
+# qsub compress_vcfs.qsub
 
 #Print out the statistics for this job
 qstat -f ${PBS_JOBID}
