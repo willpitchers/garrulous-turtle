@@ -425,7 +425,7 @@ Weeks of 18th - 22nd & 25th - 29th April
 
 Week of 16th - 20th May
 
-  - `vcftools --vcf top100.recode.vcf --extract-FORMAT-info GT --out GT_top100`
+  - Extracted genotypes from the 'hits' vcf file with `vcftools --vcf top100.recode.vcf --extract-FORMAT-info GT --out GT_top100`
     - `sed s/"\.\/\."/"0\/0"/g GT_top100.GT.FORMAT | sed s/"0\/0"/"R"/g | sed s/"0\/1"/"H"/g | sed s/"1\/1"/"A"/g > hits.geno`
   - trying to test PLINK sensitivity using simulated data:
     - build fake vcf rows -> append to subset of real vcf file
@@ -434,4 +434,24 @@ Week of 16th - 20th May
   - We think that a proportion of the apparently missing-data codes in the multi-individual vcf files may in fact represent homozygous loci for the reference allele... [seqanswers](http://seqanswers.com/forums/archive/index.php/t-28325.html) suggests that this is a know 'feature' of GATK.
     - a few hours of poking through manuals/googling suggests that the best way to fix this is to detour around the problem by moving the coalescence-of-individuals point further up the pipeline.
     - 1st attempt: coalesce individuals as recalibrated BAM files immediately prior to vcf discovery run..
-    
+      - NB: using `samtools merge` sequentially to merge e.g. 1.bam + 2.bam + 3.bam gives identical (i.e. no `diff`) results to merging 1.bam + 2.bam, followed by merging 1+2.bam + 3.bam (tested on Shockly with SAMtools/0.1.19)
+
+
+Week of 23rd – 27th May
+
+  - with reference to [AnalysisPipeline.md](./AnalysisPipeline.md):
+    - the first build of the pipeline was pleasantly parallel for steps 1–8 (mostly 768-job arrays) before merging at the vcf stage...
+    - updated version is going to merge bam files immediately after recalibration (step 5), merging in stages; libraries within individuals, then individuals within populations, then all populations
+  - re-testing PLINK sensitivity – last week the results I was getting made no sense...
+    - rebuilt fake vcf rows -> reappend to subset vcf -> edit vcf to replace incorrect version code (HPCC Ticket #20345 I think) with `sed -i s/"fileformat=VCFv4.2"/"fileformat=VCFv4.0"/ pedrows.vcf` -> covert vcf to ped using `vcftools --vcf pedrows.vcf --out pedrows --plink` -> insert phenotype data as per [plink_pheno](scripts/plink_pheno.qsub) -> run `plink --file pedrows --allow-no-sex --assoc fisher --out pedtest --allow-extra-chr`
+    - this procedure now seems to work... I may need to simulate some more fake data at closer allele frequency intervals...
+  - long drawn-out wrestling with the HPC trying to get the "longjob" checkpoint/restart tool to work...
+
+
+Week of 30th May - 3rd June
+
+  - progress made towards useable `longjob` script for checkpoint-&-restarting
+    - successfully checkpointed/restarted a pointless command
+    - 
+
+    1252000000 reads in 108sec
