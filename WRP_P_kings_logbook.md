@@ -443,15 +443,56 @@ Week of 23rd – 27th May
     - the first build of the pipeline was pleasantly parallel for steps 1–8 (mostly 768-job arrays) before merging at the vcf stage...
     - updated version is going to merge bam files immediately after recalibration (step 5), merging in stages; libraries within individuals, then individuals within populations, then all populations
   - re-testing PLINK sensitivity – last week the results I was getting made no sense...
-    - rebuilt fake vcf rows -> reappend to subset vcf -> edit vcf to replace incorrect version code (HPCC Ticket #20345 I think) with `sed -i s/"fileformat=VCFv4.2"/"fileformat=VCFv4.0"/ pedrows.vcf` -> covert vcf to ped using `vcftools --vcf pedrows.vcf --out pedrows --plink` -> insert phenotype data as per [plink_pheno](scripts/plink_pheno.qsub) -> run `plink --file pedrows --allow-no-sex --assoc fisher --out pedtest --allow-extra-chr`
+    - rebuilt fake vcf rows -> re-append to subset vcf -> edit vcf to replace incorrect version code (HPCC Ticket #20345 I think) with `sed -i s/"fileformat=VCFv4.2"/"fileformat=VCFv4.0"/ pedrows.vcf` -> covert vcf to ped using `vcftools --vcf pedrows.vcf --out pedrows --plink` -> insert phenotype data as per [plink_pheno](scripts/plink_pheno.qsub) -> run `plink --file pedrows --allow-no-sex --assoc fisher --out pedtest --allow-extra-chr`
     - this procedure now seems to work... I may need to simulate some more fake data at closer allele frequency intervals...
   - long drawn-out wrestling with the HPC trying to get the "longjob" checkpoint/restart tool to work...
 
 
 Week of 30th May - 3rd June
 
+  - talked with JG, decided that the appropriate 'level' at which to run the HaplotypeCaller is the individual, i.e. `HaplotypeCaller -I APA_6675_all_libraries.bam.g.vcf`, then run `GenotypeGVCFs` on all 63 `...g.vcfs`
   - progress made towards useable `longjob` script for checkpoint-&-restarting
     - successfully checkpointed/restarted a pointless command
-    - 
+    - successfully checkpointed at GATK job, but the restart does not work consistently...
+    - wrote to iCER to ask for help, also contacted Dirk Colbry (who originally wrote the `longjob` powertool)
+  - Due to continued HPCC problems, I've copied the individual-level BAM files to Shockly and started running GATK HaplotypeCaller (with the GVCF option) there as a back-up...
 
-    1252000000 reads in 108sec
+
+Week of 6–10th June
+
+  - The restart problem is temp-file related. Dirk and I have exchanged a number of emails about this...
+  - tried editing script to search for temp-files on restart...
+  - tried editing script to mkdir its own folder to hold temp-files...
+  - we've reached the point where I, Chun-Min *&* Dirk are all stumped as to why we cannot get a clean restart :-(
+  - in order to get the GVCFs made in good time I'm playing with time and memory parameters and GATK's built-in multi-threading...
+
+
+Week of 13-17th June
+
+  - most of the week in crunch-mode on the efish special issue MS...
+  - HaplotypeCaller still running on Shockly. 4 of 63 GVCFs finished so far.
+  - As installed on the HPC, GATK can run multi-threaded at the *core* but not the *node* level, i.e. I can multi-thread across a single multi-core node.
+  - testing suggests that the jobs GVCF jobs should run for ~15hrs with 20GB memory on a quad-core node
+    – array submitted to the queue for 20hr jobs – all surviving nodes have >=4 cores and >=20GB so this ought to minimise queue-time
+    – all jobs still queueing after 2 days. `showq` and `showstart` appear to have been broken by the HPC rebuild
+
+
+Week of 20-24th June
+
+  - most of the week in crunch-mode on the efish special issue MS.
+  - 50 of 63 20hr jobs complete, re-submitted the remaining 13 for 30hrs with 4cores and 20GB
+  - 30hr jobs queueing for days... new (intel16 'Laconia') nodes are all big-memory: now that they're online does the trade-off of requesting more cores/memory vs. time change?
+    - testing suggests that with double memory these jobs should only take ~6hrs, so shouldn't queue long - testing 60GB on 4 cores for 8hrs
+	- more testing suggests that with double memory *and* threads these jobs should only take 3-4hrs - testing 60G on 8 cores for 4hrs
+		- both these tests run out of time for the 'awkward 13' individuals, but the time remaining on the GATK clock when the jobs get killed is >1hr in most cases...
+		- paging through output files suggests that rate of progress plateaus part-way through the job – this limits the value of my testing
+	- set 8hr, 8core, 100GB jobs running on the awkward 13
+  - HaplotypeCaller still running on Shockly. 9 of 63 GVCFs finished so far.
+
+
+Week of 27th June – 1st July
+
+  - 8hr, 8core, 100GB jobs completed properly for 9 of 13 awkward individuals – still had 4 individuals run out of time, but with *seconds* left on the clock in 3 cases, the 4th had ~20mins
+  - re-submitted 10hr, 8core, 100GB jobs for the final 4.
+  - meanwhile, testing shows that `GenotypeVCFs` crashes out in ~10mins with currently-available GVCFs... investigating.
+    - 1 individual that I thought had run correctly did not – possibly due to kernel panic and reboot of the machine that houses our research space? ...re-running. 
