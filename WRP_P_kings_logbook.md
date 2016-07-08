@@ -495,4 +495,20 @@ Week of 27th June – 1st July
   - 8hr, 8core, 100GB jobs completed properly for 9 of 13 awkward individuals – still had 4 individuals run out of time, but with *seconds* left on the clock in 3 cases, the 4th had ~20mins
   - re-submitted 10hr, 8core, 100GB jobs for the final 4.
   - meanwhile, testing shows that `GenotypeVCFs` crashes out in ~10mins with currently-available GVCFs... investigating.
-    - 1 individual that I thought had run correctly did not – possibly due to kernel panic and reboot of the machine that houses our research space? ...re-running. 
+    - 1 individual that I thought had run correctly did not – possibly due to kernel panic and reboot of the machine that houses our research space? ...re-running.
+  - testing suggests that `GenotypeGVCFs` may take longer than a week! ...I'm working on getting that number down.
+	- preparation of alignment rate stats:
+      - `for i in *bam ; do echo ${i} >> alignment_rates.txt  ; samtools flagstat ${i} >> alignment_rates.txt  ; done`
+      - `grep bam alignment_rates.txt > ARnames.txt`
+      - `grep --color='never' "mapped (" alignment_rates.txt > ARnums.txt`
+      - run through `P_kingsleyae_Alignment_Rates.Rmd` to produce summary.
+
+Week of 4th-8th July
+
+  - `GenotypeVCFs` tests still erroring out...
+    - tested GVCF file individually – `APA_6680..`, `APA_6683..` & `APA_6684..` seem to be the sources of the problem
+    - `APA_6680..` -> `ERROR MESSAGE: Line 98481725`. what happens if I excise the problem line?
+      - running the first 9481720 rows only seems to work, but there is some weird non-human-readable stuff around the problem line... I can only assume that this is scrambled output thanks to one of the scheduler hiccups
+      - are there other potential problems? I have a copy of `APA_6680..` that was calculated on Shockly – I am running a `diff` between the 2 now...
+    - 
+    - `sed -i '0,/VCFv4.2/s//VCFv4.0/' ..bam.g.vcf` required before `igvtools index ..bam.g.vcf`

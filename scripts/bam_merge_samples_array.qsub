@@ -19,7 +19,6 @@ MAXJOBID=63
 
 # load modules
 cd ${dir}
-module load SAMTools/1.2
 module load picardTools/1.89
 
 # make sure that the samples.list file is available
@@ -28,13 +27,10 @@ if [ ! -f samples.list ]
 fi
 
 individual=`head -${n} samples.list | tail -1 `
-#sample=(${individual}*recalibrated.boot.bam)
-sample=(${individual}*.boot.bam)
-# samples=`for i in ${sample[@]} ; do echo $i ; done | xargs`
-samples=`for i in ${sample[@]} ; do echo I=${i} ; done | xargs`
 
-# the call to SAMTools
-# samtools merge ${individual}_all_libraries.bam ${samples}
+sample=(${individual}*.recalibrated.bam)
+
+samples=`for i in ${sample[@]} ; do echo I=${i} ; done | xargs`
 
 # the call to Picard
 java -jar $PICARD/MergeSamFiles.jar ${samples} O=${individual}_all_libraries.bam
