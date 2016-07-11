@@ -1,0 +1,33 @@
+#!/bin/bash -login
+#PBS -l nodes=1:ppn=8,walltime=07:00:00,mem=200gb
+#PBS -N geno_gvcf
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+
+## Set up some variables
+# where do the files live
+dir=/mnt/scratch/pitchers/eFISH/Analysis/
+ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
+
+cd ${dir}
+
+# make list of input files
+files=(*_all_libraries.bam.g.vcf)
+filelist=`for i in ${files[@]} ; do echo --variant $i ; done | xargs`
+
+module load GATK/3.5.0
+
+# the call to the GATK HaplotypeCaller - NB: I'm going to turn up the memory/node calls for testing
+java -Xmx200g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T GenotypeGVCFs -R ${ref} \
+		${filelist}  -stand_call_conf 30  -stand_emit_conf 30 \
+		--out all_individuals_`date +%d_%m_%y`.out.vcf -nt 8 \
+		--disable_auto_index_creation_and_locking_when_reading_rods
+
+# email user
+echo "." | mail -s "The vcf_discovery JOB ARRAY is finishing" ${USER}@msu.edu
+cd ${PBS_O_WORKDIR}
+
+#Print out the statistics for this job
+qstat -f ${PBS_JOBID}
