@@ -21,7 +21,7 @@ module load plink/1.07
 # input_data=all_variants_merged_27_10_2015
 # input_data=all_variants_merged_21_01_2016
 
-plink --file ${input_data} --out ${input_data} --make-bed
+plink --file ${input_data} --out ${input_data} --make-bed --allow-extra-chr
 
 # email user & start the next job
 echo "." | mail -s "the plink_bed job is finished" ${USER}@msu.edu

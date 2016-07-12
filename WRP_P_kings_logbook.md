@@ -503,6 +503,7 @@ Week of 27th June – 1st July
       - `grep --color='never' "mapped (" alignment_rates.txt > ARnums.txt`
       - run through `P_kingsleyae_Alignment_Rates.Rmd` to produce summary.
 
+
 Week of 4th-8th July
 
   - `GenotypeVCFs` tests still erroring out...
@@ -510,5 +511,19 @@ Week of 4th-8th July
     - `APA_6680..` -> `ERROR MESSAGE: Line 98481725`. what happens if I excise the problem line?
       - running the first 9481720 rows only seems to work, but there is some weird non-human-readable stuff around the problem line... I can only assume that this is scrambled output thanks to one of the scheduler hiccups
       - are there other potential problems? I have a copy of `APA_6680..` that was calculated on Shockly – I am running a `diff` between the 2 now...
-    - 
-    - `sed -i '0,/VCFv4.2/s//VCFv4.0/' ..bam.g.vcf` required before `igvtools index ..bam.g.vcf`
+  - NB: `sed -i '0,/VCFv4.2/s//VCFv4.0/' ..bam.g.vcf` required before `igvtools index ..bam.g.vcf`
+
+
+Week of 11th-15th
+
+  - A **plethora** of HPCC problems...
+    - `GenotypeVCFs` job crashing out with "malformed GVCF file" error message
+      - validating the files with `GenomeAnalysisTK.jar -T ValidateVariants -R supercontigs.fasta --validationTypeToExclude ALL -V ..g.vcf`
+    - I/O problem with "ERROR MESSAGE: Timeout of 30000 milliseconds was reached while trying to acquire a lock on file" while running as a scheduled job, but I cannot recreate this interactively.
+      - running interactively on a dev-node suggests that adding the `--disable_auto_index_creation_and_locking_when_reading_rods` option suggests this might fix the issue...
+    - `GenotypeVCFs` job ran in ~6hrs, but dropped 3 `..g.vcf` files... not sure why. However...
+    - ...re-running with all 63 files timed out after 7hrs with ~18days left on the GATK clock(!)
+    - re-re-running `GenotypeVCFs` job with longer walltime, but it crashes out with `file 'BAVA_6627_all_libraries.bam.g.vcf' does not exist`. This file **definitely** exists. :-(
+    - waiting on my turn at running this job interactively (in debug mode) so that I can maybe diagnose the error...
+  - copying all the `..g.vcf` files over to Shockly so I can run there...
+    - in addition to md5sum-checking the transfer, I'm double-checking files first with `java -Xmx30g -jar /home/GATK/GenomeAnalysisTK.jar -T ValidateVariants -R supercontigs.fasta --validationTypeToExclude ALL -V APA_6675_all_libraries.bam.g.vcf`

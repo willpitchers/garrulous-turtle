@@ -18,7 +18,8 @@ module load plink/1.07
 mydata=${input_data}
 
 #plink --bfile ${mydata} --allow-no-sex --maf 0.01 --geno 0.95 --fisher --out ${mydata}
-plink --bfile ${mydata} --allow-no-sex --maf 0.10 --geno 0.50 --fisher --out ${mydata}_maf10_geno50
+# plink --bfile ${mydata} --allow-no-sex --maf 0.10 --geno 0.50 --fisher --out ${mydata}_maf10_geno50
+plink --bfile ${mydata} --allow-no-sex --maf 0.10 --geno 0.50 --assoc fisher --out ${mydata}_maf10_geno50
 
 echo "." | mail -s "The PLINK assoc job is finishing" ${USER}@msu.edu
 cd ${PBS_O_WORKDIR}
