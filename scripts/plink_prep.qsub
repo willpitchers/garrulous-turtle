@@ -1,5 +1,5 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=1,walltime=03:00:00,mem=16gb
+#PBS -l nodes=1:ppn=1,walltime=04:00:00,mem=32gb
 #PBS -N plink_prep
 #PBS -o /mnt/research/efish/2015_genomic_data/scripts
 #PBS -j oe
@@ -19,6 +19,8 @@ module load plink/1.07
 
 # input_data=all_variants_merged_27_10_2015
 # input_data=all_variants_merged_21_01_2016
+
+sed -i s/"fileformat=VCFv4.2"/"fileformat=VCFv4.1"/ ${input_data}.vcf
 
 vcftools --vcf ${input_data}.vcf --out ${input_data} --plink
 
