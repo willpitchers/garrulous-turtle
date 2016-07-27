@@ -26,7 +26,7 @@ geno <- mutate( geno,  ct_NA_biphase= rowSums( is.na( keepCols( geno, pheno1 )))
 #A2
 
 numSNPs <- nrow( geno )
-taco <- rep(NA, numSNPs)
+Stats <- matrix( NA, nrow=numSNPs, ncol=6 )
 
 for( i in 1:numSNPs ) {
 	maxBi <- 50 - 2*geno$ct_NA_biphase[i]
@@ -40,9 +40,29 @@ for( i in 1:numSNPs ) {
 	# triphasic, alternate.
 	D <- sum( keepCols( geno[ i, ], pheno2 ), na.rm=TRUE )
 
-	ConTab <- matrix( c(A,B,C,D), ncol=2 )
-	FishTest <- fisher.test( ConTab )
-	taco[i] <- FishTest$p.value
+	ConTab <- matrix( c(D,C,B,A), ncol=2 )
+	FishTest <- fisher.test( ConTab, alternative="two.sided", simulate.p.value=TRUE )
+	Stats[i,1] <- FishTest$p.value
+	Stats[i,2] <- FishTest$estimate
+	Stats[i,3:4] <- FishTest$conf[1:2]
+	Stats[i,5] <- ((D)/(C)) * ((A)/(B)) 
+	Stats[i,6] <- ((D+.5)*(A+.5)) / ((B+.5)*(C+.5))
+
+#    FishTest <- fisher.test( ConTab, alternative="greater", simulate.p.value=TRUE )
+#    Stats[i,5] <- FishTest$p.value
+#    Stats[i,6] <- FishTest$estimate
+#    Stats[i,7:8] <- FishTest$conf[1:2]
+
+#	alleles <- c( as.matrix( keepCols( geno[ i, ], pheno1 )), as.matrix( keepCols( geno[ i, ], pheno2 ) ))
+#	pheno <- c( rep( "0", 25 ), rep( "1", 38 ) )
+#	GLMdata <- data.frame( cbind( alleles, pheno ))
+#	mod <- glm( pheno ~ factor( as.numeric( alleles==0 )), data= GLMdata, family="binomial" )
+#	Stats[i,5:7] <- summary(mod)$coef[2, c(1:2,4)]
+
 }
+
+cbind( geno, data.frame( Stats ) %>% 
+	rename( Pval=X1, OR=X2, OR_5pc=X3, OR_95pc=X4, OR_WP=X5, OR_WPf=X6 ) ) %>% 
+	write.csv( "homebrewed_fisher_assoc.csv", quote=FALSE, row.names=FALSE )
 
 
