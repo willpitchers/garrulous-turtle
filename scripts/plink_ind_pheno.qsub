@@ -10,7 +10,6 @@
 dir=/mnt/scratch/pitchers/eFISH/Analysis/
 
 cd $dir
-module load plink/1.07
 
 # mydata=`basename all_variants_merged_27_10_2015.vcf .vcf`
 # mydata=all_variants_merged_21_01_2016

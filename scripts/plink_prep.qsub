@@ -1,5 +1,5 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=1,walltime=03:00:00,mem=16gb
+#PBS -l nodes=1:ppn=1,walltime=04:00:00,mem=32gb
 #PBS -N plink_prep
 #PBS -o /mnt/research/efish/2015_genomic_data/scripts
 #PBS -j oe
@@ -15,12 +15,16 @@ ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
 # load modules
 cd ${dir}
 module load vcftools/0.1.9
-module load plink/1.07
 
 # input_data=all_variants_merged_27_10_2015
 # input_data=all_variants_merged_21_01_2016
 
+sed -i s/"fileformat=VCFv4.2"/"fileformat=VCFv4.1"/ ${input_data}.vcf
+
 vcftools --vcf ${input_data}.vcf --out ${input_data} --plink
+
+awk -F "[\t ]" '{ $2=$1 "_" $2; print $1 "\t" $2 "\t" $3 "\t" $4 }' ${input_data}.map > temp.map
+mv temp.map ${input_data}.map
 
 # email user & start the next job
 echo "." | mail -s "the plink_prep job is finished" ${USER}@msu.edu

@@ -34,7 +34,7 @@ def read_ped( pedfile, outfile ):
         ID = line.strip().split()[ 0 ].split( '.' )[ 0 ]
         pheno = return_pheno( ID, pheno_dict )
         Line[5] = pheno
-        Lineout = ' '.join( Line )
+        Lineout = '\t'.join( Line )
         outped.write( Lineout + '\n' )
 
 ## these lines run the input through the functions
