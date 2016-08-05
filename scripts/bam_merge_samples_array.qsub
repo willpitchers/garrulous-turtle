@@ -28,7 +28,8 @@ fi
 
 individual=`head -${n} samples.list | tail -1 `
 
-sample=(${individual}*.recalibrated.bam)
+#sample=(${individual}*.recalibrated.bam)
+sample=(${individual}*.recalibrated.boot.bam)
 
 samples=`for i in ${sample[@]} ; do echo I=${i} ; done | xargs`
 
@@ -40,7 +41,7 @@ if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The BAM merging ARRAY is finishing" ${USER}@msu.edu
     cd $PBS_O_WORKDIR
-    qsub breakdancer.qsub
+#    qsub breakdancer.qsub
 fi
 
 #Print out the statistics for this job
