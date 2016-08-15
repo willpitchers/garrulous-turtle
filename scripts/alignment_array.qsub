@@ -27,20 +27,22 @@ filelist=(`for file in ${matepairs[@]} ${unpaired[@]}; do echo ${file} ; done`)
 thisfile=${filelist[${n}]}
 
 # grab details for @RG tag
-pop=`grep -Eo '^[A-Z]{2,4}' <<< $(echo ${thisfile})`
-ID=`grep -Eo '[0-9]{4}' <<< $(echo ${thisfile})`
-lib=`grep -Eo 'L[0-9]{3}' <<< $(echo ${thisfile})`
-Rn=`grep -Eo 'R[0-9]' <<< $(echo ${thisfile})`
+pop=`grep --color='never' -Eo '^[A-Z]{2,4}' <<< $(echo ${thisfile})`
+ID=`grep --color='never' -Eo '[0-9]{4}' <<< $(echo ${thisfile})`
+lib=`grep --color='never' -Eo 'L[0-9]{3}' <<< $(echo ${thisfile})`
+Rn=`grep --color='never' -Eo 'R[0-9]' <<< $(echo ${thisfile})`
 
-thisTAG=@RG\\tID:${pop}\\tSM:${ID}\\tPL:illumina\\tLB:${lib}\\tPU:${Rn}
+# thisTAG=@RG\\tID:${pop}\\tSM:${ID}\\tPL:illumina\\tLB:${lib}\\tPU:${Rn} # old&busted
+thisTAG=@RG\\tID:${pop}\\tSM:${ID}\\tPL:illumina\\tLB:${lib}\\tPU:${Rn} # newhotness
 
 module load bwa/0.7.12.r1044
 
 # the BWA command -- the 'if' statement decides whether the alignment should be single or paired-end
-if [ `grep -Eo 'pe' <<< $(echo ${thisfile})` ] ; then
-  bwa mem -M -R `echo ${thisTAG} | sed 's/\x1B\[[0-9;]*[JKmsu]//g'` ${ref} ${thisfile} `basename ${thisfile} R1_pe.trimmed.fq`R2_pe.trimmed.fq > `basename ${thisfile} .trimmed.fq`.aligned.sam
+if [ `grep -Eo 'pe' <<< $(echo ${thisfile})` ]
+then
+  bwa mem -M -R ${thisTAG} ${ref} ${thisfile} `basename ${thisfile} R1_pe.trimmed.fq`R2_pe.trimmed.fq > `basename ${thisfile} .trimmed.fq`.aligned.sam
 else
-  bwa mem -M -R `echo ${thisTAG}| sed 's/\x1B\[[0-9;]*[JKmsu]//g'` ${ref} ${thisfile} > `basename ${thisfile} .trimmed.fq`.aligned.sam
+  bwa mem -M -R ${thisTAG} ${ref} ${thisfile} > `basename ${thisfile} .trimmed.fq`.aligned.sam
 fi
 
 # Calculate next job to run
