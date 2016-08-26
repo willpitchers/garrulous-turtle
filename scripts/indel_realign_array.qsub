@@ -1,5 +1,5 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=8,walltime=03:30:00,mem=32gb
+#PBS -l nodes=1:ppn=8,walltime=03:30:00,mem=32gb,feature='intel16'
 #PBS -N Indel_${PBS_ARRAYID}
 #PBS -j oe
 #PBS -M pitchers@msu.edu
@@ -21,15 +21,15 @@ ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
 n=${PBS_ARRAYID}
 # build a list of file names
 cd ${dir}
-filelist=(*dedup.bam)
+filelist=(*dedup.rg.bam)
 thisfile=${filelist[${n}]}
 
 module load GATK/3.5.0
 
 # the GATK commands – first we need to build a 'target list' of Indels, then realign them
-java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T RealignerTargetCreator -R ${ref} -I ${thisfile} -o `basename ${thisfile} .dedup.bam`.realignment_targets.list
+java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T RealignerTargetCreator -R ${ref} -I ${thisfile} -o `basename ${thisfile} .dedup.rg.bam`.realignment_targets.list
 
-java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T IndelRealigner -R ${ref} -I ${thisfile} -targetIntervals `basename ${thisfile} .dedup.bam`.realignment_targets.list -o `basename ${thisfile} .dedup.bam`.realigned.bam
+java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T IndelRealigner -R ${ref} -I ${thisfile} -targetIntervals `basename ${thisfile} .dedup.rg.bam`.realignment_targets.list -o `basename ${thisfile} .dedup.rg.bam`.realigned.rg.bam
 
 # Calculate next job to run
 NEXT=$(( ${n} + 200 ))

@@ -1,5 +1,5 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=2,walltime=02:00:00,mem=16gb
+#PBS -l nodes=1:ppn=2,walltime=02:00:00,mem=32gb,feature='intel16'
 #PBS -o /mnt/research/efish/2015_genomic_data/scripts
 #PBS -N BAM_sample_merge
 #PBS -j oe
@@ -34,7 +34,12 @@ sample=(${individual}*.recalibrated.bam)
 samples=`for i in ${sample[@]} ; do echo I=${i} ; done | xargs`
 
 # the call to Picard
-java -jar $PICARD/MergeSamFiles.jar ${samples} O=${individual}_all_libraries.bam
+if [ ! -f ${individual}_all_libraries.bam ]
+	then java -jar $PICARD/MergeSamFiles.jar ${samples} O=${individual}_all_libraries.bam
+fi
+
+# and now index our new bam
+java -jar $PICARD/BuildBamIndex.jar I=${individual}_all_libraries.bam
 
 # and now index our new bam
 java -jar $PICARD/BuildBamIndex.jar I=${individual}_all_libraries.bam
@@ -45,7 +50,11 @@ then
     echo "." | mail -s "The BAM merging ARRAY is finishing" ${USER}@msu.edu
     cd $PBS_O_WORKDIR
 #    qsub breakdancer.qsub
+<<<<<<< HEAD
     qsub vcf_discovery_array4.qsub
+=======
+	qsub vcf_discovery_array4.qsub
+>>>>>>> d267236c8036be44029d16b9b2a78717db41d5fe
 fi
 
 #Print out the statistics for this job

@@ -21,9 +21,9 @@ ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
 n=${PBS_ARRAYID}
 # build a list of file names
 cd ${dir}
-matepairs=(*R1_pe.trimmed.fq)
+paired=(*R1_pe.trimmed.fq)
 unpaired=(*_se.trimmed.fq)
-filelist=(`for file in ${matepairs[@]} ${unpaired[@]}; do echo ${file} ; done`)
+filelist=(`for file in ${paired[@]} ${unpaired[@]}; do echo ${file} ; done`)
 thisfile=${filelist[${n}]}
 
 # grab details for @RG tag
@@ -37,7 +37,11 @@ thisTAG=@RG\\tID:${pop}\\tSM:${ID}\\tPL:illumina\\tLB:${lib}\\tPU:${Rn} # newhot
 
 module load bwa/0.7.12.r1044
 
+<<<<<<< HEAD
+# Calculate next job to run command -- the 'if' statement decides whether the alignment should be single or paired-end
+=======
 # the BWA command -- the 'if' statement decides whether the alignment should be single or paired-end
+>>>>>>> b8eca29127d8a5226f56b396e59703aa85adfd85
 if [ `grep -Eo 'pe' <<< $(echo ${thisfile})` ]
 then
   bwa mem -M -R ${thisTAG} ${ref} ${thisfile} `basename ${thisfile} R1_pe.trimmed.fq`R2_pe.trimmed.fq > `basename ${thisfile} .trimmed.fq`.aligned.sam
@@ -45,7 +49,6 @@ else
   bwa mem -M -R ${thisTAG} ${ref} ${thisfile} > `basename ${thisfile} .trimmed.fq`.aligned.sam
 fi
 
-# Calculate next job to run
 NEXT=$(( ${n} + 200 ))
 
 #Check to see if next job is past the maximum job id
