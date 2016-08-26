@@ -24,12 +24,16 @@ module load GATK/3.5.0
 java -Xmx200g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T GenotypeGVCFs -R ${ref} \
 		${filelist}  -stand_call_conf 30  -stand_emit_conf 30 \
 		--out all_individuals_`date +%d_%m_%y`.8x7.noloc.out.vcf -nt 8 \
-		--disable_auto_index_creation_and_locking_when_reading_rods \
+#		--disable_auto_index_creation_and_locking_when_reading_rods \
 		--logging_level DEBUG --log_to_file GVCF.8x7.noloc.log
 
 # email user
 echo "." | mail -s "The vcf_discovery JOB ARRAY is finishing" ${USER}@msu.edu
 cd ${PBS_O_WORKDIR}
 
+:
+
+
+:q
 #Print out the statistics for this job
 qstat -f ${PBS_JOBID}
