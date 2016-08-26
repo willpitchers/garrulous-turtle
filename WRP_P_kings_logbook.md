@@ -555,7 +555,85 @@ Week of 11th-15th
 
 
 
-Week of thing
+Week of 18th-22nd July
 
   - without COB: `java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants -R ../P_kings_genome/supercontigs.fasta -V all_individuals_12_07_16.20x4.out.vcf -o without_COB_12_07_16.20x4.out.vcf -sn 6675 -sn 6676 -sn 6677 -sn 6678 -sn 6679 -sn 6680 -sn 6681 -sn 6682 -sn 6683 -sn 6684 -sn 6685 -sn 6737 -sn 6494 -sn 6496 -sn 6497 -sn 6498 -sn 6499 -sn 6500 -sn 6501 -sn 6502 -sn 6597 -sn 6598 -sn 6599 -sn 6602 -sn 6603 -sn 6604 -sn 6605 -sn 6619 -sn 6620 -sn 6621 -sn 6622 -sn 6623 -sn 6624 -sn 6625 -sn 6626 -sn 6627 -sn 3923 -sn 4816 -sn 4832 -sn 4834 -sn 4893 -sn 4894 -sn 4895 -sn 4896 -sn 4897 -sn 4921 -sn 4925 -sn 6716 -sn 6717 -sn 6718 -sn 6719 -sn 6720 -sn 6721 -sn 6722 -sn 6723 -sn 6724 -sn 6725`
   - just APA/BAM: `java -Xmx20g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants -R ../P_kings_genome/supercontigs.fasta -V all_individuals_12_07_16.20x4.out.vcf -o APA_BAM_only_12_07_16.20x4.out.vcf -sn 6675 -sn 6676 -sn 6677 -sn 6678 -sn 6679 -sn 6680 -sn 6681 -sn 6682 -sn 6683 -sn 6684 -sn 6685 -sn 6737 -sn 6494 -sn 6496 -sn 6497 -sn 6498 -sn 6499 -sn 6500 -sn 6501 -sn 6502 -sn 6597 -sn 6598 -sn 6599 -sn 6602 -sn 6603 -sn 6604 -sn 6605`
+
+
+Week of 25–29th July
+
+  -
+
+
+Week of 1st-5th August
+
+  - The goal of this week is to make sense of the lack of overlap among the lists of 'top hits' from the four different PLINK association runs...
+  - bootstrap things...
+  -
+
+Week of 8th August
+
+  - is the problem with the sam files?
+    - `java -jar $PICARD/ValidateSamFile.jar I=APA_6675_GAGATTCC-TATAGCC_L001_R1_pe.aligned.sam MODE=SUMMARY` -> "no errors found"
+    - `java -jar $PICARD/ValidateSamFile.jar I=MOV_6724_GAATTCGT-TAATCTT_L008_R1_pe.aligned.sam MODE=SUMMARY` -> "no errors found"
+    - `java -jar $PICARD/ValidateSamFile.jar I=MOV_6722_GAATTCGT-GGCTCTG_L003_R1_pe.aligned.sam MODE=SUMMARY` -> "no errors found"
+  - ...the `..dedup.bam`?
+    - `java -jar $PICARD/ValidateSamFile.jar I=APA_6675_GAGATTCC-TATAGCC_L001_R1_pe.dedup.bam MODE=SUMMARY` -> "no errors found"
+    - `java -jar $PICARD/ValidateSamFile.jar I=MOV_6724_GAATTCGT-TAATCTT_L008_R1_pe.dedup.bam MODE=SUMMARY` -> "no errors found"
+    - `java -jar $PICARD/ValidateSamFile.jar I=MOV_6722_GAATTCGT-GGCTCTG_L003_R1_pe.dedup.bam MODE=SUMMARY` -> "no errors found"
+  - ...the `..realigned.bam`? AHA! problem found.
+    - `java -jar $PICARD/ValidateSamFile.jar I=APA_6675_GAGATTCC-TATAGCC_L001_R1_pe.realigned.bam MODE=SUMMARY` -> "ERROR:INVALID_VERSION_NUMBER    1"
+    - `java -jar $PICARD/ValidateSamFile.jar I=MOV_6724_GAATTCGT-TAATCTT_L008_R1_pe.realigned.bam MODE=SUMMARY` -> "ERROR:INVALID_VERSION_NUMBER    1"
+    - `java -jar $PICARD/ValidateSamFile.jar I=MOV_6722_GAATTCGT-GGCTCTG_L003_R1_pe.realigned.bam MODE=SUMMARY` -> "ERROR:INVALID_INDEX_FILE_POINTER        1"
+  - did the HPC have another I/O glitch maybe? let's try re-running these by hand? -- no dice: same problem.
+  - GATK help forums suggest that this can happen as a result of older versions of PICARD vs. newer versions of GATK...
+    - this doesn't seem to be the problem however :-(
+    - I have now gone back to the start and run these 3 libraries from the raw reads and I'm *still* getting the same errors(!)...
+    - `APA_6675_GAGATTCC-TATAGCC_L001_R1_pe.realigned.bam` & `MOV_6724_GAATTCGT-TAATCTT_L008_R1_pe.realigned.bam` *do* have different version numbers than the other libraries in their `..bam` headers: "@HD     VN:1.5" rather than "@HD     VN:1.4" (using `samtools view -H`).
+    - `samtools view -H APA_6675_GAGATTCC-TATAGCC_L001_R1_pe.realigned.bam | sed 's/VN:1.5/VN:1.4/' | samtools reheader - APA_6675_GAGATTCC-TATAGCC_L001_R1_pe.realigned.bam > APA_6675_GAGATTCC-TATAGCC_L001_R1_pe.realigned.RH.bam` & `samtools view -H MOV_6724_GAATTCGT-TAATCTT_L008_R1_pe.realigned.bam | sed 's/VN:1.5/VN:1.4/' | samtools reheader - MOV_6724_GAATTCGT-TAATCTT_L008_R1_pe.realigned.bam > MOV_6724_GAATTCGT-TAATCTT_L008_R1_pe.realigned.RH.bam` *do* fix the version number in the headers and they *do* then return 'no errors' from `ValidateSamFile.jar`.
+    - bizzarely, `SortSam`ing and `BuildBamIndex`ing fixes the problem with `MOV_6722_GAATTCGT-GGCTCTG_L003_R1_pe.realigned.bam`
+  - I'm going to manually run the fixed versions through the rest of the pipeline so that I can run PLINK today, then circle back around to fixing the reproducibility problem...
+    - while that's running, I'm going to clear out my 'Analysis' directory – I'll keep the raw reads, `..vcf`s and individual-level `..bam`s, but ditch everything else.
+  - Now that I've found workarounds, re-running `bam_merge_samples_array.qsub` and `vcf_discovery_array.qsub` and `genotype_gvcf.qsub`...
+  - Wednesday, 10 August 2016 – another I/O crashed the `vcf_discovery_array` jobs. The error logs claim that the reference file is absent, but list the full path to the reference, which bash can see... re-running.
+  - ...aaaaand another crash. puzzled...
+  - OK. finally got some GVCF jobs to run... but the post-bootstrap BAM files seem to have a more serious case of the non-linear-progression problem... testing indicates that they ought to run in ~2hrs, but *none* of them finish in 4hrs!
+    - tried with more threads - up to 14 cores (largest available on a single node [NB: the `HaplotypeCaller` tool can't handle multi-threading across nodes] ) and still not fast enough...
+    - tried with more memory - up to 500GB (largest available with 14 cores) and most still don't finish in 4hrs
+    - https://msuefishlab.slack.com/files/willpitchers/F20RN8CTV/infinity.tiff <sigh>
+    - due to the way the PBS is set up, I can demand the max available memory & #cores for 4 hrs and the jobs will start immediately, but sadly I'm going to have to run for longer and that means queueing for *days*.
+
+
+Week of August 15th
+
+  - meeting with JG about comparison between V0.2 & V0.1 pipelines
+    - we have identified a potential problem with the specification of readgroups from BWA being passed along to GATK - different fields are required and the meaning of the fields is *very* specific... working to update this now.
+    - [multi-sampled & multiplexed read tags in GATK](https://software.broadinstitute.org/gatk/guide/article?id=6472) are best extracted from the read *names*. Our read names look like this: `@HWI-D00731:65:C6UU2ANXX:1:1101:2046:1852 1:N:0:GAGATTCCTATAGCC`, wherein:
+      - `HWI-D00731` is the instrument name
+      - `65` is the run ID
+      - `C6UU2ANXX` is the flowcell ID
+      - `1` is the flowcell lane
+      - `1101` is the tile number within the lane
+      - `2046` x-coord within the tile
+      - `1852` y-coord within the tile (followed by a space)
+      - `1` is the member of a pair (if paired end)
+      - `N` is filtered Y/N?
+      - `0` "0 when none of the control bits are on, otherwise it is an even number"??
+      - `GAGATTCCTATAGCC` is the "index sequence"
+    - to fix this it they [recommend](http://gatkforums.broadinstitute.org/gatk/discussion/2909) using picardTools' `AddOrReplaceReadGroups`... added `fix_readgroup_array.qsub` script to run between the deduplication and the indel realignment steps.
+      - but *of course* the scratch space on the HPCC is doing the I/O error thing where it can't glob files correctly... delays.
+      - I sent a list of the node IDs for the failed jobs to the iCER team (using `grep Owner Dedup_* | cut -d '@' -f 2 | uniq > failed.job.nodes`)
+    -
+
+Week of August 22nd
+
+  - things!
+  -
+  - [ABySS](http://computing.bio.cam.ac.uk/local/doc/abyss.html#scaffolding) is now able to do super-scaffolding with long reads. I'm going to try it with our reference genome and the Bionano map:
+    - `abyss-pe np=8 k=64 name=new_P_kings lib='pe1' pe1='../../P_kings_genome/supercontigs.fasta' long='../super_scaffold/Para_king_2015_013_20_40_15_90_3_superscaffold.fasta_contig.fasta'`
+    - then to compare the old vs. new assemblies using BUSCO...
+    - I installed BUSCO using `brew` and downloaded the [vertebrate database](http://busco.ezlab.org/files/vertebrata_buscos.tar.gz)
+    - to run BUSCO, need to load `BLAST+`, `augustus`, `HMMER` modules
+    - `python ~/BUSCO_v1.22/BUSCO_v1.1b.py -o P_k_genome_test -in /mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta -l /mnt/home/pitchers/vertebrata/ –m genome`
+    - `python ~/BUSCO_v1.22/BUSCO_v1.1b.py -o P_k_genome_test -in /mnt/scratch/pitchers/eFISH/bionano/Abyss_scaffolded_assembly/new_P_kings-1.fa -l /mnt/home/pitchers/vertebrata/ –m genome`
