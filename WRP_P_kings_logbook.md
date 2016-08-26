@@ -511,7 +511,7 @@ Week of 4th-8th July
     - `APA_6680..` -> `ERROR MESSAGE: Line 98481725`. what happens if I excise the problem line?
       - running the first 9481720 rows only seems to work, but there is some weird non-human-readable stuff around the problem line... I can only assume that this is scrambled output thanks to one of the scheduler hiccups
       - are there other potential problems? I have a copy of `APA_6680..` that was calculated on Shockly – I am running a `diff` between the 2 now...
-  - NB: `sed -i '0,/VCFv4.2/s//VCFv4.0/' ..bam.g.vcf` required before `igvtools index ..bam.g.vcf`
+  - NB: `sed -i '0,/VCFv4.2/s//VCFv4.1/' ..bam.g.vcf` required before `igvtools index ..bam.g.vcf`
 
 
 Week of 11th-15th
@@ -527,3 +527,35 @@ Week of 11th-15th
     - waiting on my turn at running this job interactively (in debug mode) so that I can maybe diagnose the error...
   - copying all the `..g.vcf` files over to Shockly so I can run there...
     - in addition to md5sum-checking the transfer, I'm double-checking files first with `java -Xmx30g -jar /home/GATK/GenomeAnalysisTK.jar -T ValidateVariants -R supercontigs.fasta --validationTypeToExclude ALL -V APA_6675_all_libraries.bam.g.vcf`
+  - on Tuesday 12th I ran out of patience and went to iCER to ask for help. Chun-Min Chang sat with me and we re-ran my tests together. He said that the most recent failure of my job was "probably due to a problem we had with scratch last night"
+  - BREAKTHROUGH: the job appears to have run correctly in the small hours of the morning Wednesday 13th!
+    - running PLINK pipeline: "File contains 31896675 entries and 63 individuals"
+      - re-running the analysis
+      - `vcftools --vcf all_individuals_12_07_16.out.vcf --out "tophits_all_individuals_12_07_16.out" --positions ${DIR}top_hit_variants --recode`
+      - `vcftools --vcf tophits_all_individuals_12_07_16.out.recode.vcf --out "tophits_all_individuals_12_07_16" --freq`
+      - output the genotype-by-individual (GT) format using `vcftools --vcf tophits_all_individuals_12_07_16.out.recode.vcf --extract-FORMAT-info GT --out all_individuals_12_07_16`
+      - reformat this output using `cat all_individuals_12_07_16.GT.FORMAT | sed s/1\\/1/2/g | sed s/0\\/0/0/g | sed s/0\\/1/1/g | sed s/\\.\\/\\./NA/g > all_individuals_12_07_16.GT.FORMAT.recode`
+
+`grep "Scaffold81" all_individuals_12_07_16.20x4.out.vcf > scaf81.list`
+
+`for i in {0..4667} ; do grep "Scaffold${i}[[:space:]]" all_individuals_12_07_16.out.vcf | tail -1 > scaf.test ; done`
+
+
+  - 15 July vcf/PLINK testing: association analysis seems to have some weirdness – SNPs called that are at coords > length of scaffold...
+    - `head -9000 all_individuals_12_07_16.out.vcf > plinky/test.vcf && tail -1000 all_individuals_12_07_16.out.vcf >> plinky/test.vcf` gives me a 10000 row vcf file with 5230 sites and all 63 individuals
+    - `java -Xmx20g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T ValidateVariants -R ../../P_kings_genome/supercontigs.fasta --validationTypeToExclude ALL -V test.vcf` confirms that the vcf is valid from GATK's POV
+    - `vcftools --vcf test.vcf --out test --plink` makes .ped and .map files. These seem to be correctly formed.
+    - `test.map` has four cols as it ought to: Chromosome, 'rs#', genetic distance, BP coord... I'm going to try recoding the 'rs#' col to include the scaffold ID too: `awk -F "[\t ]" '{ $2=$1 "_" $2; print $1 "\t" $2 "\t" $3 "\t" $4 }' test.map > taco.map && mv taco.map test.map`
+    - `pheno_lookup.py` seems to be working as intended, made an edit to ensure that output is tab-delim.
+    - after making binary files: `plink --file test --out test --make-bed`, tried plinking: `plink --bfile test --allow-no-sex --maf 0.1 --geno 0.5 --fisher --out test`...
+    - the `test.assoc.fisher` output seems to be the right format – 'CHR' has been coded as '0' throughout, but the SNP IDs read e.g. 'Scaffold4662_25' – now testing with the *real* all_individuals_12_07_16.out.vcf
+    - both the Shockly & HPC versions of the `..assoc.fisher` file *do not* contain either of the errors that JG identified (!?!)   <scratches head>
+    - the output files (after plotting and labelling etc. on my laptop) *also* do not contain the errors – evidence points to the problem happening on the way into JG's copy of excel maybe?
+    - `for i in {0..4667} ; do grep "Scaffold${i}[[:space:]]" all_individuals_12_07_16.out.vcf | tail -1 | cut -f1,2 >> scaf.test ; echo Scaffold${i} ; done` followed by s
+
+
+
+Week of thing
+
+  - without COB: `java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants -R ../P_kings_genome/supercontigs.fasta -V all_individuals_12_07_16.20x4.out.vcf -o without_COB_12_07_16.20x4.out.vcf -sn 6675 -sn 6676 -sn 6677 -sn 6678 -sn 6679 -sn 6680 -sn 6681 -sn 6682 -sn 6683 -sn 6684 -sn 6685 -sn 6737 -sn 6494 -sn 6496 -sn 6497 -sn 6498 -sn 6499 -sn 6500 -sn 6501 -sn 6502 -sn 6597 -sn 6598 -sn 6599 -sn 6602 -sn 6603 -sn 6604 -sn 6605 -sn 6619 -sn 6620 -sn 6621 -sn 6622 -sn 6623 -sn 6624 -sn 6625 -sn 6626 -sn 6627 -sn 3923 -sn 4816 -sn 4832 -sn 4834 -sn 4893 -sn 4894 -sn 4895 -sn 4896 -sn 4897 -sn 4921 -sn 4925 -sn 6716 -sn 6717 -sn 6718 -sn 6719 -sn 6720 -sn 6721 -sn 6722 -sn 6723 -sn 6724 -sn 6725`
+  - just APA/BAM: `java -Xmx20g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants -R ../P_kings_genome/supercontigs.fasta -V all_individuals_12_07_16.20x4.out.vcf -o APA_BAM_only_12_07_16.20x4.out.vcf -sn 6675 -sn 6676 -sn 6677 -sn 6678 -sn 6679 -sn 6680 -sn 6681 -sn 6682 -sn 6683 -sn 6684 -sn 6685 -sn 6737 -sn 6494 -sn 6496 -sn 6497 -sn 6498 -sn 6499 -sn 6500 -sn 6501 -sn 6502 -sn 6597 -sn 6598 -sn 6599 -sn 6602 -sn 6603 -sn 6604 -sn 6605`

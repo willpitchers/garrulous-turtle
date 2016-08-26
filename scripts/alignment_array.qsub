@@ -37,7 +37,11 @@ thisTAG=@RG\\tID:${pop}\\tSM:${ID}\\tPL:illumina\\tLB:${lib}\\tPU:${Rn} # newhot
 
 module load bwa/0.7.12.r1044
 
+<<<<<<< HEAD
 # Calculate next job to run command -- the 'if' statement decides whether the alignment should be single or paired-end
+=======
+# the BWA command -- the 'if' statement decides whether the alignment should be single or paired-end
+>>>>>>> b8eca29127d8a5226f56b396e59703aa85adfd85
 if [ `grep -Eo 'pe' <<< $(echo ${thisfile})` ]
 then
   bwa mem -M -R ${thisTAG} ${ref} ${thisfile} `basename ${thisfile} R1_pe.trimmed.fq`R2_pe.trimmed.fq > `basename ${thisfile} .trimmed.fq`.aligned.sam
