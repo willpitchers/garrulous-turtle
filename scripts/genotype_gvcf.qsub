@@ -1,9 +1,9 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=8,walltime=08:00:00,mem=200gb
+#PBS -l nodes=1:ppn=20,walltime=08:00:00,mem=300gb
 #PBS -N geno_gvcf
 #PBS -j oe
 #PBS -M pitchers@msu.edu
-#PBS -l feature='intel14|intel16'
+#PBS -l feature='intel16'
 #PBS -m abe
 #PBS -r n
 
@@ -21,19 +21,16 @@ filelist=`for i in ${files[@]} ; do echo --variant $i ; done | xargs`
 module load GATK/3.5.0
 
 # the call to the GATK HaplotypeCaller - NB: I'm going to turn up the memory/node calls for testing
-java -Xmx200g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T GenotypeGVCFs -R ${ref} \
+java -Xmx300g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T GenotypeGVCFs -R ${ref} \
 		${filelist}  -stand_call_conf 30  -stand_emit_conf 30 \
-		--out all_individuals_`date +%d_%m_%y`.8x7.noloc.out.vcf -nt 8 \
-#		--disable_auto_index_creation_and_locking_when_reading_rods \
-		--logging_level DEBUG --log_to_file GVCF.8x7.noloc.log
+		--out all_individuals_`date +%d_%m_%y`.noloc.out.vcf -nt 20 \
+		--disable_auto_index_creation_and_locking_when_reading_rods \
+		--logging_level DEBUG --log_to_file GVCF.noloc.log
 
 # email user
 echo "." | mail -s "The vcf_discovery JOB ARRAY is finishing" ${USER}@msu.edu
 cd ${PBS_O_WORKDIR}
+qsub index_vcf.qsub
 
-:
-
-
-:q
 #Print out the statistics for this job
 qstat -f ${PBS_JOBID}
