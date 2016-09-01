@@ -1,0 +1,32 @@
+#!/bin/bash -login
+#PBS -l nodes=1:ppn=4,walltime=04:00:00,mem=32gb
+#PBS -N index_big_vcf
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -l feature='intel14|intel16'
+#PBS -m abe
+#PBS -r n
+
+## Set up some variables
+# where do the files live
+dir=/mnt/scratch/pitchers/eFISH/Analysis/
+ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
+
+cd ${dir}
+
+input_data=${input_data}
+
+module load IGVTools/2.3.26
+
+# still have to use sed to replace the vcf version number, otherwise IGVTools can't work...
+sed -i s/"fileformat=VCFv4.2"/"fileformat=VCFv4.1"/ ${input_data}
+
+igvtools index ${input_data}
+
+# email user
+echo "." | mail -s "The vcf_discovery JOB ARRAY is finishing" ${USER}@msu.edu
+cd ${PBS_O_WORKDIR}
+qsub nextjerb
+
+#Print out the statistics for this job
+qstat -f ${PBS_JOBID}
