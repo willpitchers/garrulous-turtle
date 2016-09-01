@@ -1,0 +1,71 @@
+#!/bin/bash -login
+#PBS -l nodes=1:ppn=4,walltime=01:00:00,mem=16gb,feature='intel16'
+#PBS -N fix_readgroup_{PBS_ARRAYID}
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+#PBS -t 0-200
+
+#Set manximum number of jobs for this run
+MAXJOBID=767
+
+#The JOBSCRIPT variable should be the name of this script
+JOBSCRIPT=fix_readgroup_array.qsub
+
+## Set up some variables
+dir=/mnt/scratch/pitchers/eFISH/Analysis/
+ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
+mkdir ${dir}/TMP_${PBS_ARRAYID}
+n=${PBS_ARRAYID}
+
+# build a list of file names
+cd ${dir}
+filelist=(*dedup.bam)
+thisfile=${filelist[${n}]}
+
+module load picardTools/1.89
+
+# pull out info to build new readgroup labels
+thisfastq=`basename ${thisfile} .dedup.bam`.trimmed.fq
+
+flowcell=`head -1 $thisfastq | cut -d' ' -f 1 | cut -d':' -f 3`					   # which flowcell
+lane=`head -1 $thisfastq | cut -d' ' -f 1 | cut -d':' -f 4`						   # which lane
+sample=`grep --color='never' -Eo '^[A-Z]{2,4}_[0-9]{4}' <<< $(echo ${thisfile})`   # which fish
+barcode=`head -1 $thisfastq | cut -d' ' -f 2 | cut -d':' -f 4`					   # which barcode
+
+# the PICARD command
+java -jar ${PICARD}/AddOrReplaceReadGroups.jar INPUT=${thisfile} \
+					OUTPUT=`basename ${thisfile} .bam`.rg.bam \
+					RGID=${flowcell}.${lane} \
+					RGLB=${flowcell} \
+					RGPL=illumina \
+					RGPU=${flowcell}.${lane}.${barcode} \
+					RGSM=${sample} \
+					SORT_ORDER=coordinate \
+					CREATE_INDEX=true \
+					TMP_DIR=${dir}/TMP_${PBS_ARRAYID}
+
+# tidy up
+rm -rf ${dir}/TMP_${PBS_ARRAYID} 
+
+# Calculate next job to run
+NEXT=$(( ${n} + 200 ))
+
+#Check to see if next job is past the maximum job id
+if [ ${NEXT} -le ${MAXJOBID} ]
+then
+    cd ${PBS_O_WORKDIR}
+    qsub -t ${NEXT} ${JOBSCRIPT}
+fi
+
+#Check to see if this is the last job and email user
+if [ ${n} -eq ${MAXJOBID} ]
+then
+    echo "." | mail -s "The RG-fixing array is finishing" ${USER}@msu.edu
+    cd ${PBS_O_WORKDIR}
+#    qsub indel_realign_array.qsub
+fi
+
+#Print out the statistics for this job
+qstat -f ${PBS_JOBID}

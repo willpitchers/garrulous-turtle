@@ -31,7 +31,9 @@ def read_ped( pedfile, outfile ):
     outped = open( outfile, 'w' )
     for line in open( pedfile, 'r' ):
         Line = line.strip().split()
-        ID = line.strip().split()[ 0 ].split( '.' )[ 0 ]
+		# this line changed to accept ID's in the format 'AAA_NNNN' Tuesday, 30 August 2016
+        #ID = line.strip().split()[ 0 ].split( '.' )[ 0 ]
+        ID = line.strip().split()[ 0 ].split( '.' )[ 0 ].split( '_' )[ 1 ]
         pheno = return_pheno( ID, pheno_dict )
         Line[5] = pheno
         Lineout = '\t'.join( Line )
