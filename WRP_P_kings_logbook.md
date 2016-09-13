@@ -637,3 +637,50 @@ Week of August 22nd
     - to run BUSCO, need to load `BLAST+`, `augustus`, `HMMER` modules
     - `python ~/BUSCO_v1.22/BUSCO_v1.1b.py -o P_k_genome_test -in /mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta -l /mnt/home/pitchers/vertebrata/ –m genome`
     - `python ~/BUSCO_v1.22/BUSCO_v1.1b.py -o P_k_genome_test -in /mnt/scratch/pitchers/eFISH/bionano/Abyss_scaffolded_assembly/new_P_kings-1.fa -l /mnt/home/pitchers/vertebrata/ –m genome`
+
+Week of August 29th
+
+  - check completeness of ..g.vcf files...
+    - at the shell `for i in *all_libraries.bam.g.vcf ; do echo ${i} >> GVCF_counts_1Sept.txt ; tail -1 ${i} | cut -f 1 >> GVCF_counts_1Sept.txt ; done`
+    - ...then in vim `:%s/vcf\n/vcf\t/g`
+    - ...then in **R** `tbl_df(read.table( "GVCF_counts_1Sept.txt", header=FALSE )) %>% transmute( ID=V1, Scaf=as.integer( sub( "Scaffold", "", V2 )) ) %>% arrange( Scaf ) %>% write.table( "truncatedGvcfs.txt", quote=FALSE, row.names=FALSE )`
+  - Make V.3 top-SNPs subset `.vcf` for JG:
+    - output list of 'hits' from `Old_vs_New.Rmd` -> `top_hit_variants3`
+    - `vcftools --vcf all_individuals_29_08_16.noloc.out.vcf --out "tophits_all_individuals_29_08_16.out" --positions top_hit_variants3 --recode`
+  -
+    - make vcf subset *without* APA & BAM `bcftools view -Ov -s ^APA_6675,APA_6676,APA_6677,APA_6678,APA_6679,APA_6680,APA_6681,APA_6682,APA_6683,APA_6684,APA_6685,APA_6737,BAM_6494,BAM_6496,BAM_6497,BAM_6498,BAM_6499,BAM_6500,BAM_6501,BAM_6502,BAM_6597,BAM_6598,BAM_6599,BAM_6602,BAM_6603,BAM_6604,BAM_6605 all_individuals_29_08_16.noloc.out.vcf > without_APA_and_BAM_29_08_16.noloc.out.vcf`
+    - make vcf subset with *only* APA & BAM `bcftools view -Ov -s APA_6675,APA_6676,APA_6677,APA_6678,APA_6679,APA_6680,APA_6681,APA_6682,APA_6683,APA_6684,APA_6685,APA_6737,BAM_6494,BAM_6496,BAM_6497,BAM_6498,BAM_6499,BAM_6500,BAM_6501,BAM_6502,BAM_6597,BAM_6598,BAM_6599,BAM_6602,BAM_6603,BAM_6604,BAM_6605 all_individuals_29_08_16.noloc.out.vcf > only_APA_and_BAM_29_08_16.noloc.out.vcf`
+    - make vcf subset *without* COB `bcftools view -Ov -s ^COB_4004,COB_4006,COB_4018,COB_4019,COB_4027,COB_4029 all_individuals_29_08_16.noloc.out.vcf > without_COB_29_08_16.noloc.out.vcf`
+  - run `GATK/GenotypeGVCFs` *in parallel* on all 63 fish for the sake of comparison
+
+Week of 6th September
+
+  - we now have 2 GVCF-derived all-fish.vcf files – the goal is to see how they differ:
+    - `wc`: 36359475  2617544446 23191271366 `all_individuals_post_GVCF_merged_04_09_2016.vcf`
+      - 36354704 non-header rows
+    - `wc`: 31671518  2280011585 56405095271 `all_individuals_29_08_16.noloc.out.vcf`
+      - 31666749 non-header rows
+    - running `all_individuals_post_GVCF_merged_04_09_2016.vcf` through the PLINK pipeline... `all_individuals_post_GVCF_merged_04_09_2016_maf10_geno50.assoc.fisher` generated.
+    - continuing comparisons in [`Old_vs_New.Rmd`](./Old_vs_New.Rmd)...
+    - running a vcf-diff with `vcftools --vcf all_individuals_29_08_16.noloc.out.vcf --diff all_individuals_post_GVCF_merged_04_09_2016.vcf`
+      - `out.diff.indv_in_files` list all individuals as included in both files.
+      - `out.diff.sites_in_files` is long and complex...
+        - how many variants differ? `wc -l out.diff.sites_in_files` – 36075225 - NOPE! all sites are listed!
+        - `cat out.diff.sites_in_files | cut -f 3 | grep -c B` > 31318405 sites present in both files
+        - `cat out.diff.sites_in_files | cut -f 3 | grep -c 1` > 348343 sites present only in v.3
+        - `cat out.diff.sites_in_files | cut -f 3 | grep -c 2` > 4408476 sites present only in v.4
+        - make a file of *just* unshared sites `grep --color='never' -v B out.diff.sites_in_files > out.diff.sites_not_in_both_files`
+        - `wc -l out.diff.sites_not_in_both_files` – 4756820 (as it should be)
+        - latest scaf included seems to be Scaffold999... because string-ordering! (4534 unique scaf no.s present)
+        - `out.diff.sites_not_in_both_files` is small enough to be easier to deal with in **R** -> [`VCF_version_3vs4.Rmd`](./VCF_version_3vs4.Rmd) for details...
+          - need a table of scaffold lengths: these can be extracted from `supercontigs.fasta.fai`
+          - I'm becoming suspicious after seeing some plots of the distribution of unshared SNPs by scaffold... which scaffolds appear in version3? -> `grep -v ^#  all_individuals_29_08_16.noloc.out.vcf | cut -f 1 | uniq` gives me a list.
+        - wondering which sites appear in both files, but with different alternate allele... `awk '{ if ( $3 == "B" && $5 != $6 )  print $1 "\t" $2 "\t" $3 "\t" $4 "\t" $5 "\t" $6 }' out.diff.sites_in_files >> out.diff.sites_varible_between_files`
+  - also added `pop_level_vcf_discovery.qsub` script to call genotypes on a per-population basis...
+
+Week of 12-16th September
+
+  - ran a few tests of `pop_level_vcf_discovery.qsub` over the weekend. These are going to be long-running jobs. I have them queued on the HPC to run for 24hrs – currently due to start on the 18/19th. 1st job is also running on Shockly as a full-scale test.
+    - I'm going to run the (incomplete) `pop_XXX_all_fish_10_09_16.vcf` files from these tests through `GATK/CombineVariants` -- I can probably learn something by making comparisons with the other vcf versions over just the first few scaffolds.
+      - running the vcf-diff command on the 2 new combinations: `vcftools --vcf all_individuals_29_08_16.noloc.out.vcf --diff all_fish_genocalled_as_pops_12_09_16.vcf` & `vcftools --vcf all_individuals_post_GVCF_merged_04_09_2016.vcf --diff all_fish_genocalled_as_pops_12_09_16.vcf`
+      -

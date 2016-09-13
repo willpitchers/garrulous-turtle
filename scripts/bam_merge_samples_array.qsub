@@ -50,11 +50,6 @@ then
     echo "." | mail -s "The BAM merging ARRAY is finishing" ${USER}@msu.edu
     cd $PBS_O_WORKDIR
 #    qsub breakdancer.qsub
-<<<<<<< HEAD
-    qsub vcf_discovery_array4.qsub
-=======
-	qsub vcf_discovery_array4.qsub
->>>>>>> d267236c8036be44029d16b9b2a78717db41d5fe
 fi
 
 #Print out the statistics for this job
