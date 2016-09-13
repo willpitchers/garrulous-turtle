@@ -1,6 +1,6 @@
 #!/bin/bash -login
 #PBS -o /mnt/research/efish/2015_genomic_data/scripts
-#PBS -l nodes=1:ppn=1,walltime=02:00:00,mem=16gb
+#PBS -l nodes=1:ppn=1,walltime=02:00:00,mem=16gb,feature='intel16'
 #PBS -N plink_ind_pheno
 #PBS -j oe
 #PBS -M pitchers@msu.edu
