@@ -12,17 +12,75 @@ One added level of complexity is to be found in the **Variant Calling** stage gi
 
 Once data reaches the **Statistical Analysis** stage it may become necessary for the pipeline to branch as it seems likely that I'll need to use more than one program to generate the statistics that we're aiming at...
 
-## Map
+***UPDATE: it is not yet completely clear to us which of the variations on our pipeline is most appropriate...***
+
+## Version 1 (completely parallel)
 
    |  Stage   |   Script    |   Tool(s)   |   Options   |   Input   |   Output    |   Description
 ---|----------|-------------|-------------|-------------|-----------|-------------|---------------
 1. | **QC** | `trimmomatic_array.qsub ` | Trimmomatic/0.32 | `ILLUMINACLIP:Illumina_adapters.fa:2:30:10 HEADCROP:10 MAXINFO:50:0.5` | `Sample_library_Lane_RX_Ye.fastq.gz` | `Sample_library_Lane_RX_Ye.trimmed.fq` | gunzips ..fastq.gz files and trims
 2. | **Alignment** | `alignment_array.qsub` | bwa/0.7.12.r1044 | `bwa mem -M -R ..` | `Sample_library_Lane_RX_Ye.trimmed.fq` & `Reference.fa` | `Sample_library_Lane_RX_Ye.aligned.sam` | pulls details from filenames to make an `@RG` tag and then runs alignment
 3. | **Sorting/Indexing** | `deduplication_array.qsub` | picardTools/1.89 | `SORT_ORDER=coordinate` | `Sample_library_Lane_RX_Ye.aligned.sam` | `Sample_library_Lane_RX_Ye.dedup.bam` | SortSam.jar sorts, MarkDuplicates.jar marks duplicates & BuildBamIndex.jar indexes
+4. | | `indel_realign_array.qsub` | GATK/3.4.46 | | `Sample_library_Lane_RX_Ye.dedup.bam` & `Reference.fa` | `Sample_library_Lane_RX_Ye.realignment_targets.list` & `Sample_library_Lane_RX_Ye.realigned.bam` | RealignerTargetCreator ID's targets, IndelRealigner realigns
+5. | | `base_score_recalibration_array.qsub` | GATK/3.4.46 | '--run_without_dbsnp_potentially_ruining_quality' | `Sample_library_Lane_RX_Ye.realigned.bam` & `Reference.fa` | `Sample_library_Lane_RX_Ye.recal_data.table` & `Sample_library_Lane_RX_Ye.recal_plots.pdf` & `Sample_library_Lane_RX_Ye.recalibrated.bam` | 2 passes with BaseRecalibrator (with the infamous no-dbsnp flag), then AnalyzeCovariates prints the plots/stats, then PrintReads writes the output bam
+6. | **Variant Calling** | `vcf_discovery_array.qsub` | GATK/3.4.46 | `--genotyping_mode DISCOVERY -stand_emit_conf 10 -stand_call_conf 30` | `Sample_library_Lane_RX_Ye.recalibrated.bam` & `Reference.fa` | `Sample_library_Lane_RX_Ye.raw_variants.vcf` | HaplotypeCaller does what it says on the tin
+7. | | `compress_vcfs.qsub` | tabix/0.2.6 & vcftools/4.2 | | `Sample_library_Lane_RX_Ye.raw_variants.vcf` | `Sample_library_Lane_RX_Ye.raw_variants.vcf.gz` | each vcf file is compressed (for vcftools compatibility) and then tabix-indexed
+8. | | `vcf_merge_samples_array.qsub` | tabix/0.2.6 & vcftools/4.2 | `--remove-duplicates` | `Sample_library_Lane_RX_Ye.raw_variants.vcf.gz` | `Sample_all_libraries.vcf.gz` | vcf files merged at the level of population
+9. | | `merge_all_vcfs.qsub` | tabix/0.2.6 & vcftools/4.2 | | `Sample_all_libraries.vcf.gz` | `all_variants_merged_$date$.vcf.gz` | this is a long step; merging all the sample-level vcfs into one file for passing to SKAT
+10. | **Statistical Analysis** | `calc_Fst_array` | vcftools/4.2 | `--fst-window-size` & `--fst-window-step` | `all_variants_merged_${date}.vcf` | `Fst_POP1_vs_POP2.windowedXkb.stepYkb.weir.fst` | Fst stat. calculated for all pairwise between-pop comparisons. Options passed into output filenames.
+11. | | `plink_vcf_convert.qsub`, `plink_prep.qsub`, & `plink_fisher.qsub` | vcftools/4.2 & plink/1.07 | `--maf` & `--geno` (missingness) | `all_variants_merged_${date}.vcf` | `all_variants_merged_${date}.assoc.fisher`, `*.ped`, `*.bed`, `*.bim`, `*.fam`, `*.log`, `*.map` & `*.nosex` | Association with Fisher's exact test and simplified presence/absence phenotype data.
+12. | **Find Structural Variants** | `bam_merge_samples_array.qsub ` | picardTools/1.89 | | `*.bam` | `${individual}_all_libraries.bam` | ...
+13. | | `breakdancer.qsub` | BreakDancer/1.1.2 & SAMTools/1.2 | `-t -q 10 -d` | `${individual}_all_libraries.bam` | `breakdancer_${date}_analysis.cfg` & `...ctx` | Detects structural variants...
+
+---
+
+## Version 2 (defunct)
+
+---
+
+## Version 3 (GVCF -> joint genotyping with GenotypeGVCFs)
+
+   |  Stage   |   Script    |   Tool(s)   |   Options   |   Input   |   Output    |   Description
+---|----------|-------------|-------------|-------------|-----------|-------------|---------------
+1. | **QC** | `trimmomatic_array.qsub ` | Trimmomatic/0.32 | `ILLUMINACLIP:Illumina_adapters.fa:2:30:10 HEADCROP:10 MAXINFO:50:0.5` | `Sample_library_Lane_RX_Ye.fastq.gz` | `Sample_library_Lane_RX_Ye.trimmed.fq` | gunzips ..fastq.gz files and trims
+2. | **Alignment** | `alignment_array.qsub` | bwa/0.7.12.r1044 | `bwa mem -M -R ..` | `Sample_library_Lane_RX_Ye.trimmed.fq` & `Reference.fa` | `Sample_library_Lane_RX_Ye.aligned.sam` | pulls details from filenames to make an `@RG` tag and then runs alignment
+3. | | `fix_readgroup_array.qsub` | picardTools/1.89 | `${PICARD}/AddOrReplaceReadGroups.jar` | `Sample_library_Lane_RX_Ye.aligned.sam` | `Sample_library_Lane_RX_Ye.aligned.rg.sam` | overwrites the `@RG` tag to make it *GATK-compatible*
+
+4. | **Sorting/Indexing** | `deduplication_array.qsub` | picardTools/1.89 | `SORT_ORDER=coordinate` | `Sample_library_Lane_RX_Ye.aligned.sam` | `Sample_library_Lane_RX_Ye.dedup.bam` | SortSam.jar sorts, MarkDuplicates.jar marks duplicates & BuildBamIndex.jar indexes
+5. | | `indel_realign_array.qsub` | GATK/3.5.0 | | `Sample_library_Lane_RX_Ye.dedup.bam` & `Reference.fa` | `Sample_library_Lane_RX_Ye.realignment_targets.list` & `Sample_library_Lane_RX_Ye.realigned.bam` | RealignerTargetCreator ID's targets, IndelRealigner realigns
+6. | **Base Score Recalibration** | `base_score_recalibration_array.qsub` | GATK/3.5.0 | '--run_without_dbsnp_potentially_ruining_quality' | `Sample_library_Lane_RX_Ye.realigned.bam` & `Reference.fa` | `Sample_library_Lane_RX_Ye.recal_data.table` & `Sample_library_Lane_RX_Ye.recal_plots.pdf` & `Sample_library_Lane_RX_Ye.recalibrated.bam` | 2 passes with `BaseRecalibrator` (with the infamous no-dbsnp flag), then `AnalyzeCovariates` prints the plots/stats, then `PrintReads` writes the output bam
+7. | **Sample Merging** | `bam_merge_samples_array.qsub` | picardTools/1.89 | `MergeSamFiles.jar` & `BuildBamIndex` | `XXX_NNNN_library_Lane_RX_Ye.recalibrated.bam` | `XXX_NNNN_all_libraries.bam` | I added this step so that we could use the GATK 'Joint Variant Calling' workflow; parallelizing over individuals. Merging files within individual, then re-index the resulting `..bam`
+8. | **Variant Calling** | `vcf_discovery_array.qsub` | GATK/3.5.0 | `--genotyping_mode DISCOVERY --emitRefConfidence GVCF --output_mode EMIT_ALL_SITES` | `Sample_library_Lane_RX_Ye.recalibrated.bam` & `Reference.fa` | `XXX_NNNN_all_libraries.bam.g.vcf` | HaplotypeCaller...
+9. | | `genotype_gvcf.qsub` | GATK/3.5.0 | `-stand_call_conf 30` & `-stand_emit_conf 30` | `*_all_libraries.bam` | `all_individuals_${date}.out.vcf` | This script uses `GenotypeGVCFs`for joint variant calling on the stack of all 63 `..bam.g.vcf` files
+10. | | `vcf_merge_samples_array.qsub` | tabix/0.2.6 & vcftools/0.1.9 | `--remove-duplicates` | `Sample_library_Lane_RX_Ye.raw_variants.vcf.gz` | `Sample_all_libraries.vcf.gz` | vcf files merged at the level of population
+
+11. | | `merge_all_vcfs.qsub` | tabix/0.2.6 & vcftools/0.1.9 | | `Sample_all_libraries.vcf.gz` | `all_variants_merged_$date$.vcf.gz` | this is a long step; merging all the sample-level vcfs into one file for passing to SKAT
+12. | **Statistical Analysis** | `calc_Fst_array` | vcftools/0.1.9 | `--fst-window-size` & `--fst-window-step` | `all_variants_merged_${date}.vcf` | `Fst_POP1_vs_POP2.windowedXkb.stepYkb.weir.fst` | Fst stat. calculated for all pairwise between-pop comparisons. Options passed into output filenames.
+13. | | `plink_vcf_convert.qsub`, `plink_prep.qsub`, & `plink_fisher.qsub` | vcftools/0.1.9 & plink/1.07 | `--maf` & `--geno` (missingness) | `all_variants_merged_${date}.vcf` | `all_variants_merged_${date}.assoc.fisher`, `*.ped`, `*.bed`, `*.bim`, `*.fam`, `*.log`, `*.map` & `*.nosex` | Association with Fisher's exact test and simplified presence/absence phenotype data.
+14. | | script | R/3.2.0 & SKAT v1.1.2 | complex – see Rscript | `all_variants_merged_${date}.ped`, `*.bed`, `*.bim`, `*.fam`, & `*.map` | Sequence Kernal Association Test
+15. | **Find Structural Variants** | `bam_merge_samples_array.qsub ` | picardTools/1.89 | | `*.bam` | `${individual}_all_libraries.bam` | ...
+16. | | `breakdancer.qsub` | BreakDancer/1.1.2 & SAMTools/1.2 | `-t -q 10 -d` | `${individual}_all_libraries.bam` | `breakdancer_${date}_analysis.cfg` & `...ctx` | Detects structural variants...
+
+---
+
+## Version 4 (defunct)
+
+---
+
+## Version 5 (joint genotyping with HaplotypeCaller)
+
+|  Stage   |   Script    |   Tool(s)   |   Options   |   Input   |   Output    |   Description
+---|----------|-------------|-------------|-------------|-----------|-------------|---------------
+1. | **QC** | `trimmomatic_array.qsub ` | Trimmomatic/0.32 | `ILLUMINACLIP:Illumina_adapters.fa:2:30:10 HEADCROP:10 MAXINFO:50:0.5` | `Sample_library_Lane_RX_Ye.fastq.gz` | `Sample_library_Lane_RX_Ye.trimmed.fq` | gunzips ..fastq.gz files and trims
+2. | **Alignment** | `alignment_array.qsub` | bwa/0.7.12.r1044 | `bwa mem -M -R ..` | `Sample_library_Lane_RX_Ye.trimmed.fq` & `Reference.fa` | `Sample_library_Lane_RX_Ye.aligned.sam` | pulls details from fastq files to build a GATK-compatible `@RG` tag, and then runs alignment
+3. | **Sorting/Indexing** | `deduplication_array.qsub` | picardTools/1.89 | `SORT_ORDER=coordinate` | `Sample_library_Lane_RX_Ye.aligned.sam` | `Sample_library_Lane_RX_Ye.dedup.bam` | SortSam.jar sorts, MarkDuplicates.jar marks duplicates & BuildBamIndex.jar indexes
 4. | | `indel_realign_array.qsub` | GATK/3.5.0 | | `Sample_library_Lane_RX_Ye.dedup.bam` & `Reference.fa` | `Sample_library_Lane_RX_Ye.realignment_targets.list` & `Sample_library_Lane_RX_Ye.realigned.bam` | RealignerTargetCreator ID's targets, IndelRealigner realigns
 5. | **Base Score Recalibration** | `base_score_recalibration_array.qsub` | GATK/3.5.0 | '--run_without_dbsnp_potentially_ruining_quality' | `Sample_library_Lane_RX_Ye.realigned.bam` & `Reference.fa` | `Sample_library_Lane_RX_Ye.recal_data.table` & `Sample_library_Lane_RX_Ye.recal_plots.pdf` & `Sample_library_Lane_RX_Ye.recalibrated.bam` | 2 passes with `BaseRecalibrator` (with the infamous no-dbsnp flag), then `AnalyzeCovariates` prints the plots/stats, then `PrintReads` writes the output bam
 6. | **Sample Merging** | `bam_merge_samples_array.qsub` | picardTools/1.89 | `MergeSamFiles.jar` & `BuildBamIndex` | `XXX_NNNN_library_Lane_RX_Ye.recalibrated.bam` | `XXX_NNNN_all_libraries.bam` | I added this step so that we could use the GATK 'Joint Variant Calling' workflow; parallelizing over individuals. Merging files within individual, then re-index the resulting `..bam`
-7. | **Variant Calling** | `vcf_discovery_array.qsub` | GATK/3.5.0 | `--genotyping_mode DISCOVERY --emitRefConfidence GVCF --output_mode EMIT_ALL_SITES` | `Sample_library_Lane_RX_Ye.recalibrated.bam` & `Reference.fa` | `XXX_NNNN_all_libraries.bam.g.vcf` | HaplotypeCaller...
+7. | | `merge_all_bams.qsub` |
+
+7. | **Variant Calling** | `vcf_discovery_array.qsub` | GATK/3.5.0 | `HaplotypeCaller --genotyping_mode DISCOVERY --emitRefConfidence GVCF --output_mode EMIT_ALL_SITES` | `Sample_library_Lane_RX_Ye.recalibrated.bam` & `Reference.fa` | `XXX_NNNN_all_libraries.bam.g.vcf` | HaplotypeCaller...
+
 8. | | `genotype_gvcf.qsub` | GATK/3.5.0 | `-stand_call_conf 30` & `-stand_emit_conf 30` | `*_all_libraries.bam` | `all_individuals_${date}.out.vcf` | This script uses `GenotypeGVCFs`for joint variant calling on the stack of all 63 `..bam.g.vcf` files
 9. | | `vcf_merge_samples_array.qsub` | tabix/0.2.6 & vcftools/0.1.9 | `--remove-duplicates` | `Sample_library_Lane_RX_Ye.raw_variants.vcf.gz` | `Sample_all_libraries.vcf.gz` | vcf files merged at the level of population
 
@@ -33,15 +91,30 @@ Once data reaches the **Statistical Analysis** stage it may become necessary for
 14. | **Find Structural Variants** | `bam_merge_samples_array.qsub ` | picardTools/1.89 | | `*.bam` | `${individual}_all_libraries.bam` | ...
 15. | | `breakdancer.qsub` | BreakDancer/1.1.2 & SAMTools/1.2 | `-t -q 10 -d` | `${individual}_all_libraries.bam` | `breakdancer_${date}_analysis.cfg` & `...ctx` | Detects structural variants...
 
+---
 
-## file flow
+### file flow
   512 `..fastq.gz`
   1024`..trimmed.fq`
-  768`..aligned.sam`
-  768`..dedup.bam`
-  768`..realigned.bam`
-  768`..recalibrated.bam`
+  768`..trimmed.aligned.sam`
+  768`..trimmed.sorted.sam`
+  768`..trimmed.dedup.bam`
+  768`..trimmed.dedup.realigned.bam`
+  768`..trimmed.aligned.dedup.realigned.recalibrated.bam`
 
+### Tools
+  - Trimmomatic/0.32
+  - bwa/0.7.12.r1044
+  - picardTools/1.89
+  - SAMTools/1.3.1
+  - GATK/3.5.0
+  - R/3.2.0
+  - tabix/0.2.6
+  - vcftools/0.1.9
+
+
+-t 84,150,192,201,222,225,228,261,284,345,357,390,392,429,484,489,557,558,570,592,684,689,756,757,758
+-t 84,150,192,201,222,225,228,261,284,345,357,390,429,489,558,570,678,756
 
 
 ## Output Formats

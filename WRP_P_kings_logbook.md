@@ -680,7 +680,52 @@ Week of 6th September
 
 Week of 12-16th September
 
-  - ran a few tests of `pop_level_vcf_discovery.qsub` over the weekend. These are going to be long-running jobs. I have them queued on the HPC to run for 24hrs – currently due to start on the 18/19th. 1st job is also running on Shockly as a full-scale test.
+  - ran a few tests of `pop_level_vcf_discovery.qsub` over the weekend. These are going to be long-running jobs. I have them queued on the HPC to run for 24hrs – currently due to start on the 18/19th. 1st job is also running on Shockly as a full-scale test. (these jobs started early as it happened: 15 September 2016)
     - I'm going to run the (incomplete) `pop_XXX_all_fish_10_09_16.vcf` files from these tests through `GATK/CombineVariants` -- I can probably learn something by making comparisons with the other vcf versions over just the first few scaffolds.
       - running the vcf-diff command on the 2 new combinations: `vcftools --vcf all_individuals_29_08_16.noloc.out.vcf --diff all_fish_genocalled_as_pops_12_09_16.vcf` & `vcftools --vcf all_individuals_post_GVCF_merged_04_09_2016.vcf --diff all_fish_genocalled_as_pops_12_09_16.vcf`
-      -
+  - posted on GATK forums about our pipeline indecision – got an answer really quickly:
+
+  > "There are a few technical obstacles that arise if you don't have a prior collection of known variants, as is often the case for non-model organisms. Ie the recalibration tools require known variants (though this can be bootstrapped for BQSR). For variant filtering, you'll need to use hard filters as the machine learning tools won't work on your data.
+
+  > Besides that there's not really anything that is assumed that would be human specific. The GVCF workflow does assume that variants are more likely to be real if they're observed in more than one sample -- but given your experimental design I don't think that would be a problem. You're looking for variants that are shared within sub populations, right?
+
+  > The low coverage is probably the biggest weakness; you may want want to do some tests comparing sensitivity between traditional multi sample calling (giving all samples simultaneously to the HaplotypeCaller) versus applying the two-step GVCF workflow."
+
+  - Following the above advice entails a slight adjustment from pipeline version 1.; firstly to ensure that the readgroups are available for BSQR and then to funnel all the fish into one HaplotypeCaller run... making adjustments.
+    - re-running the pipeline from the top to move the `fix_readgroup_array` step up.
+      - an odd assortment of ~10 `fix_readgroup_array` jobs failed, followed by 26 `deduplication_array` jobs...?
+      - I'm running a few of these interactively to see if I can ID the problem(s)... as far as I can tell the initial failures appear to be I/O errors on the older nodes; I cannot replicate them. This has become so tedious that I'm going to specify that all my jobs should *only* run on the 'intel16' nodes. <grumblegrumble>
+      - the `fix_readgroup_array` jobs that crash obviously propagate their error down to `deduplication_array`, but it seems that the 'fixed' readgroups may be *causing* an error in some cases too... `MOV_6725_GAATTCGT-CAGGACG_L007_R1_pe.aligned.sam` is my test case:
+          - `..aligned.sam` passes `$PICARD/ValidateSamFile` test...
+          - `..aligned.rg.sam` fails with 'MISMATCH_READ_LENGTH_AND_QUALS_LENGTH'...
+          - but re-running the `$PICARD/AddOrReplaceReadGroups` command manually yields a `..aligned.rg.sam` that passes (!?) This is odd. Testing again with `BAM_6498_ATTACTCG-GGCTCTG_L002_R1_pe.aligned.sam`...
+          - these files produce `..aligned.rg.sam` outputs that pass, but contain only a header!
+          - the header breaks (at least in this test case) because the `$PICARD/AddOrReplaceReadGroups` tool meets an empty/missing read with an incomplete header... the plot thickens..
+
+Week of 19-23rd September
+
+  - first priority – readgroup problem...
+    - test 1: can I have `bwa-mem` fix the readgroups?
+      - wrote `Alt-Align.qsub` script: output `BAM_6498_ATTACTCG-GGCTCTG_L002_R1_pe.aligned.sam.sorted.dedup.taco`
+        - this seems to work nicely, so going with this for the time being...
+    - test 2: can I use `samtools` to fix the readgroups instead of `PICARD`?
+      - if we upgrade to `SAMTools/1.3.1` we can use `addreplacerg`: output `BAM_6498_ATTACTCG-GGCTCTG_L002_R1_pe.aligned.dedup.bam`...?
+    - `samtools view -b MOV_6725_all_libraries.bam Scaffold0 > MOV_6725_all_libraries_scaf0.bam`
+      - need to do `samtools index` before split, then `$PICARD/BuildBamIndex` after
+        - Scaffold0, 1 fish; `HaplotypeCaller` takes only 9mins
+      - testing with `all_bam_merged_recal_24_05_2016.bam` (all 63 fishes, 592GB)
+        - samtools indexing takes 2hrs
+        - splitting takes only ~2mins
+        - `HaplotypeCaller` takes ~7mins for 1kb, ~10mins for 10kb, ~21mins for 100kb, 1Mb for ~2.5hrs, ~4hrs for 1.5Mb
+          - memory-wise: 1Mb allocated 300GB – actually used ~=50GB
+        - PICARD indexing takes ~7mins
+    - OK, so we want to aim for bam subsets of ~1.25Mb, full genome is 799,426,128bp, divided by 1.5Mb is 639.54, so let's go with as nice round number of 650 chunks...
+      - no. lines in full bam: 1807387006 / 650 ~= 2780596...
+      - the plan should be something like: `samtools view all_fish.bam | split -d -l 2780596 - BamChunks/all_fish_`
+  - OK. change of plans... using `split` is much faster than using `samtools view` for the files I was testing on, but to chunk a merged `..bam` file covering the full genome and all 63 fish requires it to run for ~12 hrs. I made 3 attempts but in every case the job encountered an I/O error long before nearing completion... `samtools view` it is!
+    - the way I've set this up is to build a script - `write_scaf_indices.sh` - that generates a list - `indices.list` - of scaffolds and coordinates that can be read into `vcf_disco_chunk_array.qsub`.
+    - `write_scaf_indices.sh` has a setting for the max. length of chunk, and writes out scaf-subsets where scaf-length > chunk-length, and doubles-up or octuples-up scafs where scaf-length << chunk-length...
+
+Week of 26-30th September
+
+  - 
