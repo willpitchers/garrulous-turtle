@@ -71,25 +71,17 @@ Once data reaches the **Statistical Analysis** stage it may become necessary for
 
 |  Stage   |   Script    |   Tool(s)   |   Options   |   Input   |   Output    |   Description
 ---|----------|-------------|-------------|-------------|-----------|-------------|---------------
-1. | **QC** | `trimmomatic_array.qsub ` | Trimmomatic/0.32 | `ILLUMINACLIP:Illumina_adapters.fa:2:30:10 HEADCROP:10 MAXINFO:50:0.5` | `Sample_library_Lane_RX_Ye.fastq.gz` | `Sample_library_Lane_RX_Ye.trimmed.fq` | gunzips ..fastq.gz files and trims
-2. | **Alignment** | `alignment_array.qsub` | bwa/0.7.12.r1044 | `bwa mem -M -R ..` | `Sample_library_Lane_RX_Ye.trimmed.fq` & `Reference.fa` | `Sample_library_Lane_RX_Ye.aligned.sam` | pulls details from fastq files to build a GATK-compatible `@RG` tag, and then runs alignment
-3. | **Sorting/Indexing** | `deduplication_array.qsub` | picardTools/1.89 | `SORT_ORDER=coordinate` | `Sample_library_Lane_RX_Ye.aligned.sam` | `Sample_library_Lane_RX_Ye.dedup.bam` | SortSam.jar sorts, MarkDuplicates.jar marks duplicates & BuildBamIndex.jar indexes
-4. | | `indel_realign_array.qsub` | GATK/3.5.0 | | `Sample_library_Lane_RX_Ye.dedup.bam` & `Reference.fa` | `Sample_library_Lane_RX_Ye.realignment_targets.list` & `Sample_library_Lane_RX_Ye.realigned.bam` | RealignerTargetCreator ID's targets, IndelRealigner realigns
-5. | **Base Score Recalibration** | `base_score_recalibration_array.qsub` | GATK/3.5.0 | '--run_without_dbsnp_potentially_ruining_quality' | `Sample_library_Lane_RX_Ye.realigned.bam` & `Reference.fa` | `Sample_library_Lane_RX_Ye.recal_data.table` & `Sample_library_Lane_RX_Ye.recal_plots.pdf` & `Sample_library_Lane_RX_Ye.recalibrated.bam` | 2 passes with `BaseRecalibrator` (with the infamous no-dbsnp flag), then `AnalyzeCovariates` prints the plots/stats, then `PrintReads` writes the output bam
-6. | **Sample Merging** | `bam_merge_samples_array.qsub` | picardTools/1.89 | `MergeSamFiles.jar` & `BuildBamIndex` | `XXX_NNNN_library_Lane_RX_Ye.recalibrated.bam` | `XXX_NNNN_all_libraries.bam` | I added this step so that we could use the GATK 'Joint Variant Calling' workflow; parallelizing over individuals. Merging files within individual, then re-index the resulting `..bam`
-7. | | `merge_all_bams.qsub` |
+1. | **QC** | `trimmomatic_array.qsub ` | Trimmomatic/0.32 | `ILLUMINACLIP:Illumina_adapters.fa:2:30:10 HEADCROP:10 MAXINFO:50:0.5` | `Sample_library_Lane_RX_Ye.fastq.gz` | `Sample_library_Lane_RX_Ye.trimmed.fq` | gunzips ..fastq.gz files and runs trimmomatic
+2. | **Alignment** | `alignment_array.qsub` | bwa/0.7.12.r1044 | `bwa mem -M -R ..` | `Sample_library_Lane_RX_Ye.trimmed.fq` & `Reference.fa` | `Sample_library_Lane_RX_Ye.trimmed.aligned.sam` | pulls details from fastq files to build a GATK-compatible `@RG` tag, and then runs alignment
+3. | **Sorting/Indexing** | `deduplication_array.qsub` | picardTools/1.89 | `SORT_ORDER=coordinate` | `Sample_library_Lane_RX_Ye.trimmed.aligned.sam` | `Sample_library_Lane_RX_Ye.trimmed.aligned.dedup.bam` | SortSam.jar sorts, MarkDuplicates.jar marks duplicates & BuildBamIndex.jar indexes
+4. | | `indel_realign_array.qsub` | GATK/3.5.0 | | `Sample_library_Lane_RX_Ye.dedup.bam` & `Reference.fa` | `Sample_library_Lane_RX_Ye.realignment_targets.list` & `Sample_library_Lane_RX_Ye.trimmed.aligned.dedup.realigned.bam` | RealignerTargetCreator ID's targets, IndelRealigner realigns
+5. | **Base Score Recalibration** | `base_score_recalibration_array.qsub` | GATK/3.5.0 | `--run_without_dbsnp_potentially_ruining_quality` | `Sample_library_Lane_RX_Ye.trimmed.aligned.dedup.realigned.bam` & `Reference.fa` | `Sample_library_Lane_RX_Ye.recal_data.table` & `Sample_library_Lane_RX_Ye.recal_plots.pdf` & `Sample_library_Lane_RX_Ye.trimmed.aligned.dedup.realigned.recalibrated.bam` | 2 passes with `BaseRecalibrator` (with the infamous no-dbsnp flag), then `AnalyzeCovariates` prints the plots/stats, then `PrintReads` writes the output bam
+6. | **Sample Merging** | `bam_merge_samples_array.qsub` | picardTools/1.89 | `MergeSamFiles.jar` & `BuildBamIndex` | `XXX_NNNN_library_Lane_RX_Ye.trimmed.aligned.dedup.realigned.recalibrated.bam` | `XXX_NNNN_all_libraries.bam` | I added this step so that we could use the GATK 'Joint Variant Calling' workflow; parallelizing over individuals. Merging files within individual, then re-index the resulting `..bam`
+7. | | `merge_all_bams.qsub` | picardTools/1.89 | `MergeSamFiles.jar` & `BuildBamIndex` | `XXX_NNNN_all_libraries.bam` | `all_bam_merged_'+%d_%m_%Y'.bam` |
+7. | | `merge_all_bams.qsub` | SAMTools/1.3.1 | `merge` | `XXX_NNNN_all_libraries.bam` | `all_bam_merged_'+%d_%m_%Y'.bam` |
+8. | **Variant Calling** | `vcf_disco_chunk_array.qsub` | SAMTools/1.3.1, picardTools/1.89 & GATK/3.5.0 | `view -b`, `BuildBamIndex` & `HaplotypeCaller --genotyping_mode DISCOVERY --output_mode EMIT_ALL_SITES` | `all_bam_merged_'+%d_%m_%Y'.bam`, `indices.list` & `Reference.fa` | `all_bam_merged_'+%d_%m_%Y'.bam_chunkNNN.bam` | this script uses samtools to slice the all-fishes BAM file into chunks of ~1.5Mbp in length, passes that to picard in order to index it, then passes that to GATK-HaplotypeCaller
+9. | | `reunite_vcf_chunks.qsub` | tabix/0.2.6 & vcftools/0.1.9 | `--remove-duplicates` |
 
-7. | **Variant Calling** | `vcf_discovery_array.qsub` | GATK/3.5.0 | `HaplotypeCaller --genotyping_mode DISCOVERY --emitRefConfidence GVCF --output_mode EMIT_ALL_SITES` | `Sample_library_Lane_RX_Ye.recalibrated.bam` & `Reference.fa` | `XXX_NNNN_all_libraries.bam.g.vcf` | HaplotypeCaller...
-
-8. | | `genotype_gvcf.qsub` | GATK/3.5.0 | `-stand_call_conf 30` & `-stand_emit_conf 30` | `*_all_libraries.bam` | `all_individuals_${date}.out.vcf` | This script uses `GenotypeGVCFs`for joint variant calling on the stack of all 63 `..bam.g.vcf` files
-9. | | `vcf_merge_samples_array.qsub` | tabix/0.2.6 & vcftools/0.1.9 | `--remove-duplicates` | `Sample_library_Lane_RX_Ye.raw_variants.vcf.gz` | `Sample_all_libraries.vcf.gz` | vcf files merged at the level of population
-
-10. | | `merge_all_vcfs.qsub` | tabix/0.2.6 & vcftools/0.1.9 | | `Sample_all_libraries.vcf.gz` | `all_variants_merged_$date$.vcf.gz` | this is a long step; merging all the sample-level vcfs into one file for passing to SKAT
-11. | **Statistical Analysis** | `calc_Fst_array` | vcftools/0.1.9 | `--fst-window-size` & `--fst-window-step` | `all_variants_merged_${date}.vcf` | `Fst_POP1_vs_POP2.windowedXkb.stepYkb.weir.fst` | Fst stat. calculated for all pairwise between-pop comparisons. Options passed into output filenames.
-12. | | `plink_vcf_convert.qsub`, `plink_prep.qsub`, & `plink_fisher.qsub` | vcftools/0.1.9 & plink/1.07 | `--maf` & `--geno` (missingness) | `all_variants_merged_${date}.vcf` | `all_variants_merged_${date}.assoc.fisher`, `*.ped`, `*.bed`, `*.bim`, `*.fam`, `*.log`, `*.map` & `*.nosex` | Association with Fisher's exact test and simplified presence/absence phenotype data.
-13. | | script | R/3.2.0 & SKAT v1.1.2 | complex – see Rscript | `all_variants_merged_${date}.ped`, `*.bed`, `*.bim`, `*.fam`, & `*.map` | Sequence Kernal Association Test
-14. | **Find Structural Variants** | `bam_merge_samples_array.qsub ` | picardTools/1.89 | | `*.bam` | `${individual}_all_libraries.bam` | ...
-15. | | `breakdancer.qsub` | BreakDancer/1.1.2 & SAMTools/1.2 | `-t -q 10 -d` | `${individual}_all_libraries.bam` | `breakdancer_${date}_analysis.cfg` & `...ctx` | Detects structural variants...
 
 ---
 
@@ -100,9 +92,10 @@ Once data reaches the **Statistical Analysis** stage it may become necessary for
   768`..trimmed.sorted.sam`
   768`..trimmed.dedup.bam`
   768`..trimmed.dedup.realigned.bam`
-  768`..trimmed.aligned.dedup.realigned.recalibrated.bam`
+  768`..trimmed.dedup.realigned.recalibrated.bam`
 
-### Tools
+
+### Tools & Version
   - Trimmomatic/0.32
   - bwa/0.7.12.r1044
   - picardTools/1.89
@@ -112,9 +105,6 @@ Once data reaches the **Statistical Analysis** stage it may become necessary for
   - tabix/0.2.6
   - vcftools/0.1.9
 
-
--t 84,150,192,201,222,225,228,261,284,345,357,390,392,429,484,489,557,558,570,592,684,689,756,757,758
--t 84,150,192,201,222,225,228,261,284,345,357,390,429,489,558,570,678,756
 
 
 ## Output Formats

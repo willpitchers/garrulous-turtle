@@ -728,4 +728,8 @@ Week of 19-23rd September
 
 Week of 26-30th September
 
+  - HPC nodes are going up & down like yo-yos today... I am firefighting numerous small problems.
+'malformed'
+  - missing sam files: `APA_6682_ATTCAGAA-TATAGCC_L003_R1_pe.trimmed.aligned.sam`, `BAM_6597_TCCGGAGA-TATAGCC_L001_R1_pe.trimmed.aligned.sam` & `750_MOV_6724_GAATTCGT-TAATCTT_L007_R1_pe.trimmed.aligned.sam`
+    - rerunning the appropriate instance of the alignment array manually, then testing with `$PICARD/ValidateSamFile`. No errors found.
   - 
