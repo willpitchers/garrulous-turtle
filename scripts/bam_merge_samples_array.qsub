@@ -28,15 +28,16 @@ fi
 
 individual=`head -${n} samples.list | tail -1 `
 
+#sample=(${individual}*.trimmed.aligned.dedup.realigned.recalibrated.bam)
 sample=(${individual}*.recalibrated.bam)
-#sample=(${individual}*.recalibrated.boot.bam)
 
 samples=`for i in ${sample[@]} ; do echo I=${i} ; done | xargs`
 
 # the call to Picard
-if [ ! -f ${individual}_all_libraries.bam ]
-	then java -jar $PICARD/MergeSamFiles.jar ${samples} O=${individual}_all_libraries.bam
-fi
+#if [ ! -f ${individual}_all_libraries.bam ]
+#	then
+ java -jar $PICARD/MergeSamFiles.jar ${samples} O=${individual}_all_libraries.bam
+#fi
 
 # and now index our new bam
 java -jar $PICARD/BuildBamIndex.jar I=${individual}_all_libraries.bam
