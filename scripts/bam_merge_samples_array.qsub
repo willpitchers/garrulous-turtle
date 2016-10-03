@@ -42,9 +42,6 @@ samples=`for i in ${sample[@]} ; do echo I=${i} ; done | xargs`
 # and now index our new bam
 java -jar $PICARD/BuildBamIndex.jar I=${individual}_all_libraries.bam
 
-# and now index our new bam
-java -jar $PICARD/BuildBamIndex.jar I=${individual}_all_libraries.bam
-
 #Check to see if this is the last job and email user
 if [ ${n} -eq ${MAXJOBID} ]
 then

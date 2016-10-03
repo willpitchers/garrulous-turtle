@@ -17,7 +17,18 @@ cd ${dir}
 module load SAMTools/1.3.1
 
 # call to samtools
-samtools merge all_bam_merged_`date '+%d_%m_%Y'`.bam *_all_merged.bam
+#samtools merge all_bam_merged_`date '+%d_%m_%Y'`.bam *_all_merged.bam
+
+module load picardTools/1.89
+
+sample=(*_all_libraries.bam)
+samples=`for i in ${sample[@]} ; do echo I=${i} ; done | xargs`
+
+# the call to Picard
+java -jar $PICARD/MergeSamFiles.jar ${samples} O=all_bam_merged_`date '+%d_%m_%Y'`.bam
+
+# and now index our new bam
+java -jar $PICARD/BuildBamIndex.jar I=all_bam_merged_`date '+%d_%m_%Y'`.bam
 
 # email user & start the next job
 echo "." | mail -s "The bam_all_merge job is finished" ${USER}@msu.edu
