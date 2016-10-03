@@ -14,10 +14,10 @@ ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
 
 # load modules
 cd ${dir}
-module load samtools/1.2
+module load SAMTools/1.3.1
 
 # call to samtools
-samtools merge all_bam_merged_recal_`date '+%d_%m_%Y'`.bam *_all_merged.bam
+samtools merge all_bam_merged_`date '+%d_%m_%Y'`.bam *_all_merged.bam
 
 # email user & start the next job
 echo "." | mail -s "The bam_all_merge job is finished" ${USER}@msu.edu

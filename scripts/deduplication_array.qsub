@@ -1,5 +1,5 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=8,walltime=02:00:00,mem=32gb
+#PBS -l nodes=1:ppn=8,walltime=02:00:00,mem=32gb,feature='intel16'
 #PBS -N Dedup_${PBS_ARRAYID}
 #PBS -j oe
 #PBS -M pitchers@msu.edu
@@ -22,18 +22,17 @@ ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
 n=${PBS_ARRAYID}
 # build a list of file names
 cd ${dir}
-filelist=(*aligned.sam)
+filelist=(*trimmed.aligned.sam)
 thisfile=${filelist[${n}]}
 
 module load picardTools/1.89
 
 # the PICARD commands – I could probably pipe then together, but this way less is lost if we crash
-java -jar ${PICARD}/SortSam.jar INPUT=${thisfile} OUTPUT=`basename ${thisfile} .aligned.sam`.sorted.sam SORT_ORDER=coordinate
-
-java -jar ${PICARD}/MarkDuplicates.jar INPUT=`basename ${thisfile} .aligned.sam`.sorted.sam OUTPUT=`basename ${thisfile} .aligned.sam`.dedup.bam M=`basename ${thisfile} .aligned.sam`.metrics.txt
-
-java -jar ${PICARD}/BuildBamIndex.jar INPUT=`basename ${thisfile} .aligned.sam`.dedup.bam
-
+if [ ! -f `basename ${thisfile} .sam`.dedup.bam ]
+	then java -jar ${PICARD}/SortSam.jar INPUT=${thisfile} OUTPUT=`basename ${thisfile} .sam`.sorted.sam SORT_ORDER=coordinate
+		 java -jar ${PICARD}/MarkDuplicates.jar INPUT=`basename ${thisfile} .sam`.sorted.sam OUTPUT=`basename ${thisfile} .sam`.dedup.bam M=`basename ${thisfile} .sam`.metrics.txt
+ 		 java -jar ${PICARD}/BuildBamIndex.jar INPUT=`basename ${thisfile} .sam`.dedup.bam
+fi
 
 # Calculate next job to run
 NEXT=$(( ${n} + 200 ))
@@ -50,7 +49,7 @@ if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The PICARDTools JOB ARRAY is finishing" ${USER}@msu.edu
     cd ${PBS_O_WORKDIR}
-    qsub indel_realign_array.qsub
+  #  qsub indel_realign_array.qsub
 fi
 
 #Print out the statistics for this job
