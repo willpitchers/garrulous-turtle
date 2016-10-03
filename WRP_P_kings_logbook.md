@@ -575,9 +575,9 @@ Week of 1st-5th August
 Week of 8th August
 
   - is the problem with the sam files?
-    - `java -jar $PICARD/ValidateSamFile.jar I=APA_6675_GAGATTCC-TATAGCC_L001_R1_pe.aligned.sam MODE=SUMMARY` -> "no errors found"
-    - `java -jar $PICARD/ValidateSamFile.jar I=MOV_6724_GAATTCGT-TAATCTT_L008_R1_pe.aligned.sam MODE=SUMMARY` -> "no errors found"
-    - `java -jar $PICARD/ValidateSamFile.jar I=MOV_6722_GAATTCGT-GGCTCTG_L003_R1_pe.aligned.sam MODE=SUMMARY` -> "no errors found"
+    - `java -jar $PICARD/ValidateSamFile.jar I=APA_6675_GAGATTCC-TATAGCC_L001_R1_pe.fq MODE=SUMMARY` -> "no errors found"
+    - `java -jar $PICARD/ValidateSamFile.jar I=MOV_6724_GAATTCGT-TAATCTT_L008_R1_pe.fq MODE=SUMMARY` -> "no errors found"
+    - `java -jar $PICARD/ValidateSamFile.jar I=MOV_6722_GAATTCGT-GGCTCTG_L003_R1_pe.fq MODE=SUMMARY` -> "no errors found"
   - ...the `..dedup.bam`?
     - `java -jar $PICARD/ValidateSamFile.jar I=APA_6675_GAGATTCC-TATAGCC_L001_R1_pe.dedup.bam MODE=SUMMARY` -> "no errors found"
     - `java -jar $PICARD/ValidateSamFile.jar I=MOV_6724_GAATTCGT-TAATCTT_L008_R1_pe.dedup.bam MODE=SUMMARY` -> "no errors found"
@@ -695,10 +695,10 @@ Week of 12-16th September
     - re-running the pipeline from the top to move the `fix_readgroup_array` step up.
       - an odd assortment of ~10 `fix_readgroup_array` jobs failed, followed by 26 `deduplication_array` jobs...?
       - I'm running a few of these interactively to see if I can ID the problem(s)... as far as I can tell the initial failures appear to be I/O errors on the older nodes; I cannot replicate them. This has become so tedious that I'm going to specify that all my jobs should *only* run on the 'intel16' nodes. <grumblegrumble>
-      - the `fix_readgroup_array` jobs that crash obviously propagate their error down to `deduplication_array`, but it seems that the 'fixed' readgroups may be *causing* an error in some cases too... `MOV_6725_GAATTCGT-CAGGACG_L007_R1_pe.aligned.sam` is my test case:
-          - `..aligned.sam` passes `$PICARD/ValidateSamFile` test...
+      - the `fix_readgroup_array` jobs that crash obviously propagate their error down to `deduplication_array`, but it seems that the 'fixed' readgroups may be *causing* an error in some cases too... `MOV_6725_GAATTCGT-CAGGACG_L007_R1_pe.fq` is my test case:
+          - `..fq` passes `$PICARD/ValidateSamFile` test...
           - `..aligned.rg.sam` fails with 'MISMATCH_READ_LENGTH_AND_QUALS_LENGTH'...
-          - but re-running the `$PICARD/AddOrReplaceReadGroups` command manually yields a `..aligned.rg.sam` that passes (!?) This is odd. Testing again with `BAM_6498_ATTACTCG-GGCTCTG_L002_R1_pe.aligned.sam`...
+          - but re-running the `$PICARD/AddOrReplaceReadGroups` command manually yields a `..aligned.rg.sam` that passes (!?) This is odd. Testing again with `BAM_6498_ATTACTCG-GGCTCTG_L002_R1_pe.fq`...
           - these files produce `..aligned.rg.sam` outputs that pass, but contain only a header!
           - the header breaks (at least in this test case) because the `$PICARD/AddOrReplaceReadGroups` tool meets an empty/missing read with an incomplete header... the plot thickens..
 
@@ -706,7 +706,7 @@ Week of 19-23rd September
 
   - first priority – readgroup problem...
     - test 1: can I have `bwa-mem` fix the readgroups?
-      - wrote `Alt-Align.qsub` script: output `BAM_6498_ATTACTCG-GGCTCTG_L002_R1_pe.aligned.sam.sorted.dedup.taco`
+      - wrote `Alt-Align.qsub` script: output `BAM_6498_ATTACTCG-GGCTCTG_L002_R1_pe.fq.sorted.dedup.taco`
         - this seems to work nicely, so going with this for the time being...
     - test 2: can I use `samtools` to fix the readgroups instead of `PICARD`?
       - if we upgrade to `SAMTools/1.3.1` we can use `addreplacerg`: output `BAM_6498_ATTACTCG-GGCTCTG_L002_R1_pe.aligned.dedup.bam`...?
@@ -730,6 +730,19 @@ Week of 26-30th September
 
   - HPC nodes are going up & down like yo-yos today... I am firefighting numerous small problems.
 'malformed'
-  - missing sam files: `APA_6682_ATTCAGAA-TATAGCC_L003_R1_pe.trimmed.aligned.sam`, `BAM_6597_TCCGGAGA-TATAGCC_L001_R1_pe.trimmed.aligned.sam` & `750_MOV_6724_GAATTCGT-TAATCTT_L007_R1_pe.trimmed.aligned.sam`
+  - missing sam files: `APA_6682_ATTCAGAA-TATAGCC_L003_R1_pe.trimmed.fq`, `BAM_6597_TCCGGAGA-TATAGCC_L001_R1_pe.trimmed.fq` & `MOV_6724_GAATTCGT-TAATCTT_L007_R1_pe.trimmed.fq`
     - rerunning the appropriate instance of the alignment array manually, then testing with `$PICARD/ValidateSamFile`. No errors found.
-  - 
+  - then re-running the deduplication... huh. somehow, just having PICARD `MarkDuplicates` seems to cause these files to fail `ValidateSamFile`... this is *weird*...
+    - these files seem to be being changed when they didn't ought to be... can I make them read-only?
+      - I can make them read-only. This does not solve the problem...
+    - I'm going to try the preceding operation – `bwa-mem` – with the `-T 40` flag to prevent it outputting lower-quality alignments to see if this allows PICARD to work with them...
+    - this seems to be working... I have the `APA_6682..` file as far as the realignment step without error...
+    - `BAM_6597..` is OK so far...
+    - `MOV_6724..` still fails test after deduplication (!)
+    - ...
+  - OK. Change of direction – since the merging steps and the genotyping of the...
+
+
+Week of 3-7th October
+
+  -   

@@ -40,9 +40,9 @@ module load bwa/0.7.12.r1044
 # the BWA command -- the 'if' statement decides whether the alignment should be single or paired-end
 if [ `grep -Eo 'pe' <<< $(echo ${thisfile})` ]
 then
-  bwa mem -M -R ${thisTAG} ${ref} ${thisfile} `basename ${thisfile} R1_pe.trimmed.fq`R2_pe.trimmed.fq > `basename ${thisfile} .trimmed.fq`.aligned.sam
+  bwa mem -M -T 40 -R ${thisTAG} ${ref} ${thisfile} `basename ${thisfile} R1_pe.trimmed.fq`R2_pe.trimmed.fq > `basename ${thisfile} .trimmed.fq`.aligned.sam
 else
-  bwa mem -M -R ${thisTAG} ${ref} ${thisfile} > `basename ${thisfile} .trimmed.fq`.aligned.sam
+  bwa mem -M -T 40 -R ${thisTAG} ${ref} ${thisfile} > `basename ${thisfile} .trimmed.fq`.aligned.sam
 fi
 
 NEXT=$(( ${n} + 200 ))
