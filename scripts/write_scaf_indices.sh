@@ -13,7 +13,7 @@ for i in `seq 1 4667`  ; do
 		for j in $(seq 0 $(expr ${nBreaks} - 1) ) ; do
 			echo ${thisScaf}:${theseBreaks[${j}]}-${theseBreaks[${j}+1]}
 		done
-		echo ${thisScaf}:${theseBreaks[-1]}-${thisLen}
+		echo ${thisScaf}:${theseBreaks[@]:(-1)}-${thisLen}
 	fi
 	if [ ${thisLen} -lt `expr ${chunkLen} / 8` ] ; then
         echo ${thisScaf} 8th
