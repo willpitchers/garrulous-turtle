@@ -1,0 +1,84 @@
+#!/bin/bash -login
+#PBS -l nodes=1:ppn=4,walltime=04:00:00,mem=30gb
+#PBS -N vcf_disco_chunk
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+#PBS -t 0-200
+
+# which data?
+thisfile=${input_data}
+
+# Current job number
+n=${PBS_ARRAYID}
+
+#The JOBSCRIPT variable should be the name of this script
+JOBSCRIPT=vcf_disco_chunk_array.qsub
+
+## Set up some variables
+# where do the files live
+dir=/mnt/scratch/pitchers/eFISH/Analysis/
+ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
+
+# build a list of file names
+cd ${dir}
+
+#Set manximum number of jobs for this run
+MAXJOBID=`wc -l indices.list | cut -d' ' -f 1`
+
+module load GATK/3.5.0
+#module load SAMTools/1.3.1
+#module load picardTools/1.89
+
+# cut out a chunk
+thisindex=`head -${n} indices.list | tail -1`
+#thischunk=${thisfile}_chunk${n}.bam
+#samtools view -b ${thisfile} ${thisindex} > ${thischunk}
+
+# index the chunk
+#java -jar ${PICARD}/BuildBamIndex.jar I=${thischunk}
+
+bamfiles=(*_all_libraries.bam)
+
+samples=`for i in ${bamfiles[@]} ; do echo -I ${i} ; done | xargs`
+
+#outputfilename=all_fish_`date '+%d_%m_%Y'`_slice_${n}.vcf
+outputfilename=all_fish_`date '+%d_%m_%Y'`_slice_${n}.vcf
+
+# above & below need fixed for g.vcf calling
+
+# # the call to the GATK HaplotypeCaller
+java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T HaplotypeCaller \
+					-R ${ref} ${samples} \
+					-L ${thisindex} \
+					--genotyping_mode DISCOVERY \
+                    -stand_emit_conf 10 -stand_call_conf 30 \
+                    -o ${outputfilename} \
+                    --output_mode EMIT_ALL_CONFIDENT_SITES \
+                    --num_threads 1 --num_cpu_threads_per_data_thread 4 
+#					--emitRefConfidence GVCF
+
+# tidy up
+rm ${thischunk} `basename ${thischunk} bam`bai
+
+# Calculate next job to run
+NEXT=$(( ${n} + 200 ))
+
+#Check to see if next job is past the maximum job id
+if [ ${NEXT} -le ${MAXJOBID} ]
+then
+    cd ${PBS_O_WORKDIR}
+    qsub -t ${NEXT} -v input_data=${thisfile} ${JOBSCRIPT}
+fi
+
+#Check to see if this is the last job and email user
+if [ ${n} -eq ${MAXJOBID} ]
+then
+    echo "." | mail -s "The vcf_discovery JOB ARRAY is finishing" ${USER}@msu.edu
+    cd ${PBS_O_WORKDIR}
+#    qsub compress_vcfs.qsub
+fi
+
+#Print out the statistics for this job
+qstat -f ${PBS_JOBID}

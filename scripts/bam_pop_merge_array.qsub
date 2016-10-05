@@ -1,0 +1,45 @@
+#!/bin/bash -login
+#PBS -l nodes=1:ppn=1,walltime=04:00:00,mem=16gb
+#PBS -o /mnt/research/efish/2015_genomic_data/scripts
+#PBS -N BAM_pop_merge
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+#PBS -t 1-6
+
+## Set up some variables
+# where do the files live
+dir=/mnt/scratch/pitchers/eFISH/Analysis/
+ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
+
+# Current job number
+n=${PBS_ARRAYID}
+MAXJOBID=6
+
+# load modules
+cd ${dir}
+module load SAMTools/1.2
+module load picardTools/1.89
+
+# make sure that the samples.list file is available
+if [ ! -f pops.list ]
+  then cp /mnt/research/efish/2015_genomic_data/Populations/pops.list ./
+fi
+
+thispop=`head -${n} pops.list | tail -1 `
+
+# the call to SAMTools – THIS NEEDS TO BE EDITED TO REMOVE HARDCODED DATE!
+samtools merge ${thispop}_all_merged.bam ${thispop}*all_libraries.bam
+
+#Check to see if this is the last job and email user
+if [ ${n} -eq ${MAXJOBID} ]
+then
+    echo "." | mail -s "The BAM pop merging array is finishing" ${USER}@msu.edu
+    cd $PBS_O_WORKDIR
+    # qsub NEXTSCRIPT.qsub
+fi
+
+#Print out the statistics for this job
+qstat -f ${PBS_JOBID}
+
