@@ -41,9 +41,9 @@ if [ ! -f `basename ${thisfile} .fq`.aligned.sam ]
 then
 	if [ `grep -Eo 'pe' <<< $(echo ${thisfile})` ]
 	then
-	  bwa mem -M -T 40 -R ${thisTAG} ${ref} ${thisfile} `basename ${thisfile} R1_pe.trimmed.fq`R2_pe.trimmed.fq > `basename ${thisfile} .fq`.aligned.sam
+	  bwa mem -M -t 8 -T 40 -R ${thisTAG} ${ref} ${thisfile} `basename ${thisfile} R1_pe.trimmed.fq`R2_pe.trimmed.fq > `basename ${thisfile} .fq`.aligned.sam
 	else
-	  bwa mem -M -T 40 -R ${thisTAG} ${ref} ${thisfile} > `basename ${thisfile} .fq`.aligned.sam
+	  bwa mem -M -t 8 -T 40 -R ${thisTAG} ${ref} ${thisfile} > `basename ${thisfile} .fq`.aligned.sam
 	fi
 fi
 
@@ -61,9 +61,8 @@ if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The BWA alignment JOB ARRAY is finishing" ${USER}@msu.edu
     cd ${PBS_O_WORKDIR}
-#	qsub deduplication_array.qsub 
+#	qsub deduplication_array.qsub
 fi
 
 #Print out the statistics for this job
 qstat -f ${PBS_JOBID}
-

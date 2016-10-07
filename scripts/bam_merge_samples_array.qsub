@@ -29,15 +29,16 @@ fi
 individual=`head -${n} samples.list | tail -1 `
 
 #sample=(${individual}*.trimmed.aligned.dedup.realigned.recalibrated.bam)
-sample=(${individual}*.recalibrated.bam)
+sample=(${individual}*.trimmed.aligned.dedup.realigned.bam)
+#sample=(${individual}*.recalibrated.bam)
 
 samples=`for i in ${sample[@]} ; do echo I=${i} ; done | xargs`
 
 # the call to Picard
-#if [ ! -f ${individual}_all_libraries.bam ]
-#	then
+if [ ! -f ${individual}_all_libraries.bam ]
+then
  java -jar $PICARD/MergeSamFiles.jar ${samples} O=${individual}_all_libraries.bam
-#fi
+fi
 
 # and now index our new bam
 java -jar $PICARD/BuildBamIndex.jar I=${individual}_all_libraries.bam
@@ -45,7 +46,7 @@ java -jar $PICARD/BuildBamIndex.jar I=${individual}_all_libraries.bam
 #Check to see if this is the last job and email user
 if [ ${n} -eq ${MAXJOBID} ]
 then
-    echo "." | mail -s "The BAM merging ARRAY is finishing" ${USER}@msu.edu
+    echo "." | mail -s "The BAM individual merging array is finishing" ${USER}@msu.edu
     cd $PBS_O_WORKDIR
 #    qsub breakdancer.qsub
 fi
