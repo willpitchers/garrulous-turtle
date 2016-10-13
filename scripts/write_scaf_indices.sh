@@ -1,6 +1,6 @@
 #! /bin/bash/
 
-chunkLen=1000000
+chunkLen=700000
 
 for i in `seq 1 4667`  ; do
 	thisScaf=`head -${i} scaf.lengths | tail -1 | cut -f 1`

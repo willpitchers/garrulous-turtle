@@ -7,7 +7,8 @@
 #PBS -m abe
 #PBS -r n
 
-dir=/mnt/scratch/pitchers/eFISH/Analysis/
+#dir=/mnt/scratch/pitchers/eFISH/Analysis/
+dir=/mnt/ls15/scratch/groups/efish/WILL/
 
 cd $dir
 
@@ -25,8 +26,10 @@ if [ ! -f individual.list ]
   sed -i s/4007/4027/ individual.list
 fi
 
+cd V5-1_chunks/
+
 # call my python script to write the phenotype codes into the .ped file
-python $PBS_O_WORKDIR/pheno_lookup.py individual.list ${input_data}.ped ${input_data}.ped.out
+python $PBS_O_WORKDIR/pheno_lookup.py ../individual.list ${input_data}.ped ${input_data}.ped.out
 
 mv ${input_data}.ped.out ${input_data}.ped
 

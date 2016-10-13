@@ -29,8 +29,18 @@ fi
 
 thispop=`head -${n} pops.list | tail -1 `
 
-# the call to SAMTools – THIS NEEDS TO BE EDITED TO REMOVE HARDCODED DATE!
-samtools merge ${thispop}_all_merged.bam ${thispop}*all_libraries.bam
+sample=(${thispop}*.trimmed.aligned.dedup.realigned.bam)
+
+samples=`for i in ${sample[@]} ; do echo I=${i} ; done | xargs`
+
+# the call to Picard
+if [ ! -f ${thispop}_all_merged.bam ]
+then
+ java -jar $PICARD/MergeSamFiles.jar ${samples} O=${thispop}_all_merged.bam
+fi
+
+# and now index our new bam
+java -jar $PICARD/BuildBamIndex.jar I=${thispop}_all_merged.bam
 
 #Check to see if this is the last job and email user
 if [ ${n} -eq ${MAXJOBID} ]
