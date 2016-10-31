@@ -1,14 +1,11 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=4,walltime=04:00:00,mem=60gb
+#PBS -l nodes=1:ppn=8,walltime=04:00:00,mem=120gb
 #PBS -N VCFgeno_5-2
 #PBS -j oe
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
 #PBS -t 1-100
-
-# which data?
-thisfile=${input_data}
 
 # Current job number
 n=${PBS_ARRAYID}
@@ -30,15 +27,10 @@ MAXJOBID=`wc -l indices.list | cut -d' ' -f 1`
 
 module load GATK/3.5.0
 
-# cut out a chunk
-thisindex=`head -${n} indices.list | tail -1`
-
-readarray thesefiles < samples.list
-
 cd V5-2_chunks/
 
-thesefish=(*slice_${n}.g.vcf)
-samples=`for i in ${thesefish[@]} ; do echo --variant ${i} ; done | xargs`
+thesefish=(*/*slice_${n}.g.vcf)
+samples=`for i in ${thesefish[@]} ; do echo --variant:VCF ${i} ; done | xargs`
 
 # the call to the GATK CombineGVCFs
 #java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T CombineGVCFs \
@@ -47,8 +39,8 @@ samples=`for i in ${thesefish[@]} ; do echo --variant ${i} ; done | xargs`
 if [ ! -f all_fish_*_slice_${n}.vcf ]
 then
 	# now the slice has all fish, the call the GenotypeGVCFs
-java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T GenotypeGVCFs \
-				-R ${ref} ${samples} \
+java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T GenotypeGVCFs \
+				-R ${ref} ${samples} -nt 8 \
 				 -stand_call_conf 30 -stand_emit_conf 30 \
 				--out all_fish_`date '+%m_%Y'`_slice_${n}.vcf \
 				--disable_auto_index_creation_and_locking_when_reading_rods

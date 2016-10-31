@@ -1,5 +1,5 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=4,walltime=20:00:00,mem=16gb
+#PBS -l nodes=1:ppn=4,walltime=04:00:00,mem=60gb
 #PBS -o /mnt/research/efish/2015_genomic_data/scripts
 #PBS -N merge_all_vcfs
 #PBS -j oe
@@ -9,7 +9,8 @@
 
 ## Set up some variables
 # where do the files live
-dir=/mnt/scratch/pitchers/eFISH/Analysis/
+#dir=/mnt/scratch/pitchers/eFISH/Analysis/
+dir=/mnt/ls15/scratch/groups/efish/WILL/
 ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
 
 # load modules
@@ -19,20 +20,22 @@ module load tabix/0.2.6
 module load vcftools/0.1.9
 module load GATK/3.4.46
 
+cd V5-2_chunks/
+
 #sample=(*libraries.vcf)
-sample=(*all_libraries.bam.raw_variants.vcf)
+sample=(all_fish*slice*.vcf)
 samples=`for i in ${sample[@]} ; do echo --variant $i ; done | xargs`
 
 # the call to GATK
-java -Xmx10g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T CombineVariants -R ${ref} ${samples} -o all_variants_merged_`date '+%d_%m_%Y'`.vcf # --genotypemergeoption UNIQUIFY
+#java -Xmx10g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T CombineVariants -R ${ref} ${samples} -o all_variants_merged_`date '+%d_%m_%Y'`.vcf # --genotypemergeoption UNIQUIFY
 
-#java -Xmx10g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T CatVariants -R ${ref} -V ${samples} -out all_variants_merged_`date '+%d_%m_%Y'`.vcf --assumeSorted
+java -Xmx60g -cp /opt/software/GATK/3.5.0/GenomeAnalysisTK.jar org.broadinstitute.gatk.tools.CatVariants -R ${ref} ${samples} -out all_fish_version_5-2_HPC.vcf 
 
 #zip it up
-bgzip tabix all_variants_merged_`date '+%d_%m_%Y'`.vcf
+#bgzip tabix all_variants_merged_`date '+%d_%m_%Y'`.vcf
 
 # and re-index one last time
-tabix all_variants_merged_`date '+%d_%m_%Y'`.vcf.gz
+#tabix all_variants_merged_`date '+%d_%m_%Y'`.vcf.gz
 
 # email user & start the next job
 echo "." | mail -s "The vcf_all_merge job is finished" ${USER}@msu.edu

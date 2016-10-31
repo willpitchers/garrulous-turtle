@@ -1,14 +1,11 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=4,walltime=04:00:00,mem=60gb
+#PBS -l nodes=1:ppn=4,walltime=04:00:00,mem=30gb
 #PBS -N VCFdisc_5-2
 #PBS -j oe
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
-#PBS -t 1-100
-
-# which data?
-thisfile=${input_data}
+#PBS -t 1-500
 
 # Current job number
 n=${PBS_ARRAYID}
@@ -23,12 +20,14 @@ ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
 dir=/mnt/ls15/scratch/groups/efish/WILL/
 
 cd ${dir}
-mkdir -p V5-2_chunks
+
+mkdir -p V5-2_chunks/
 
 #Set manximum number of jobs for this run
 MAXJOBID=`wc -l indices.list | cut -d' ' -f 1`
 
-module load GATK/3.5.0
+module load Java/1.8.0_31
+mkdir -p tests
 
 # cut out a chunk
 thisindex=`head -${n} indices.list | tail -1`
@@ -36,26 +35,44 @@ thisindex=`head -${n} indices.list | tail -1`
 readarray thesefiles < samples.list
 
 for thisfile in ${thesefiles[@]}
-	do outputfilename=${thisfile}_`date '+%d_%m_%Y'`_slice_${n}.g.vcf
+	do
+	outputfilename=${thisfile}_slice_${n}.g.vcf
+	outdir=V5-2_chunks/${thisfile}
+	mkdir -p ${outdir}
 
-	if [ ! -f V5-2_chunks/${outputfilename} ] 
+if [ ! -f ${outdir}/tests/${outputfilename} ] 
 	then
 	# # the call to the GATK HaplotypeCaller
-	java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T HaplotypeCaller \
+	java -Xmx30g -jar /mnt/home/pitchers/GenomeAnalysisTK.jar -T HaplotypeCaller \
 				-R ${ref} -I ${thisfile}_all_libraries.bam \
 				${thisindex} \
 				--genotyping_mode DISCOVERY \
-				-stand_emit_conf 10 -stand_call_conf 30 \
-		        -o V5-2_chunks/${outputfilename} \
+				-stand_emit_conf 30 -stand_call_conf 30 \
+		        -o ${outdir}/${outputfilename} \
 		        --output_mode EMIT_ALL_CONFIDENT_SITES \
 			    --num_threads 1 --num_cpu_threads_per_data_thread 4 \
 				--emitRefConfidence GVCF \
 				--sample_name ${thisfile}
+
+	vcf_test=`java -Xmx30g -jar /mnt/home/pitchers/GenomeAnalysisTK.jar \
+				-T ValidateVariants \
+				-R ${ref}  -V ${outdir}/${outputfilename} \
+				--warnOnErrors \
+				--validationTypeToExclude ALLELES \
+				--validationTypeToExclude IDS \
+				${thisindex} -gvcf `
+	fi
+
+	if [ `echo ${vcf_test} | grep -c "no warn messages"` -eq 1 ]
+		then
+		mkdir -p V5-2_chunks/tests/${thisfile}
+		touch V5-2_chunks/tests/${thisfile}/${outputfilename}
 	fi
 done
 
+
 # Calculate next job to run
-NEXT=$(( ${n} + 100 ))
+NEXT=$(( ${n} + 500 ))
 
 #Check to see if next job is past the maximum job id
 if [ ${NEXT} -le ${MAXJOBID} ]
@@ -67,9 +84,25 @@ fi
 #Check to see if this is the last job and email user
 if [ ${n} -eq ${MAXJOBID} ]
 then
-    echo "." | mail -s "The vcf_discovery V5.2 ARRAY is finishing" ${USER}@msu.edu
-    cd ${PBS_O_WORKDIR}
+	# count the succesfully completed jobs
+	for thisfile in ${thesefiles[@]}
+    do ls V5-2_chunks/tests/${thisfile}/* | wc -l >> v5_2_gvcf_count
+	done
 
+	# determine if rerunning is necessary
+	if [ `uniq v5_2_gvcf_count` -eq ${MAXJOBID} ] ; then rerun=FALSE ; else rerun=TRUE ; fi
+	rm v5_2_gvcf_count
+
+	# email me
+    echo "rerun = ${rerun}" | mail -s "The vcf_disco V5.2 ARRAY is finishing" ${USER}@msu.edu
+
+	# submit either rerun or not job
+    cd ${PBS_O_WORKDIR}
+	if [ ${rerun} == TRUE ] 
+		then qsub ${JOBSCRIPT}
+	else
+		qsub nextjob
+	fi
 fi
 
 #Print out the statistics for this job
