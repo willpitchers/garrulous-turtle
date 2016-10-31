@@ -740,9 +740,116 @@ Week of 26-30th September
     - `BAM_6597..` is OK so far...
     - `MOV_6724..` still fails test after deduplication (!)
     - ...
-  - OK. Change of direction – since the merging steps and the genotyping of the...
+  - OK. Change of direction...
 
 
 Week of 3-7th October
 
-  -   
+  - splitting the pipeline to output version 5.1 and version 5.2 VCF files
+    - with reference to http://gatkforums.broadinstitute.org/gatk/discussion/3893/calling-variants-on-cohorts-of-samples-using-the-haplotypecaller-in-gvcf-mode we have decided that we need to know what difference it makes to the output whether the GATK's haplotype calling and genotyping steps are run separately or together...
+    - both versions 5 will run as arrays so that the GATK walkers can deal with small subsets of sequence at a time
+    - testing suggests that GATK can get through ~1.5MBp of sequence takes in 4hrs, so I intend to have the array work on 1MBp slices to keep the jobs short and easy on the scheduler
+    - wrote `write_scaf_indices.sh` script to calculate the 'intervals' needed to pass to the walkers
+  - **Excellent News** – we apparently have a research group scratch space!
+    - I have moved the end of the pipeline to dump its effluent into the new space...
+
+Week of 10-14th October
+
+  - 124820 V5-2 vcf files
+  - find duplicate files with ``ls all_fish_*slice_*.vcf > foo && for i in `cat foo` ; do slice=`echo ${i} | cut -d'_' -f 7`;  if [ `ls *slice_${slice} | wc -l` -gt 1 ]; then echo ${i}; fi; done``
+
+
+java -Xmx10g -cp /opt/software/GATK/3.5.0/GenomeAnalysisTK.jar org.broadinstitute.gatk.tools.CatVariants -R ${ref} ${samples} -out all_fish_version_5-2_HPC.vcf
+
+
+**Stopping points**
+V5-2_chunks/IVI_4897/IVI_4897_10_2016_slice_598.g.vcf x
+V5-2_chunks/MOV_6725/MOV_6725_10_2016_slice_1211.g.vcf x
+V5-2_chunks/MOV_6724/MOV_6724_10_2016_slice_1397.g.vcf x
+V5-2_chunks/BAVA_6621/BAVA_6621_10_2016_slice_1423.g.vcf x
+V5-2_chunks/MOV_6724/MOV_6724_10_2016_slice_1382.g.vcf x
+V5-2_chunks/BAVA_6627/BAVA_6627_10_2016_slice_1367.g.vcf x
+V5-2_chunks/COB_4029/COB_4029_10_2016_slice_1375.g.vcf x
+V5-2_chunks/MOV_6716/MOV_6716_10_2016_slice_1404.g.vcf x
+V5-2_chunks/MOV_6718/MOV_6718_10_2016_slice_1365.g.vcf x
+V5-2_chunks/MOV_6717/MOV_6717_10_2016_slice_1374.g.vcf x
+V5-2_chunks/MOV_6722/MOV_6722_10_2016_slice_1432.g.vcf x
+V5-2_chunks/MOV_6720/MOV_6720_10_2016_slice_1202.g.vcf x
+
+n=1798
+thisindex=`head -${n} indices.list | tail -1`
+readarray thesefiles < samples.list
+ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
+for thisfile in ${thesefiles[@]}
+    do
+    outputfilename=${thisfile}_`date '+%m_%Y'`_slice_${n}.g.vcf
+    outdir=V5-2_chunks/${thisfile}
+    mkdir -p ${outdir}
+
+    if [ ! -f V5-2_chunks/${outputfilename} ]
+    then
+    # # the call to the GATK HaplotypeCaller
+    java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T HaplotypeCaller \
+                -R ${ref} -I ${thisfile}_all_libraries.bam \
+                ${thisindex} \
+                --genotyping_mode DISCOVERY \
+                -stand_emit_conf 10 -stand_call_conf 30 \
+                -o ${outdir}/${outputfilename} \
+                --output_mode EMIT_ALL_CONFIDENT_SITES \
+                --num_threads 1 --num_cpu_threads_per_data_thread 6 \
+                --emitRefConfidence GVCF \
+                --sample_name ${thisfile}
+    fi
+done
+
+Week of 17th-21st October
+
+setdiff( expected, taco$V1 )
+698  798  898  998 1098 1198 1298 1398 1498 |1598
+1302 1402  1502 1602 1702 |1802
+1311 1411 1511 1611 1711 |1811
+1465 1475 1565 1665 |1765
+1467 1567 1667 |1767
+1474 1574 |1674
+1482 1582 1682 |1782
+1497 1597 1697 |1798
+1504 1604 1704 1804
+1523 1623 1723 1823
+1532 1632 1732 1832
+1575 1675 1775
+1797
+1698
+1774
+
+dir=/mnt/ls15/scratch/groups/efish/WILL/
+ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
+
+java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToBinaryPed \
+             -R ${ref}  -V ${input_data} \
+             -m ${meta} -mgq 0 \
+             -bed ${input_data}.bed \
+             -bim ${input_data}.bim \
+             -fam ${input_data}.fam
+
+GATK docs lie about this function!
+
+Wednesday, 19 October 2016 Scaffold133:1400019 malformed line crashed job. remaking vcf slice 635
+Thursday, 20 October 2016 Scaffold154:1400004 malformed line crashed job. remaking vcf slice 698
+  JG points out that this behaviour is very I/O-error-reminiscent...
+
+Thursday, 20 October 2016 Scaffold167:15 malformed line crashing job. remaking vcf slice 735
+
+
+vcftools `vcf-sort -c infile.vcf > outfile.vcf`
+
+comparing `all_fish_version_5-1_shockly.vcf` & `all_fish_version_5-1_HPC.vcf`
+
+https://software.broadinstitute.org/gatk/gatkdocs/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php
+
+> Output
+> Either a VCF or gVCF file with raw, unfiltered SNP and indel calls. Regular VCFs must be filtered either by variant recalibration (best) or hard-filtering before use in downstream analyses. If using the reference-confidence model workflow for cohort analysis, the output is a GVCF file that must first be run through GenotypeGVCFs and then filtering before further analysis.
+
+
+Week of 24th-28th October
+
+  -
