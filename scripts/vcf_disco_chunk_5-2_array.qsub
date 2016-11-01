@@ -1,5 +1,5 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=4,walltime=04:00:00,mem=30gb
+#PBS -l nodes=1:ppn=4,walltime=04:00:00,mem=30gb,feature='intel16'
 #PBS -N VCFdisc_5-2
 #PBS -j oe
 #PBS -M pitchers@msu.edu
@@ -16,7 +16,7 @@ JOBSCRIPT=vcf_disco_chunk_5-2_array.qsub
 ## Set up some variables
 # where do the files live
 #dir=/mnt/scratch/pitchers/eFISH/Analysis/
-ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
+ref=/mnt/ls15/scratch/groups/efish/P_kings_genome/supercontigs.fasta
 dir=/mnt/ls15/scratch/groups/efish/WILL/
 flagdir=/mnt/research/efish/2015_genomic_data/flags
 
@@ -28,7 +28,7 @@ mkdir -p V5-2_chunks/
 MAXJOBID=`wc -l indices.list | cut -d' ' -f 1`
 
 module load Java/1.8.0_31
-mkdir -p tests
+#mkdir -p tests
 
 # cut out a chunk
 thisindex=`head -${n} indices.list | tail -1`
@@ -41,7 +41,7 @@ for thisfile in ${thesefiles[@]}
 	outdir=V5-2_chunks/${thisfile}
 	mkdir -p ${outdir}
 
-if [ ! -f $flagdir/${outdir}/${outputfilename} ] 
+if [ ! -f $flagdir/${thisfile}/${outputfilename} ] 
 	then
 	# # the call to the GATK HaplotypeCaller
 	java -Xmx30g -jar /mnt/home/pitchers/GenomeAnalysisTK.jar -T HaplotypeCaller \
@@ -54,7 +54,7 @@ if [ ! -f $flagdir/${outdir}/${outputfilename} ]
 			    --num_threads 1 --num_cpu_threads_per_data_thread 4 \
 				--emitRefConfidence GVCF \
 				--sample_name ${thisfile} &
-	JAVAPID = $!
+	JAVAPID=$!
 	wait
 	if [ ! $? -eq 0 ] 
 	then
@@ -62,7 +62,7 @@ if [ ! -f $flagdir/${outdir}/${outputfilename} ]
 		logger -t vcf_disco "Java Error on file ${dir}/${outdir}/${outputfilename}, $GETSTRIPE $PBS_JOBID ${PBS_ARRAYID}"
 	fi
 
-	if [! -f ${outdir}/${outputfilename}]
+	if [ ! -f ${outdir}/${outputfilename} ]
 	then
 		echo "Output file not created!"
 		GETSTRIPE=`lfs getstripe ${outdir}/${outputfilename}`
@@ -86,8 +86,8 @@ if [ ! -f $flagdir/${outdir}/${outputfilename} ]
 
 	if [ `echo ${vcf_test} | grep -c "no warn messages"` -eq 1 ]
 		then 
-		mkdir -p $flagdir/$outdir/${thisfile}
-		touch V5-$flagdir/$outdir/${thisfile}/${outputfilename}
+		mkdir -p $flagdir/${thisfile}
+		touch $flagdir/${thisfile}/${outputfilename}
 	fi
 fi
 done
@@ -100,7 +100,7 @@ NEXT=$(( ${n} + 500 ))
 if [ ${NEXT} -le ${MAXJOBID} ]
 then
     cd ${PBS_O_WORKDIR}
-    qsub -t ${NEXT} ${JOBSCRIPT}
+#    qsub -t ${NEXT} ${JOBSCRIPT} #commented out for mop up
 fi
 
 #Check to see if this is the last job and email user
