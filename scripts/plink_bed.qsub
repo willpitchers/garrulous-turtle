@@ -10,7 +10,8 @@
 ## Set up some variables
 # where do the files live
 #dir=/mnt/scratch/pitchers/eFISH/Analysis/
-dir=/mnt/ls15/scratch/groups/efish/WILL/
+#dir=/mnt/ls15/scratch/groups/efish/WILL/V5-1_chunks/
+dir=/mnt/ls15/scratch/groups/efish/WILL/V5-2_chunks/
 ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
 
 # load modules
@@ -21,7 +22,7 @@ module load plink/1.9
 # input_data=all_variants_merged_27_10_2015
 # input_data=all_variants_merged_21_01_2016
 
-cd V5-1_chunks/
+#cd V5-1_chunks/
 
 plink --file ${input_data} --out ${input_data} --make-bed --allow-extra-chr
 
