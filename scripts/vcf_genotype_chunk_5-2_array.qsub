@@ -1,11 +1,13 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=8,walltime=04:00:00,mem=120gb
+#PBS -l nodes=1:ppn=8,walltime=04:00:00,mem=60gb,feature='intel16'
 #PBS -N VCFgeno_5-2
 #PBS -j oe
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
-#PBS -t 1-100
+#PBS -t 1-500
+
+source /mnt/home/pitchers/.bashrc
 
 # Current job number
 n=${PBS_ARRAYID}
@@ -15,40 +17,64 @@ JOBSCRIPT=vcf_genotype_chunk_5-2_array.qsub
 
 ## Set up some variables
 # where do the files live
-#dir=/mnt/scratch/pitchers/eFISH/Analysis/
+flagdir=/mnt/research/efish/2015_genomic_data/flags
 ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
 dir=/mnt/ls15/scratch/groups/efish/WILL/
 
 cd ${dir}
-mkdir -p V5-2_chunks
 
 #Set manximum number of jobs for this run
 MAXJOBID=`wc -l indices.list | cut -d' ' -f 1`
 
-module load GATK/3.5.0
+module load Java/1.8.0_31 
 
 cd V5-2_chunks/
 
 thesefish=(*/*slice_${n}.g.vcf)
-samples=`for i in ${thesefish[@]} ; do echo --variant:VCF ${i} ; done | xargs`
+samples=`for i in ${thesefish[@]} ; do echo --variant ${i} ; done | xargs`
 
-# the call to the GATK CombineGVCFs
-#java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T CombineGVCFs \
-#			-R ${ref} ${samples} --out all_fish_`date '+%m_%Y'`_slice_${n}.g.vcf
 
 if [ ! -f all_fish_*_slice_${n}.vcf ]
 then
 	# now the slice has all fish, the call the GenotypeGVCFs
-java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T GenotypeGVCFs \
+java -Xmx60g -jar /mnt/home/pitchers/GenomeAnalysisTK.jar -T GenotypeGVCFs \
 				-R ${ref} ${samples} -nt 8 \
 				 -stand_call_conf 30 -stand_emit_conf 30 \
-				--out all_fish_`date '+%m_%Y'`_slice_${n}.vcf \
-				--disable_auto_index_creation_and_locking_when_reading_rods
+				--out all_fish_slice_${n}.vcf \
+				--disable_auto_index_creation_and_locking_when_reading_rods &
+
+	JAVAPID=$!
+    wait
+    if [ ! $? -eq 0 ]
+    then
+        echo "Java process exited abnormally, pid $JAVAPID, exit code $?"
+        logger -t vcf_disco "Java Error on file ${dir}/${outdir}/${outputfilename}, $GETSTRIPE $PBS_JOBID ${PBS_ARRAYID}"
+    fi
+
+    if [ ! -f all_fish_slice_${n}.vcf ]
+    then
+        echo "Output file not created!"
+        GETSTRIPE=`lfs getstripe all_fish_slice_${n}.vcf`
+        logger -t vcf_disco "Error on file ${dir}/V5-2_chunks/all_fish_slice_${n}.vcf, $GETSTRIPE, $PBS_JOBID ${PBS_ARRAYID}"
+    fi
+
+    vcf_test=`java -Xmx30g -jar /mnt/home/pitchers/GenomeAnalysisTK.jar \
+                -T ValidateVariants \
+                -R ${ref}  -V all_fish_slice_${n}.vcf \
+                --warnOnErrors \
+                --validationTypeToExclude ALLELES \
+                --validationTypeToExclude IDS \
+                ${thisindex}`
+
+	if [ `echo ${vcf_test} | grep -c "no warn messages"` -eq 1 ]
+        then
+        touch $flagdir/all_fish_slice_${n}.vcf
+    fi
 fi
 
 
 # Calculate next job to run
-NEXT=$(( ${n} + 100 ))
+NEXT=$(( ${n} + 500 ))
 
 #Check to see if next job is past the maximum job id
 if [ ${NEXT} -le ${MAXJOBID} ]

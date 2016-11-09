@@ -7,6 +7,8 @@
 #PBS -r n
 #PBS -t 1-500
 
+source /mnt/home/pitchers/.bashrc
+
 # Current job number
 n=${PBS_ARRAYID}
 
@@ -33,7 +35,7 @@ module load Java/1.8.0_31
 # cut out a chunk
 thisindex=`head -${n} indices.list | tail -1`
 
-readarray thesefiles < samples.list
+readarray -t thesefiles < samples.list
 
 for thisfile in ${thesefiles[@]}
 	do
@@ -44,7 +46,7 @@ for thisfile in ${thesefiles[@]}
 if [ ! -f $flagdir/${thisfile}/${outputfilename} ] 
 	then
 	# # the call to the GATK HaplotypeCaller
-	java -Xmx30g -jar /mnt/home/pitchers/GenomeAnalysisTK.jar -T HaplotypeCaller \
+	java -Xmx30g -jar /mnt/home/pitchers/GATK_versions/GenomeAnalysisTK.jar -T HaplotypeCaller \
 				-R ${ref} -I ${thisfile}_all_libraries.bam \
 				${thisindex} \
 				--genotyping_mode DISCOVERY \
@@ -75,8 +77,7 @@ if [ ! -f $flagdir/${thisfile}/${outputfilename} ]
 				--warnOnErrors \
 				--validationTypeToExclude ALLELES \
 				--validationTypeToExclude IDS \
-				${thisindex} -gvcf ` &
-	wait
+				${thisindex} -gvcf`
 
 	if [ ! $? -eq 0 ] 
 	then
@@ -108,7 +109,7 @@ if [ ${n} -eq ${MAXJOBID} ]
 then
 	# count the succesfully completed jobs
 	for thisfile in ${thesefiles[@]}
-    do ls V5-2_chunks/tests/${thisfile}/* | wc -l >> v5_2_gvcf_count
+    do ls $flagdir/${thisfile}/* | wc -l >> v5_2_gvcf_count
 	done
 
 	# determine if rerunning is necessary

@@ -12,24 +12,26 @@
 #dir=/mnt/scratch/pitchers/eFISH/Analysis/
 dir=/mnt/ls15/scratch/groups/efish/WILL/
 ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
+mytempdir=/mnt/research/efish/2015_genomic_data/
 
 # load modules
 cd ${dir}
-module load tabix/0.2.6
+#module load tabix/0.2.6
 #module load vcftools/4.2
-module load vcftools/0.1.9
-module load GATK/3.4.46
+#module load vcftools/0.1.9
+#module load GATK/3.5.0
+module load Java/1.8.0_31
 
 cd V5-2_chunks/
 
 #sample=(*libraries.vcf)
-sample=(all_fish*slice*.vcf)
-samples=`for i in ${sample[@]} ; do echo --variant $i ; done | xargs`
+#sample=(all_fish*slice*.vcf)
+samples=`for i in $(seq 1 2765) ; do echo --variant $i ; done | xargs`
 
 # the call to GATK
 #java -Xmx10g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T CombineVariants -R ${ref} ${samples} -o all_variants_merged_`date '+%d_%m_%Y'`.vcf # --genotypemergeoption UNIQUIFY
 
-java -Xmx60g -cp /opt/software/GATK/3.5.0/GenomeAnalysisTK.jar org.broadinstitute.gatk.tools.CatVariants -R ${ref} ${samples} -out all_fish_version_5-2_HPC.vcf 
+java -Xmx60g -Djava.io.tmpdir=${mytempdir} -cp /mnt/home/pitchers/GenomeAnalysisTK.jar org.broadinstitute.gatk.tools.CatVariants -R ${ref} ${samples} -out all_fish_version_5-2_HPC_Nov.vcf 
 
 #zip it up
 #bgzip tabix all_variants_merged_`date '+%d_%m_%Y'`.vcf
