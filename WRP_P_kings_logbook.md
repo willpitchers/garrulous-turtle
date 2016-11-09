@@ -853,3 +853,44 @@ https://software.broadinstitute.org/gatk/gatkdocs/org_broadinstitute_gatk_tools_
 Week of 24th-28th October
 
   -
+
+
+
+Week of 31st Oct. - 4th Nov.
+
+  - Implemented extra error-checking `if` statements in the VCF_5.2 as suggested by Andrew Keen...
+  - latest 5.2 discovery array seems to be running well, but after **3** complete runs, there are still **293** `..g.vcf` files missing.
+    - I'm re-running a couple of these interactively to see if I can find out what's going on...
+      - 1 thing to note: the `readarray` command seems to not be stripping whitespace. Added the `-t` flag to force this behaviour...
+      - 2ndarily, one of the java error-checks suggested by AK seems to be breaking my error-checking `if` statements... I'm commenting it out for the nonce
+      - so there also appear to be a pair of version-specific GATK issues to work around:
+        - the "v3.6-0-g89b7209" version cannot handle >20 variants at a locus. This appears to be the cause of some of the failed `HaplotypeCaller` jobs, specifically e.g. slice 1807 which failed for all fish. Presumably these regions are just particularly variant-rich
+        - the "vnightly-2016-11-01-gaca5d7b" nightly build handles many multiple alleles handily, but does not include (strangely) the ability to use the '-gvcf' flag for `ValidateVariants`.
+  - after kludging through the last few `..g.vcf` files, qsub-ed the vcf genotyping array...
+    - new problems!
+      - 1534 of 2765 jobs have `job.o..` reports
+      - some reports claim that GATK failed to detect the `#CHROM` header line in the `..g.vcf` files – however `grep` has no problem finding these lines (in `..g.vcf`s that have already *passed* `ValidateVariants` look you!)
+      - 12 of the output `..vcf` file are empty.
+    - interactively running one of the failed jobs with the stable-release (3.6.0) version of GATK completes without problems. I have adjusted the vcf genotyping script and re-submitted.
+  - 3.6.0 version re-run of vcf genotyping leaves 100 files missing...
+    - errors all seem to be traceable to an *empty* (i.e. 0 byte) `..g.vcf` file in each case
+    - re-running the relevant vcf_disco_chunk_5-2.. job seems to fix matters – after which I'm re-submitting the vcf_genotype_chunk_5-2.. job
+    - ...but 8/100 of the broken jobs must be missing >1 `..g.vcf` file, because I need to re-re-run 8 jobs
+    - after which I ran `merge_all_vcfs`, which was stopped by an error in `all_fish_slice_1699.vcf`.
+      - I fixed this by deleting the 63 `..slice_1699.g.vcf` files, re building them and re-running `vcf_genotype_chunk_5-2` on that slice.
+    - after which I re-ran `merge_all_vcfs`, which was stopped by an error in `all_fish_slice_2749.vcf`..
+      - again I deleted the offending `..vcf`, rebuilt the constituent `..g.vcf`s, and re-ran the genotyping step, before re-submitting the merge script
+    - `merge_all_vcfs`, was then stopped by an error in `all_fish_slice_2756.vcf`... <howls of impotent rage>
+      - *weirdness*; `all_fish_slice_2756.vcf` *passes* validation, even without the `validationTypeToExclude` flags. GATK only seems to be able to find a problem with it when running `CatVariants`(!)
+      - as a backup plan; `scp`-ing all the `..vcf`s to Shockly again
+
+Week of 5th – 11th Nov.
+
+  - returning to `CatVariants` problem...
+    - 2756 is the point of failure again... same error message:
+        >  Line 4955: there aren't enough columns for line  (we expected 9 tokens, and saw 1 ), for input source: /mnt/ls15/scratch/groups/efish/WILL/V5-2_chunks/all_fish_slice_2756.vcf
+
+    - this is the last line in the file and is possibly truncated...?
+    - same point of failure occurs with `CatVariants` on Shockly.
+    - make new idx and diff the 2 – check age of indices?
+  - tempdir issue
