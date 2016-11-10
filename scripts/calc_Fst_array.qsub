@@ -1,5 +1,5 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=4,walltime=2:00:00,mem=4gb
+#PBS -l nodes=1:ppn=4,walltime=2:00:00,mem=16gb
 #PBS -N calc_Fsts
 #PBS -j oe
 #PBS -M pitchers@msu.edu
@@ -18,12 +18,12 @@ Wsz=$(( ${window_size} / 1000 ))kb
 Wst=$(( ${window_step} / 1000 ))kb
 
 # where do the files live
-dir=/mnt/scratch/pitchers/eFISH/Analysis/
+dir=/mnt/ls15/scratch/groups/efish/WILL
 popdir=/mnt/research/efish/2015_genomic_data/Populations/
 
 # load modules
 cd ${dir}
-module load vcftools/4.2
+module load vcftools/0.1.12a
 
 # write some needed variables into memory
 MAXJOBID=14

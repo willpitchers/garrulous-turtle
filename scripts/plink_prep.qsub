@@ -16,10 +16,7 @@ ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
 
 # load modules
 cd ${dir}
-module load vcftools/0.1.9
-
-# input_data=all_variants_merged_27_10_2015
-# input_data=all_variants_merged_21_01_2016
+module load vcftools/0.1.12a
 
 #sed -i s/"fileformat=VCFv4.2"/"fileformat=VCFv4.1"/ ${input_data}.vcf
 

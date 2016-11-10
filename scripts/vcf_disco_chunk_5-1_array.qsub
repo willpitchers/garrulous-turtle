@@ -48,11 +48,11 @@ if [ ! -f V5-1_chunks/all_fish*slice_${n}.vcf ]
 then
 # # the call to the GATK HaplotypeCaller
 java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T HaplotypeCaller \
-					-R ${ref} ${samples} ${thisindex} \
-					--genotyping_mode DISCOVERY \
-                    -stand_emit_conf 10 -stand_call_conf 30 \
-                    -o V5-1_chunks/${outputfilename} \
-                    --output_mode EMIT_ALL_CONFIDENT_SITES \
+              -R ${ref} ${samples} ${thisindex} \
+              --genotyping_mode DISCOVERY \
+              -stand_emit_conf 10 -stand_call_conf 30 \
+              -o V5-1_chunks/${outputfilename} \
+              --output_mode EMIT_ALL_CONFIDENT_SITES \
                     --num_threads 1 --num_cpu_threads_per_data_thread 4
 fi
 

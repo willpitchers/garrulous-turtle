@@ -894,3 +894,7 @@ Week of 5th – 11th Nov.
     - same point of failure occurs with `CatVariants` on Shockly.
     - make new idx and diff the 2 – check age of indices?
   - tempdir issue
+
+  - 5.1 version: 9032114 rows – 5.2 version: 7902104 ... 1130010 fewer variants in `g.vcf` version
+    - 7360384 variants are present in both versions: 81% of v5.1 & 93% of v5.2
+    - R^2 between v5.1 & v5.2 p-values = 0.96, OR = 0.93
