@@ -10,8 +10,8 @@
 ## Set up some variables
 
 ### Adjust Here ###
-window_size=WSIZE
-window_step=WSTEP
+#window_size=WSIZE
+#window_step=WSTEP
 ###################
 
 Wsz=$(( ${window_size} / 1000 ))kb
@@ -33,7 +33,8 @@ n=${PBS_ARRAYID}
 
 POP1=population_${leftpop[${n}]}.txt
 POP2=population_${rightpop[${n}]}.txt
-OUTN=Fst_${leftpop[${n}]}_vs_${rightpop[${n}]}_${input_data}
+OUTN=Fst_${version}_${leftpop[${n}]}_vs_${rightpop[${n}]}
+
 
 # the call to vcftools
 vcftools --vcf ${input_data} --weir-fst-pop ${popdir}${POP1} --weir-fst-pop ${popdir}${POP2} --fst-window-size ${window_size} --fst-window-step ${window_step} --out ${OUTN}
