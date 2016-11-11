@@ -29,11 +29,11 @@ module load vcftools/0.1.12a
 MAXJOBID=14
 source ${popdir}pop_comparisons.sh
 n=${PBS_ARRAYID}
-input_data=all_variants_merged_27_10_2015.vcf
+
 
 POP1=population_${leftpop[${n}]}.txt
 POP2=population_${rightpop[${n}]}.txt
-OUTN=Fst_${leftpop[${n}]}_vs_${rightpop[${n}]}
+OUTN=Fst_${leftpop[${n}]}_vs_${rightpop[${n}]}_${input_data}
 
 # the call to vcftools
 vcftools --vcf ${input_data} --weir-fst-pop ${popdir}${POP1} --weir-fst-pop ${popdir}${POP2} --fst-window-size ${window_size} --fst-window-step ${window_step} --out ${OUTN}
