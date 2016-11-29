@@ -898,3 +898,24 @@ Week of 5th – 11th Nov.
   - 5.1 version: 9032114 rows – 5.2 version: 7902104 ... 1130010 fewer variants in `g.vcf` version
     - 7360384 variants are present in both versions: 81% of v5.1 & 93% of v5.2
     - R^2 between v5.1 & v5.2 p-values = 0.96, OR = 0.93
+  - rerunning `calc_Fst_array` on both the new-shiny `..vcf`s...
+
+
+Week of 14 – 18th Nov.
+
+  - PLINK association analyses
+    - as previously, with a filter at MAF of 10% and a genotyping rate of 50%, with both v5.1 and v5.2 versions
+    - without an MAF filter, and with a genotyping rate filter of 50%, with both v5.1 and v5.2 versions
+  - comparisons made between v5.1 & v5.2 in .
+
+
+Week of 21 – 25th Nov.
+
+  - HPC is giving me error messages about having no free space (won't even let me delete old files), so I scp-ing to shockly today (Monday)... [*Update*](http://icer.msu.edu/service-status)
+    - subsetting out the APA & BAM individuals from the v5.1 vcf file with: `java -Xmx30g -jar /home/GenomeAnalysisTK-3.6/GenomeAnalysisTK.jar -T SelectVariants -R ../individual_bams/supercontigs.fasta -V all_fish_version_5-1_HPC.vcf -o APA_BAM_only_Nov_HPC.vcf -sn APA_6675 -sn APA_6676 -sn APA_6677 -sn APA_6678 -sn APA_6679 -sn APA_6680 -sn APA_6681 -sn APA_6682 -sn APA_6683 -sn APA_6684 -sn APA_6685 -sn APA_6737 -sn BAM_6494 -sn BAM_6496 -sn BAM_6497 -sn BAM_6498 -sn BAM_6499 -sn BAM_6500 -sn BAM_6501 -sn BAM_6502 -sn BAM_6597 -sn BAM_6598 -sn BAM_6599 -sn BAM_6602 -sn BAM_6603 -sn BAM_6604 -sn BAM_6605`
+    - subsetting out the IVI & MOV individuals from the v5.1 vcf file with: `java -Xmx30g -jar /home/GenomeAnalysisTK-3.6/GenomeAnalysisTK.jar -T SelectVariants -R ../individual_bams/supercontigs.fasta -V all_fish_version_5-1_HPC.vcf -o IVI_MOV_only_Nov_HPC.vcf -sn IVI_3923 -sn IVI_4816 -sn IVI_4832 -sn IVI_4834 -sn IVI_4893 -sn IVI_4894 -sn IVI_4895 -sn IVI_4896 -sn IVI_4897 -sn IVI_4921 -sn IVI_4925 -sn MOV_6716 -sn MOV_6717 -sn MOV_6718 -sn MOV_6719 -sn MOV_6720 -sn MOV_6721 -sn MOV_6722 -sn MOV_6723 -sn MOV_6724 -sn MOV_6725`
+    - subsetting out the IVI & APA individuals from the v5.1 vcf file with: `java -Xmx30g -jar /home/GenomeAnalysisTK-3.6/GenomeAnalysisTK.jar -T SelectVariants -R ../individual_bams/supercontigs.fasta -V all_fish_version_5-1_HPC.vcf -o APA_IVI_only_Nov_HPC.vcf -sn APA_6675 -sn APA_6676 -sn APA_6677 -sn APA_6678 -sn APA_6679 -sn APA_6680 -sn APA_6681 -sn APA_6682 -sn APA_6683 -sn APA_6684 -sn APA_6685 -sn APA_6737 -sn IVI_3923 -sn IVI_4816 -sn IVI_4832 -sn IVI_4834 -sn IVI_4893 -sn IVI_4894 -sn IVI_4895 -sn IVI_4896 -sn IVI_4897 -sn IVI_4921 -sn IVI_4925`
+    - subsetting out the BAM & BAVA individuals from the v5.1 vcf file with: `java -Xmx30g -jar /home/GenomeAnalysisTK-3.6/GenomeAnalysisTK.jar -T SelectVariants -R ../individual_bams/supercontigs.fasta -V all_fish_version_5-1_HPC.vcf -o BAVA_BAM_only_Nov_HPC.vcf -sn BAM_6494 -sn BAM_6496 -sn BAM_6497 -sn BAM_6498 -sn BAM_6499 -sn BAM_6500 -sn BAM_6501 -sn BAM_6502 -sn BAM_6597 -sn BAM_6598 -sn BAM_6599 -sn BAM_6602 -sn BAM_6603 -sn BAM_6604 -sn BAM_6605 -sn BAVA_6619 -sn BAVA_6620 -sn BAVA_6621 -sn BAVA_6622 -sn BAVA_6623 -sn BAVA_6624 -sn BAVA_6625 -sn BAVA_6626 -sn BAVA_6627`
+  - re-ran the PLINK association on the subset vcfs. IVI vs MOV is a comparison that we can't make with this data as all IVI & MOV fish are triphasic...
+  - Updating the installation or R on Shockly... some weirdness occurring 
+  -

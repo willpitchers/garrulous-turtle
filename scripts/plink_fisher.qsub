@@ -20,7 +20,6 @@ mydata=${input_data}
 
 #plink --bfile ${mydata} --allow-no-sex --maf 0.01 --geno 0.95 --fisher --out ${mydata}
 # plink --bfile ${mydata} --allow-no-sex --maf 0.10 --geno 0.50 --fisher --out ${mydata}_maf10_geno50
-# plink --bfile ${mydata} --allow-no-sex --maf 0.10 --geno 0.50 --assoc fisher --out ${mydata}_maf10_geno50 --allow-extra-chr
 plink --bfile ${mydata} --allow-no-sex --geno 0.50 --assoc fisher --out ${mydata}_geno50 --allow-extra-chr
 
 echo "." | mail -s "The PLINK assoc job is finishing" ${USER}@msu.edu
