@@ -917,5 +917,55 @@ Week of 21 – 25th Nov.
     - subsetting out the IVI & APA individuals from the v5.1 vcf file with: `java -Xmx30g -jar /home/GenomeAnalysisTK-3.6/GenomeAnalysisTK.jar -T SelectVariants -R ../individual_bams/supercontigs.fasta -V all_fish_version_5-1_HPC.vcf -o APA_IVI_only_Nov_HPC.vcf -sn APA_6675 -sn APA_6676 -sn APA_6677 -sn APA_6678 -sn APA_6679 -sn APA_6680 -sn APA_6681 -sn APA_6682 -sn APA_6683 -sn APA_6684 -sn APA_6685 -sn APA_6737 -sn IVI_3923 -sn IVI_4816 -sn IVI_4832 -sn IVI_4834 -sn IVI_4893 -sn IVI_4894 -sn IVI_4895 -sn IVI_4896 -sn IVI_4897 -sn IVI_4921 -sn IVI_4925`
     - subsetting out the BAM & BAVA individuals from the v5.1 vcf file with: `java -Xmx30g -jar /home/GenomeAnalysisTK-3.6/GenomeAnalysisTK.jar -T SelectVariants -R ../individual_bams/supercontigs.fasta -V all_fish_version_5-1_HPC.vcf -o BAVA_BAM_only_Nov_HPC.vcf -sn BAM_6494 -sn BAM_6496 -sn BAM_6497 -sn BAM_6498 -sn BAM_6499 -sn BAM_6500 -sn BAM_6501 -sn BAM_6502 -sn BAM_6597 -sn BAM_6598 -sn BAM_6599 -sn BAM_6602 -sn BAM_6603 -sn BAM_6604 -sn BAM_6605 -sn BAVA_6619 -sn BAVA_6620 -sn BAVA_6621 -sn BAVA_6622 -sn BAVA_6623 -sn BAVA_6624 -sn BAVA_6625 -sn BAVA_6626 -sn BAVA_6627`
   - re-ran the PLINK association on the subset vcfs. IVI vs MOV is a comparison that we can't make with this data as all IVI & MOV fish are triphasic...
-  - Updating the installation or R on Shockly... some weirdness occurring 
+  - Updating the installation or R on Shockly... some weirdness occurring...
   -
+
+
+Week 28th Nov. – 2nd Dec.
+
+  - Discussion with JG about best way to proceed vis-a-vis understanding our effect sizes... we
+  - new PLINK command:
+    - `plink --bfile ${input_data} --allow-no-sex --allow-extra-chr --logistic --ci 0.95 --pfilter 1 --out ${input_data} --covar ${pheno} --covar-number 3`
+      - `--bfile`, ` --allow-no-sex`, `--allow-extra-chr`, & `--out` are as before...
+      - `--logistic` fits a logistic regression model instead of the Fisher's exact test
+      - `--ci 0.95` outputs 95% confidence intervals on the estimates of OR
+      - `--pfilter 1` is the command to filter by p-value, with the option '1' this just removes NAs
+      - `--covar ...` specifies a path to a file with covariate data and `--covar-number` gives the column number of the covariate to include... the covariate-containing file needs to look like this:
+      >FID	IID	POP
+      >APA	APA_6675	APA
+      >...
+
+    - `plink --bfile ${input_data} --allow-no-sex --allow-extra-chr --model --fisher --ci 0.95 --pfilter 1 --out ${input_data} --test-missing`
+
+      - choice of test must be appropriate for small our sample size
+      - use --model --fisher and add permutation? ...and add --test-missing? & counts?
+      then after – get permutation p-values
+
+
+  - plan:– sort by exclusivity in `.model` output and then find/compare P-values with...
+    - `hypoth=( GENO ALLELIC DOM REC TREND )`, then ``for i in ${hypoth[@]} ; do grep ${i} ${input_data} >> `basename ${input_data} .model`.${i}.model ; done)``
+    - checking the coding in genotype counts:
+      - `..GENO..` file has homo/het/homo in the order ref.ref : ref.alt : alt.alt
+      - `..ALLELIC..` file has n.ref / n.alt
+      - `..DOM..` file has n.homo.ref+n.het / n.homo.alt
+      - `..REC..` file has n.homo.ref / n.het+n.homo.alt
+      - `..TREND..` file has n.ref / n.alt
+      -
+      - `awk -F "[\t ]+" ' NR>1 { split( $6, tri, "/") ; split( $7, bi, "/") ; print $0 "\t" tri[1] "\t" tri[2] "\t" tri[3] "\t" bi[1] "\t" bi[2] "\t" bi[3] "\t"   }' all_fish_version_5-1_HPC.GENO.model >> all_fish_version_5-1_HPC.GENO.model.reformatted` followed by `echo -e "CHR SNP A1 A2 TEST AFF UNAFF P p_Hr p_Het p_Ha np_Hr np_Het np_Ha" | cat - all_fish_version_5-1_HPC.GENO.model.reformatted | sponge all_fish_version_5-1_HPC.GENO.model.reformatted` to fix the header row and `awk '{$1=$1}1' OFS="," all_fish_version_5-1_HPC.GENO.model.reformatted > all_fish_version_5-1_HPC.GENO.model.reformatted.csv` to strip out the weird multi-space delimiters.
+  - I'm going to start with the `..GENO..` file and sort to find max & min homozygotes...
+
+
+Week of Dec. 5-10th
+
+  - re-making presentation-quality Fst plot for JG's talk...
+
+  - JG confirms mis-classification of 3 BAM fish in the phenotype 'source' file  `/mnt/research/efish/2015_genomic_data/specimens_for_genome_reseq.txt`... I manually edited this file to switch the phenotype coding from 'P0 present' to 'P0 absent' for BAM_6494, BAM_6497 & BAM_6500
+  -
+
+`assoc <- mutate( taco, CHR=factor( gsub( "Var-", "", gsub( "\\-\\d+", "", taco$SNP ))), SNP=as.integer(gsub( "Var\\-Scaffold\\d+\\-", "", taco$SNP )))`
+  - for the `ALLELIC` file:
+
+
+Week of Dec. 12-16th
+
+  - 
