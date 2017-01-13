@@ -12,10 +12,6 @@ for i in `seq 1 4667`  ; do
 		nBreaks=`expr ${#theseBreaks[@]} - 1`
 		for j in $(seq 0 $(expr ${nBreaks} - 1) ) ; do
 			echo "-L ${thisScaf}:${theseBreaks[${j}]}-`expr ${theseBreaks[${j}+1]} - 1`"
-<<<<<<< HEAD
-			#echo "-L ${thisScaf}:${theseBreaks[${j}]}-${theseBreaks[${j}+1]}"
-=======
->>>>>>> 9b2604aead23810e88dc8d6fd3d9e2b4f7a0afec
 		done
 		echo "-L ${thisScaf}:${theseBreaks[@]:(-1)}-${thisLen}"
 	fi
