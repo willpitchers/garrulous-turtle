@@ -25,8 +25,8 @@ def write_SetID_file( infile, outfile ):
 	for line in inFile:
 		Line = line.strip().split()
 		winID = GetWindowID( Line[0], Line[1] )
-		Line.append( winID )
-		Lineout = '\t'.join( Line )
+		LineW = [ winID ] + Line
+		Lineout = '\t'.join( LineW )
 		outFile.write( Lineout + '\n' )
 	inFile.close()
 	outFile.close()
