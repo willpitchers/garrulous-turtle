@@ -17,17 +17,25 @@ cd $dir
 # mydata=all_variants_merged_21_01_2016
 # instead, now call with `qsub plink_ind_pheno.qsub -v input_data=insertnamehere`
 
-# derive a simple lookup table from the phenotype file (P0 absent=1, P0 present=2)
+# # derive a simple lookup table from the phenotype file (P0 absent=1, P0 present=2)
+# if [ ! -f individual.list ]
+#   then cat /mnt/research/efish/2015_genomic_data/specimens_for_genome_reseq.txt | tail -67 | cut -f 1,11 | sed 's/[yesYES]\{3\}/2/g' | sed 's/[noNO]\{2\}/1/g' | sed 's/[\t ]\+/ /g' > individual.list
+#
+#   ### seq. data filenames contain a typo; IVI_3923 should have been IVI_4923 (discovered 23/02/2016)
+#   ### this line alters the phenotype lookup table so that the mis-named reads get the correct phenotype.
+#   sed -i s/4923/3923/ individual.list
+#   sed -i s/4007/4027/ individual.list
+# fi
+
+# derive a simple lookup table from the *NEW* phenotype file; `ultimate_phenotype.txt` (P0-Absent=1, P0-Present=2)
 if [ ! -f individual.list ]
-  then cat /mnt/research/efish/2015_genomic_data/specimens_for_genome_reseq.txt | tail -67 | cut -f 1,11 | sed 's/[yesYES]\{3\}/2/g' | sed 's/[noNO]\{2\}/1/g' | sed 's/[\t ]\+/ /g' > individual.list
+  then cat /mnt/research/efish/2015_genomic_data/ultimate_phenotype.txt | tail -63 | cut -f 1,2 | sed 's/P0-Present/2/g' | sed 's/P0-Absent/1/g' | sed 's/[\t ]\+/ /g' > individual.list
 
   ### seq. data filenames contain a typo; IVI_3923 should have been IVI_4923 (discovered 23/02/2016)
   ### this line alters the phenotype lookup table so that the mis-named reads get the correct phenotype.
   sed -i s/4923/3923/ individual.list
-  sed -i s/4007/4027/ individual.list
 fi
 
-#cd V5-1_chunks/
 
 # call my python script to write the phenotype codes into the .ped file
 python $PBS_O_WORKDIR/pheno_lookup.py ../individual.list ${input_data}.ped ${input_data}.ped.out
