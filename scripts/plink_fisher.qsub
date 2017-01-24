@@ -35,27 +35,27 @@ done
 #GENO
 awk -F "[\t ]+" ' NR>1 { split( $7, tri, "/") ; split( $8, bi, "/") ; print $0 "\t" tri[1] "\t" tri[2] "\t" tri[3] "\t" bi[1] "\t" bi[2] "\t" bi[3] }' ${output_name}.GENO.model >> ${output_name}.GENO.model.reformatted
 echo -e "CHR SNP A1 A2 TEST AFF UNAFF P p_Hr p_Het p_Ha np_Hr np_Het np_Ha" | cat - ${output_name}.GENO.model.reformatted | sponge ${output_name}.GENO.model.reformatted
-awk '{$1=$1}1' OFS="," all_fish_version_5-1_HPC.GENO.model.reformatted > all_fish_version_5-1_HPC.GENO.model.reformatted.csv
+awk '{$1=$1}1' OFS="," ${output_name}.GENO.model.reformatted > ${output_name}.GENO.model.reformatted.csv
 
 #ALLELIC
 awk -F "[\t ]+" ' NR>1 { split( $7, tri, "/") ; split( $8, bi, "/") ; print $0 "\t" tri[1] "\t" tri[2] "\t" bi[1] "\t" bi[2] }' ${output_name}.ALLELIC.model >> ${output_name}.ALLELIC.model.reformatted
 echo -e "CHR SNP A1 A2 TEST AFF UNAFF P p_ref p_alt np_ref np_alt" | cat - ${output_name}.ALLELIC.model.reformatted | sponge ${output_name}.ALLELIC.model.reformatted
-awk '{$1=$1}1' OFS="," all_fish_version_5-1_HPC.ALLELIC.model.reformatted > all_fish_version_5-1_HPC.ALLELIC.model.reformatted.csv
+awk '{$1=$1}1' OFS="," ${output_name}.ALLELIC.model.reformatted > ${output_name}.ALLELIC.model.reformatted.csv
 
 #DOM
 awk -F "[\t ]+" ' NR>1 { split( $7, tri, "/") ; split( $8, bi, "/") ; print $0 "\t" tri[1] "\t" tri[2] "\t" bi[1] "\t" bi[2] }' ${output_name}.DOM.model >> ${output_name}.DOM.model.reformatted
 echo -e "CHR SNP A1 A2 TEST AFF UNAFF P p_ref_or_het p_alt np_ref_or_het np_alt" | cat - ${output_name}.DOM.model.reformatted | sponge ${output_name}.DOM.model.reformatted
-awk '{$1=$1}1' OFS="," all_fish_version_5-1_HPC.DOM.model.reformatted > all_fish_version_5-1_HPC.DOM.model.reformatted.csv
+awk '{$1=$1}1' OFS="," ${output_name}.DOM.model.reformatted > ${output_name}.DOM.model.reformatted.csv
 
 #REC
 awk -F "[\t ]+" ' NR>1 { split( $7, tri, "/") ; split( $8, bi, "/") ; print $0 "\t" tri[1] "\t" tri[2] "\t" bi[1] "\t" bi[2] }' ${output_name}.REC.model >> ${output_name}.REC.model.reformatted
 echo -e "CHR SNP A1 A2 TEST AFF UNAFF P p_ref p_het_or_alt np_ref np_het_or_alt" | cat - ${output_name}.REC.model.reformatted | sponge ${output_name}.REC.model.reformatted
-awk '{$1=$1}1' OFS="," all_fish_version_5-1_HPC.REC.model.reformatted > all_fish_version_5-1_HPC.REC.model.reformatted.csv
+awk '{$1=$1}1' OFS="," ${output_name}.REC.model.reformatted > ${output_name}.REC.model.reformatted.csv
 
 #TREND
 awk -F "[\t ]+" ' NR>1 { split( $7, tri, "/") ; split( $8, bi, "/") ; print $0 "\t" tri[1] "\t" tri[2] "\t" bi[1] "\t" bi[2] }' ${output_name}.TREND.model >> ${output_name}.TREND.model.reformatted
 echo -e "CHR SNP A1 A2 TEST AFF UNAFF P p_ref p_alt np_ref np_alt" | cat - ${output_name}.TREND.model.reformatted | sponge ${output_name}.TREND.model.reformatted
-awk '{$1=$1}1' OFS="," all_fish_version_5-1_HPC.TREND.model.reformatted > all_fish_version_5-1_HPC.TREND.model.reformatted.csv
+awk '{$1=$1}1' OFS="," ${output_name}.TREND.model.reformatted > ${output_name}.TREND.model.reformatted.csv
 
 rm ${output_name}*.model.reformatted
 
