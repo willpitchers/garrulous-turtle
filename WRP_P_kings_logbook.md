@@ -940,10 +940,8 @@ Week 28th Nov. – 2nd Dec.
       - choice of test must be appropriate for small our sample size
       - use --model --fisher and add permutation? ...and add --test-missing? & counts?
       then after – get permutation p-values
-
-
   - plan:– sort by exclusivity in `.model` output and then find/compare P-values with...
-    - `hypoth=( GENO ALLELIC DOM REC TREND )`, then ``for i in ${hypoth[@]} ; do grep ${i} ${input_data} >> `basename ${input_data} .model`.${i}.model ; done)``
+    - `hypoth=( GENO ALLELIC DOM REC TREND )`, then ``for i in ${hypoth[@]} ; do grep ${i} ${input_data} >> `basename ${input_data} .model`.${i}.model ; done``
     - checking the coding in genotype counts:
       - `..GENO..` file has homo/het/homo in the order ref.ref : ref.alt : alt.alt
       - `..ALLELIC..` file has n.ref / n.alt
@@ -968,7 +966,7 @@ Week of Dec. 5-10th
 
 Week of Dec. 12-16th
 
-  - 
+  -
 
 
  ––– Break for the Holidays: 19th Dec. - 9th Jan. –––
@@ -981,4 +979,4 @@ Week of 9-13th Jan. 2017
 
 Week of 16-20th Jan.
 
-  -
+  - can we test biallelic-esque ref vs. not-ref as a way of shoehorning multi-allelic-ness
