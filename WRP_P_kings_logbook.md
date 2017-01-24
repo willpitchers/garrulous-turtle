@@ -969,3 +969,16 @@ Week of Dec. 5-10th
 Week of Dec. 12-16th
 
   - 
+
+
+ ––– Break for the Holidays: 19th Dec. - 9th Jan. –––
+
+
+Week of 9-13th Jan. 2017
+
+  -
+
+
+Week of 16-20th Jan.
+
+  -
