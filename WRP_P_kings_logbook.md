@@ -979,4 +979,16 @@ Week of 9-13th Jan. 2017
 
 Week of 16-20th Jan.
 
+  -
   - can we test biallelic-esque ref vs. not-ref as a way of shoehorning multi-allelic-ness
+  - `bcftools norm all_fish_version_5-1_HPC.vcf.gz -o all_fish_version_5-1_HPC.NORMALIZED.vcf.gz` ?
+  - `plink --file all_fish_version_5-1_HPC --freq --out all_fish_version_5-1_HPC.freq`
+
+  - Analyses to compare after incorporating 'ultimate phenotypes':
+    - all fish, all hypotheses, real ref alleles
+    - APA & BAM only, all hypotheses, real ref alleles
+    - not-COB, all hypotheses, real ref alleles
+
+  - need to get the group scratch directory tidied up...
+    - keeping: individual BAMs, output vcfs
+    - tossing: slice-wise vcfs, old figures, check-if-done dummy files/folders

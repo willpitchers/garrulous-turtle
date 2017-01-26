@@ -22,7 +22,7 @@ output_name=${input_data}_g50_CI
 #plink --bfile ${mydata} --allow-no-sex --maf 0.01 --geno 0.95 --fisher --out ${mydata}
 # plink --bfile ${mydata} --allow-no-sex --maf 0.10 --geno 0.50 --fisher --out ${mydata}_maf10_geno50
 # plink --bfile ${mydata} --allow-no-sex --geno 0.50 --assoc fisher --out ${mydata}_geno50 --allow-extra-chr
-plink --bfile ${input_data} --allow-no-sex --geno 0.50 --allow-extra-chr --model --fisher --ci 0.95 --pfilter 1 --out ${output_name} --test-missing
+plink --bfile ${input_data} --allow-no-sex --geno 0.50 --allow-extra-chr --model --fisher --ci 0.95 --pfilter 1 --out ${output_name} --test-missing --real-ref-alleles
 
 
 # separate out the hypothesis-wise output
