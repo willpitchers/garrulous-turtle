@@ -992,3 +992,6 @@ Week of 16-20th Jan.
   - need to get the group scratch directory tidied up...
     - keeping: individual BAMs, output vcfs
     - tossing: slice-wise vcfs, old figures, check-if-done dummy files/folders
+
+  - testing the effect of population as a covariate –
+  - testing for agreement between PLINK and R:fdrtool

@@ -9,6 +9,7 @@
 
 #dir=/mnt/scratch/pitchers/eFISH/Analysis/
 dir=/mnt/ls15/scratch/groups/efish/WILL/V5-1_chunks/
+# dir=/mnt/ls15/scratch/groups/efish/WILL/V5-2_chunks/
 
 cd $dir
 
@@ -16,18 +17,18 @@ module load plink/1.9
 module load vcftools/0.1.12a
 
 # make plink file versions
-vcftools --vcf ${input_data}.vcf --out ${input_data} --plink
-
-awk -F "[\t ]" '{ $2=$1 "_" $2; print $1 "\t" $2 "\t" $3 "\t" $4 }' ${input_data}.map > temp.map
-mv temp.map ${input_data}.map
-
-# call my python script to write the phenotype codes into the .ped file
-python $PBS_O_WORKDIR/pheno_lookup.py ../individual.list ${input_data}.ped ${input_data}.ped.out
-
-mv ${input_data}.ped.out ${input_data}.ped
-
-# make binary files
-plink --file ${input_data} --out ${input_data} --make-bed --allow-extra-chr
+# vcftools --vcf ${input_data}.vcf --out ${input_data} --plink
+#
+# awk -F "[\t ]" '{ $2=$1 "_" $2; print $1 "\t" $2 "\t" $3 "\t" $4 }' ${input_data}.map > temp.map
+# mv temp.map ${input_data}.map
+#
+# # call my python script to write the phenotype codes into the .ped file
+# python /mnt/research/efish/2015_genomic_data/scripts/pheno_lookup.py ../individual.list ${input_data}.ped ${input_data}.ped.out
+#
+# mv ${input_data}.ped.out ${input_data}.ped
+#
+# # make binary files
+# plink --file ${input_data} --out ${input_data} --make-bed --allow-extra-chr
 
 # run association *without* population as covariate
 plink --bfile ${input_data} --allow-no-sex --geno 0.50 --allow-extra-chr --model fisher --ci 0.95 --pfilter 0.5 --out ${input_data}.NO_COVAR --test-missing --real-ref-alleles
