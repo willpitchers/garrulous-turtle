@@ -16,14 +16,21 @@ module load plink/1.9
 
 # mydata=`basename all_variants_merged_27_10_2015.vcf .vcf`
 # mydata=all_variants_merged_21_01_2016
-mydata=${input_data}
 output_name=${input_data}_g50_CI
 
-#plink --bfile ${mydata} --allow-no-sex --maf 0.01 --geno 0.95 --fisher --out ${mydata}
-# plink --bfile ${mydata} --allow-no-sex --maf 0.10 --geno 0.50 --fisher --out ${mydata}_maf10_geno50
-# plink --bfile ${mydata} --allow-no-sex --geno 0.50 --assoc fisher --out ${mydata}_geno50 --allow-extra-chr
-plink --bfile ${input_data} --allow-no-sex --geno 0.50 --allow-extra-chr --model fisher --ci 0.95 --pfilter 1 --out ${output_name} --test-missing --real-ref-alleles
+# Straighforward 'basic' PLINK run...
+plink --bfile ${input_data} --allow-no-sex --geno 0.50 --allow-extra-chr --assoc --ci 0.95 --pfilter 1 --test-missing --real-ref-alleles --out ${input_data}_geno50
 
+# PLINK command with:
+#  `--allow-no-sex` because our fishes' weren't sexed
+#  `--geno` 0.50 requires a min. 50% genotyping rate
+#  `--allow-extra-chr` required because our assembly has 1000's of scaffolds
+#  `--model fisher` specifies the use of the 5 models (see below) and P-vals from Fisher's exact test-missing
+#  `--ci 0.95` to report 95% confidence intervals on odds ratios
+#  `--pfilter 1` cuts out rows with p-vals >1 (i.e. strips 'NA's)
+#  `--test-missing` Fisher's exact test for non-random missingness across cases/controls (separate output)
+#  `--real-ref-alleles` "Specifies that A2 alleles are based on a real reference genome"...
+plink --bfile ${input_data} --allow-no-sex --geno 0.50 --allow-extra-chr --model fisher --ci 0.95 --pfilter 1 --test-missing --real-ref-alleles --out ${output_name}
 
 
 # separate out the hypothesis-wise output
