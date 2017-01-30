@@ -994,4 +994,16 @@ Week of 16-20th Jan.
     - tossing: slice-wise vcfs, old figures, check-if-done dummy files/folders
 
   - testing the effect of population as a covariate –
-  - testing for agreement between PLINK and R:fdrtool
+  - testing for agreement between PLINK and R:fdrtool...?
+    - `--adjust` in PLINK is only available for trend-only models...
+
+
+Week of 30th Jan. – 3rd Feb.
+
+  - Meeting w/JG:
+    - signal:noise ratio between candidates & non-candidates... p-val distribution
+    - models we want (as per Asana), a direrctory containing:
+      1. Fexact-test w/ genotypes spreadsheet top 250
+      2. - 5. as above for other 4 hypothesis-wise tests
+      6. comparison/ranking between p-vals from files 1-5
+      7. analysis of p-val distribution 
