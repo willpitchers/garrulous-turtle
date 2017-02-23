@@ -1006,4 +1006,99 @@ Week of 30th Jan. – 3rd Feb.
       1. Fexact-test w/ genotypes spreadsheet top 250
       2. - 5. as above for other 4 hypothesis-wise tests
       6. comparison/ranking between p-vals from files 1-5
-      7. analysis of p-val distribution 
+      7. analysis of p-val distribution
+
+
+  - making a vcf subset using: `java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants -R ${ref} -V all_fish_version_5-1_HPC.vcf -o without_COB_5-1_HPC.2017.vcf -sn APA_6675 -sn APA_6676 -sn APA_6677 -sn APA_6678 -sn APA_6679 -sn APA_6680 -sn APA_6681 -sn APA_6682 -sn APA_6683 -sn APA_6684 -sn APA_6685 -sn APA_6737 -sn BAM_6494 -sn BAM_6496 -sn BAM_6497 -sn BAM_6498 -sn BAM_6499 -sn BAM_6500 -sn BAM_6501 -sn BAM_6502 -sn BAM_6597 -sn BAM_6598 -sn BAM_6599 -sn BAM_6602 -sn BAM_6603 -sn BAM_6604 -sn BAM_6605 -sn BAVA_6619 -sn BAVA_6620 -sn BAVA_6621 -sn BAVA_6622 -sn BAVA_6623 -sn BAVA_6624 -sn BAVA_6625 -sn BAVA_6626 -sn BAVA_6627 -sn IVI_3923 -sn IVI_4816 -sn IVI_4832 -sn IVI_4834 -sn IVI_4893 -sn IVI_4894 -sn IVI_4895 -sn IVI_4896 -sn IVI_4897 -sn IVI_4921 -sn IVI_4925 -sn MOV_6716 -sn MOV_6717 -sn MOV_6718 -sn MOV_6719 -sn MOV_6720 -sn MOV_6721 -sn MOV_6722 -sn MOV_6723 -sn MOV_6724 -sn MOV_6725`
+
+
+Week of 6-10th Feb.
+
+  - quick-pic manhattan code: `assoc %>% filter( Scaf == "Scaffold858" ) %>% ggplot( aes( x=SNP, y=-log10( P )) ) + geom_point() + ylab( "-log(10) p value" ) + xlab( "BP coord" ) + ggtitle( "Scaffold 858" )`
+  -
+  - maf settings and link to 'bands' in mahattan plots?
+  - what happens if we bin *all* P0 as present?
+  - what happens if we drop the mid-P0 individuals?
+    - making a vcf subset using: `java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants -R ${ref} -V all_fish_version_5-1_HPC.vcf -o no_small_P0_5-1_HPC_2017.vcf -sn APA_6675 -sn APA_6676 -sn APA_6677 -sn APA_6678 -sn APA_6679 -sn APA_6680 -sn APA_6682 -sn APA_6683 -sn APA_6684 -sn APA_6685 -sn APA_6737 -sn BAM_6496 -sn BAM_6497 -sn BAM_6498 -sn BAM_6500 -sn BAM_6501 -sn BAM_6502 -sn BAM_6597 -sn BAM_6598 -sn BAM_6599 -sn BAM_6602 -sn BAM_6603 -sn BAM_6605 -sn BAVA_6619 -sn BAVA_6620 -sn BAVA_6621 -sn BAVA_6622 -sn BAVA_6623 -sn BAVA_6626 -sn BAVA_6627 -sn IVI_3923 -sn IVI_4816 -sn IVI_4832 -sn IVI_4834 -sn IVI_4893 -sn IVI_4894 -sn IVI_4895 -sn IVI_4896 -sn IVI_4897 -sn IVI_4921 -sn IVI_4925 -sn MOV_6716 -sn MOV_6717 -sn MOV_6718 -sn MOV_6719 -sn MOV_6720 -sn MOV_6721 -sn MOV_6722 -sn MOV_6723 -sn MOV_6724 -sn MOV_6725`
+  -
+
+
+can we filter out SNPs that are 'private' to populations?
+
+
+alignment rates
+pop gen
+microsat scaffs - 4,8,22,60,77
+
+vcftools to output *all* the stats
+
+  - `vcftools --vcf all_fish_version_5-1_HPC.vcf --out all_fish_version_5-1_HPC_out --freq`
+  - `vcftools --vcf all_fish_version_5-1_HPC.vcf --out all_fish_version_5-1_HPC_out --site-mean-depth`
+  - `vcftools --vcf all_fish_version_5-1_HPC.vcf --geno-depth`
+  - `vcftools --vcf all_fish_version_5-1_HPC.vcf --out all_fish_version_5-1_HPC_out --site-quality`
+  - `vcftools --vcf all_fish_version_5-1_HPC.vcf --out all_fish_version_5-1_HPC_out --SNPdensity 1000`
+  - `vcftools --vcf all_fish_version_5-1_HPC.vcf --out all_fish_version_5-1_HPC_out --hardy`
+    - outputs are `all_fish_version_5-1_HPC_out.frq`, `...ldpeth.mean`, `...ldepth`, `...gdepth`, `...lqual`, `...snpden` & `...hwe` respectively
+  - `depth_...` script to read these outputs and generate some plots summaries...
+
+
+'QD' over 'QUAL'
+
+follow hard-filter guidelines unless there's a good reason not to – then throw into PLINK again
+
+java -jar GenomeAnalysisTK.jar \
+     -R reference.fasta -T VariantsToTable \
+     -V file.vcf \
+     -F CHROM -F POS -F ID -F QUAL -F AC \
+     -o results.table
+
+`sed 's/0_//g' all_fish_version_5-1_HPC.assoc | sed s/":"/"_"/g > all_fish_version_5-1_HPC.assoc.in`
+`awk '{ print $0 "\t" $1 "_" $2 }' all_fish_version_5-1_HPC.vcf.stats.table > all_fish_version_5-1_HPC.stats.in`
+`sort -g -k 2 all_fish_version_5-1_HPC.assoc.in > all_fish_version_5-1_HPC.assoc.in.sorted`
+
+`sort -n -k 15 all_fish_version_5-1_HPC.stats.in > all_fish_version_5-1_HPC.vcf.stats.in.sorted`
+`sort -n -k 2 all_fish_version_5-1_HPC.assoc.in > all_fish_version_5-1_HPC.assoc.in.sorted`
+`join -1 2 -2 15 all_fish_version_5-1_HPC.assoc.in.sorted all_fish_version_5-1_HPC.vcf.stats.in.sorted > tacopark`
+
+
+Week of 13-17th
+
+  - before filtering: 27871297 snps, & 5860821 indels --- after filtering: 26345714 snps, & 5572344 indels
+  - filtered out 1525583 snps, & 288477 indels --- ~5.5% snps, & ~5% indels
+  -
+
+  - loop over fish to produce quality density plots? ...wrote `loop_over_fishes.qsub` that calls `plot_depth_by_fish.R`
+  -
+
+  - extract individual-fish quality scores from vcf with `vcftools --vcf all_fish_version_5-1_HPC.filtered.snps.vcf --extract-FORMAT-info GQ --out filtered_SNPs`
+
+  estimate of heterozygosity in *P. kingsleyae* 2.7e-2 – compare wild stickleback 1.43e−3, wild Medaka 1.5e-3...
+
+    > Coefficients:                  Estimate Std. Error t value Pr(>|t|)
+    > (Intercept)                   2.234e-01  2.125e-03 105.134  < 2e-16
+    > as.numeric(assoc_means$Scaf) -5.889e-06  8.254e-07  -7.134 1.13e-12
+    > Residual standard error: 0.07092 on 4456 degrees of freedom
+    > Multiple R-squared:  0.01129,   Adjusted R-squared:  0.01107
+    > F-statistic:  50.9 on 1 and 4456 DF,  p-value: 1.129e-12
+
+  - after looking at GQ distributions for each fish, decided to run association analyses with cut-offs at ≤20 and ≤25
+    - to that end, wrote `plink_prep_w_filter.qsub` script – using vcftools rather than GATK to do the filtering, because the GATK `VariantsToBinaryPed` tool skips from `...vcf` to `...bed` etc. and I need a `...ped` (i.e. flat text file) in order to be able to add in the phenotype values
+    -
+
+
+Week of 20-25th
+
+  - `vcftools --minGQ` does not appear to have filtered out any variants...
+    - solution – `vcftools` can't filter on `INFO` fields that aren't present in *all* rows, and rows with non-variant genotypes don't get `GQ` scores... we fix this by implementing the `GATK` recommended hard-filter *before* the `GQ` filter
+    - this ^ step takes ~2hrs, then renaming takes a few seconds, then `vcftools --plink` takes ~20mins, then awk to fix the `..map` rownames takes ~1min.... safe to leave it in 1 script w/4hr walltime.
+  - genotypes do not seem to match phenoptyes in `filtered_output_GQ20.xlsx`...
+
+
+      vcf -> filter -> plink files -> add pheno -> bed/bim -> plink assoc -> scrape ID's -> full join
+  - filtering step – individual rows that pass are unchanged – filtering removed 12175530 or 18562241 rows!?
+    -
+  - are genotypes being scraped from the right file? – makes no diff <– filtered or no. Good!
+  - making plink files seems to work as it should
+  - logically, 'F_A' and 'F_U' from the `PLINK assoc` output ought to total to the frequency of 'allele 1', which should be equal to one of the allele frequencies from the `vcftools ..frq` output, assuming that we have a handle on how these programs are behaving...
+  - are the phenotypes being correctly assigned? - `ultimate_phenotype.txt` file is unchanged... - `cut -f 1,6 all_fish_version_5-1_HPC.filtered.snps_GQ20.ped > phenotest.txt` pulls out the phenotypes from the ped file (where plink actually sees them) – these phenotypes are correct
+  - can I get around the need to write the phenotypes in myself?
