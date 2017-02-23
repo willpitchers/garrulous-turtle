@@ -1,0 +1,43 @@
+#!/bin/bash -login
+#PBS -l nodes=1:ppn=1,walltime=04:00:00,mem=60gb
+#PBS -N plink_prep
+#PBS -o /mnt/research/efish/2015_genomic_data/scripts
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+
+### Call this script with e.g.:
+### `qsub -v GQthreshold=20 -v input_data=all_fish_version_5-1_HPC plink_prep_w_filter.qsub`
+
+## Set up some variables
+# where do the files live
+#dir=/mnt/scratch/pitchers/eFISH/Analysis/
+dir=/mnt/ls15/scratch/groups/efish/WILL/V5-1_chunks/
+#dir=/mnt/ls15/scratch/groups/efish/WILL/V5-2_chunks/
+ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
+
+# load modules
+cd ${dir}
+module load vcftools/0.1.12a
+#module load GATK/3.5.0
+
+#sed -i s/"fileformat=VCFv4.2"/"fileformat=VCFv4.1"/ ${input_data}.vcf
+
+vcftools --vcf ${input_data}.vcf --minGQ ${GQthreshold} --recode --recode-INFO-all --out ${input_data}_GQ${GQthreshold}
+
+mv ${input_data}_GQ${GQthreshold}.recode.vcf ${input_data}_GQ${GQthreshold}.vcf
+
+vcftools --vcf ${input_data}_GQ${GQthreshold}.vcf --out ${input_data}_GQ${GQthreshold} --plink
+
+# awk -F "[\t ]" '{ $2=$1 "_" $2; print $1 "\t" $2 "\t" $3 "\t" $4 }' ${input_data}_GQ${GQthreshold}.map > temp.map
+# mv temp.map ${input_data}_GQ${GQthreshold}.map
+
+# email user & start the next job
+echo "." | mail -s "the plink_prep job is finished" ${USER}@msu.edu
+cd $PBS_O_WORKDIR
+# qsub plink_pheno.qsub -v input_data=${input_data}
+qsub plink_ind_pheno.qsub -v input_data=${input_data}_GQ${GQthreshold}
+
+#Print out the statistics for this job
+qstat -f ${PBS_JOBID}

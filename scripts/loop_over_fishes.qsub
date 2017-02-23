@@ -1,0 +1,40 @@
+#!/bin/bash -login
+#PBS -l nodes=1:ppn=4,walltime=04:00:00,mem=32gb
+#PBS -N fishplotloop
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+
+## Set up some variables
+
+# where do the files live
+dir=/mnt/ls15/scratch/groups/efish/WILL/V5-1_chunks/
+
+# build a list of file names
+cd ${dir}
+
+module load GNU/4.9
+module load R/3.3.2
+
+
+#for i in `seq 3 66`
+#	do awk -v COL=${i} '{ print $1 "\t" $2 "\t" $COL }' all_fish_version_5-1_HPC_out.gdepth > onefishtemp.txt
+#    awk -v COL=${i} '{ print $1 "\t" $2 "\t" $COL }' all_fish_version_5-1_HPC.vcf.filtered.snps_out.gdepth > onefishtempfilt.txt
+#	Rscript --vanilla ${PBS_O_WORKDIR}/plot_depth_by_fish.R depth
+#	rm onefishtemp.txt onefishtempfilt.txt
+#done
+
+
+#awk '{ print $1 "\t" $2 "\t" $11 }' all_fish_version_5-1_HPC.vcf.stats.table > onefishtemp.txt
+#awk '{ print $1 "\t" $2 "\t" $11 }' all_fish_version_5-1_HPC.vcf.filtered.snps.stats.table > onefishtempfilt.txt
+#Rscript --vanilla ${PBS_O_WORKDIR}/plot_depth_by_fish.R quality_score
+#rm onefishtemp.txt onefishtempfilt.txt
+
+
+for i in `seq 3 66`
+    do awk -v COL=${i} '{ print $1 "\t" $2 "\t" $COL }' all_SNPs.GQ.FORMAT > onefishtemp.txt
+    awk -v COL=${i} '{ print $1 "\t" $2 "\t" $COL }' filtered_SNPs.GQ.FORMAT > onefishtempfilt.txt
+    Rscript --vanilla ${PBS_O_WORKDIR}/plot_depth_by_fish.R genotype_quality
+    rm onefishtemp.txt onefishtempfilt.txt
+done

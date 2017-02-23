@@ -1,0 +1,44 @@
+#!/bin/bash -login
+#PBS -o /mnt/research/efish/2015_genomic_data/scripts
+#PBS -l nodes=1:ppn=1,walltime=04:00:00,mem=30gb,feature='intel16'
+#PBS -N MakeBinaryPed
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+
+### Call this script with e.g.:
+### `qsub -v input_data=all_fish_version_5-1_HPC vcf_to_bed.qsub`
+
+# set up working environment
+
+#dir=/mnt/scratch/pitchers/eFISH/Analysis/
+dir=/mnt/ls15/scratch/groups/efish/WILL/V5-1_chunks/
+# dir=/mnt/ls15/scratch/groups/efish/WILL/V5-2_chunks/
+ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
+
+cd $dir
+
+module load GATK/3.5.0
+
+if [ ! -f ../phenotype_metadata.fam ]
+# this file has no header, but the columns are:
+# FamilyID IndividualID DadID MomID Sex Phenotype
+  then tail -63 /mnt/research/efish/2015_genomic_data/ultimate_phenotype.txt | awk '{ if ($2 == "P0-Absent") PHENO=1; else PHENO=2;  print $1 "\t" $1 "\t0\t0\t0\t" PHENO }' > ../phenotype_metadata.fam
+
+  ### seq. data filenames contain a typo; IVI_3923 should have been IVI_4923 (discovered 23/02/2016)
+  ### this line alters the phenotype lookup table so that the mis-named reads get the correct phenotype.
+  sed -i s/4923/3923/g ../phenotype_metadata.fam
+fi
+
+java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToBinaryPed \
+						-R ${ref} -V ${input_data}.vcf -m ../phenotype_metadata.fam \
+						-bed ${input_data}.bed -bim ${input_data}.bim -fam ${input_data}.fam \
+						--minGenotypeQuality 20 --majorAlleleFirst
+
+
+# email me
+echo "." | mail -s "The binaryped job is finishing" ${USER}@msu.edu
+
+#Print out the statistics for this job
+qstat -f ${PBS_JOBID}

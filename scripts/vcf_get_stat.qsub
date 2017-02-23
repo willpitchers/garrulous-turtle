@@ -1,0 +1,31 @@
+#!/bin/bash -login
+#PBS -l nodes=1:ppn=4,walltime=04:00:00,mem=62gb
+#PBS -N vcf_stat
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+
+## Set up some variables
+
+# where do the files live
+dir=/mnt/ls15/scratch/groups/efish/WILL/V5-1_chunks/
+ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
+
+# build a list of file names
+cd ${dir}
+
+module load GATK/3.5.0
+
+## call to GATK – input vcf and output quality/depth/etc. stats
+java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToTable -R ${ref} -V ${input_data} -o ${input_data}.stats.table \
+							-F CHROM -F POS -F ID -F QUAL -F AC -F HET -F HOM-REF -F HOM-VAR \
+							-F MQRankSum -F GQ -F QD -F FS -F MQ -F ReadPosRankSum \
+							--allowMissingData
+
+
+echo "." | mail -s "The VCF stat job is finishing" ${USER}@msu.edu
+cd ${PBS_O_WORKDIR}
+
+#Print out the statistics for this job
+qstat -f ${PBS_JOBID}
