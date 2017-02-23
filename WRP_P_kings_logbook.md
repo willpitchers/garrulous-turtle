@@ -1102,3 +1102,7 @@ Week of 20-25th
   - logically, 'F_A' and 'F_U' from the `PLINK assoc` output ought to total to the frequency of 'allele 1', which should be equal to one of the allele frequencies from the `vcftools ..frq` output, assuming that we have a handle on how these programs are behaving...
   - are the phenotypes being correctly assigned? - `ultimate_phenotype.txt` file is unchanged... - `cut -f 1,6 all_fish_version_5-1_HPC.filtered.snps_GQ20.ped > phenotest.txt` pulls out the phenotypes from the ped file (where plink actually sees them) – these phenotypes are correct
   - can I get around the need to write the phenotypes in myself?
+
+  - maybe I don't *need* to work out where the problem happens if I can route around it... wrote `vcf_to_bed.qsub` to use the `GATK VariantsToBinaryPed` tool instead of using vcftools->python->plink pipeline...
+    - NB: the VariantsToBinaryPed tool [docs](https://software.broadinstitute.org/gatk/documentation/tooldocs/current/org_broadinstitute_gatk_tools_walkers_variantutils_VariantsToBinaryPed.php) requires the `--minGenotypeQuality` flag, so there's no reason not to combine this with the filtering step
+    -

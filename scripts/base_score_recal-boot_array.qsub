@@ -16,21 +16,20 @@ JOBSCRIPT=base_score_recal-boot_array.qsub
 ## Set up some variables
 
 #### Adjust here for looping
-KNOWNSNPS=all_individuals_12_07_16.out.vcf
+KNOWNSNPS=all_fish_version_5-1_HPC.vcf
 
 # where do the files live
-dir=/mnt/scratch/pitchers/eFISH/Analysis/
+dir=/mnt/scratch/pitchers/eFISH/Analysis
+# dir=/mnt/ls15/scratch/groups/efish/WILL/V5-1_chunks/
 ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
+
 # Current job number
 n=${PBS_ARRAYID}
 # build a list of file names
 cd ${dir}
-#filelist=(*realigned.bam)
-#thisfile=${filelist[${n}]}
+filelist=(*realigned.bam)
+thisfile=${filelist[${n}]}
 
-#thisfile=MOV_6722_GAATTCGT-GGCTCTG_L003_R1_pe.realigned.S.bam
-#thisfile=MOV_6724_GAATTCGT-TAATCTT_L008_R1_pe.realigned.RH.bam
-thisfile=APA_6675_GAGATTCC-TATAGCC_L001_R1_pe.realigned.RH.bam
 
 module load GATK/3.5.0
 

@@ -19,12 +19,12 @@ fn	Locality	Subpop	SL	Sex	wn	Xcoord	YCoord	Duration	ap0	P0 Present	GenomeSequenc
 4921	Bale99	Lower Balé creek below the bridge near IRET field station.	0	0	1	0	0	5.662765022	-0.6761121	YES	Yes
 4923	Bale99	Lower Balé creek below the bridge near IRET field station.	0	0	2	0	0	1.320644846	-0.536075556	YES	Yes
 4925	Bale99	Lower Balé creek below the bridge near IRET field station.	0	0	1	0	0	1.255613092	-1.046306599	YES	Yes
-6494	Bambomo09	Bambomo Creek	69.5	juvinille	3	-2.163416667	11.46185	1.77086468	-0.126801212	YES	Yes
+6494	Bambomo09	Bambomo Creek	69.5	juvinille	3	-2.163416667	11.46185	1.77086468	-0.126801212	NO	Yes
 6496	Bambomo09	Bambomo Creek	62	juvinille	2	-2.163416667	11.46185	1.510737665	0.009236098	NO	Yes
-6497	Bambomo09	Bambomo Creek	46	juvinille	2	-2.163416667	11.46185	1.290630191	-0.123255984	YES	Yes
+6497	Bambomo09	Bambomo Creek	46	juvinille	2	-2.163416667	11.46185	1.290630191	-0.123255984	NO	Yes
 6498	Bambomo09	Bambomo Creek	44	juvinille	2	-2.163416667	11.46185	1.380674157	0.006638411	NO	Yes
 6499	Bambomo09	Bambomo Creek	43	juvinille	3	-2.163416667	11.46185	1.420693698	-0.034147398	NO	Yes
-6500	Bambomo09	Bambomo Creek	44.5	juvinille	4	-2.163416667	11.46185	1.100537372	-0.093936003	YES	Yes
+6500	Bambomo09	Bambomo Creek	44.5	juvinille	4	-2.163416667	11.46185	1.100537372	-0.093936003	NO	Yes
 6501	Bambomo09	Bambomo Creek	0	0	1	0	0	1.62324	0.015996503	NO	Yes
 6502	Bambomo09	Bambomo Creek	40	juvinille	2	-2.163416667	11.46185	1.340654617	0.074974835	NO	Yes
 6597	Bambomo09	Bambomo Creek	59	juvinille	1	-2.1634167	11.46185	1.230600879	-0.553922	YES	Yes

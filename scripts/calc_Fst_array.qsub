@@ -35,6 +35,7 @@ POP1=population_${leftpop[${n}]}.txt
 POP2=population_${rightpop[${n}]}.txt
 OUTN=Fst_${version}_${leftpop[${n}]}_vs_${rightpop[${n}]}
 
+
 # the call to vcftools
 vcftools --vcf ${input_data} --weir-fst-pop ${popdir}${POP1} --weir-fst-pop ${popdir}${POP2} --fst-window-size ${window_size} --fst-window-step ${window_step} --out ${OUTN}
 

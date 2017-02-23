@@ -21,7 +21,7 @@ ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
 n=${PBS_ARRAYID}
 # build a list of file names
 cd ${dir}
-filelist=(*trimmed.aligned.dedup.bam)
+filelist=(*.aligned.dedup.bam)
 thisfile=${filelist[${n}]}
 
 module load GATK/3.5.0
@@ -47,6 +47,7 @@ then
     echo "." | mail -s "The IndelRealigner JOB ARRAY is finishing" ${USER}@msu.edu
     cd ${PBS_O_WORKDIR}
 #    qsub base_score_recalibration_array.qsub
+#    qsub base_score_recal-boot_array.qsub
 fi
 
 #Print out the statistics for this job

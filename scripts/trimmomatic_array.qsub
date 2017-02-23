@@ -1,5 +1,5 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=1,walltime=00:30:00,mem=32gb
+#PBS -l nodes=1:ppn=8,walltime=00:30:00,mem=32gb
 #PBS -N Trimm_${n}
 #PBS -j oe
 #PBS -M pitchers@msu.edu
@@ -53,7 +53,7 @@ if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The Trimmomatic JOB ARRAY is finishing" ${USER}@msu.edu
     cd ${PBS_O_WORKDIR}
-#    qsub alignment_array.qsub
+    qsub alignment_array.qsub
 fi
 
 #Print out the statistics for this job
