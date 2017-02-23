@@ -22,7 +22,7 @@ ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
 n=${PBS_ARRAYID}
 # build a list of file names
 cd ${dir}
-filelist=(*trimmed.aligned.sam)
+filelist=(*.aligned.sam)
 thisfile=${filelist[${n}]}
 
 module load picardTools/1.89
@@ -49,7 +49,7 @@ if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The PICARDTools JOB ARRAY is finishing" ${USER}@msu.edu
     cd ${PBS_O_WORKDIR}
-  #  qsub indel_realign_array.qsub
+    qsub indel_realign_array.qsub
 fi
 
 #Print out the statistics for this job
