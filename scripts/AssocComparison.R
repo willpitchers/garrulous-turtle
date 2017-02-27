@@ -11,6 +11,18 @@ require( data.table )
 
 R.Version()
 
+####
+
+filename <- c( "all_fish_version_5-1_HPC.filtered.snps_GQ20_geno50.assoc" )
+
+assoc <- tbl_df( fread( filename,  header=TRUE ))
+
+assoc <- transmute( assoc, Scaf=factor( CHR ), SNP=BP, A1=factor( A1 ), F_A=F_A, F_U=F_U, A2=factor( A2 ), P=P, OR=OR, SE=SE )
+
+assoc %>% arrange( P ) %>% head( 250 ) %>% write.csv( paste( "fisher_", filename, ".csv", coll='', sep='' ), quote=FALSE, row.names=FALSE )
+
+###
+
 filename <- c( "all_fish_version_5-1_HPC_geno50.assoc" )
 
 assoc <- tbl_df( fread( filename,  header=TRUE ))

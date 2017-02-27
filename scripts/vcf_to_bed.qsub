@@ -1,6 +1,6 @@
 #!/bin/bash -login
 #PBS -o /mnt/research/efish/2015_genomic_data/scripts
-#PBS -l nodes=1:ppn=1,walltime=04:00:00,mem=30gb,feature='intel16'
+#PBS -l nodes=1:ppn=4,walltime=04:00:00,mem=30gb,feature='intel16'
 #PBS -N MakeBinaryPed
 #PBS -j oe
 #PBS -M pitchers@msu.edu
@@ -8,7 +8,7 @@
 #PBS -r n
 
 ### Call this script with e.g.:
-### `qsub -v input_data=all_fish_version_5-1_HPC vcf_to_bed.qsub`
+### `qsub -v input_data=all_fish_version_5-1_HPC -v GQthreshold=20 vcf_to_bed.qsub`
 
 # set up working environment
 
@@ -31,11 +31,15 @@ if [ ! -f ../phenotype_metadata.fam ]
   sed -i s/4923/3923/g ../phenotype_metadata.fam
 fi
 
+echo ${input_data}_GQ${GQthreshold}
+
 java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToBinaryPed \
 						-R ${ref} -V ${input_data}.vcf -m ../phenotype_metadata.fam \
-						-bed ${input_data}.bed -bim ${input_data}.bim -fam ${input_data}.fam \
-						--minGenotypeQuality 20 --majorAlleleFirst
-
+						-bed ${input_data}_GQ${GQthreshold}.bed \
+						-bim ${input_data}_GQ${GQthreshold}.bim \
+						-fam ${input_data}_GQ${GQthreshold}.fam \
+						--minGenotypeQuality ${GQthreshold} \
+						--majorAlleleFirst
 
 # email me
 echo "." | mail -s "The binaryped job is finishing" ${USER}@msu.edu

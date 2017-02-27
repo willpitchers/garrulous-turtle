@@ -16,10 +16,14 @@ module load plink/1.9
 
 # mydata=`basename all_variants_merged_27_10_2015.vcf .vcf`
 # mydata=all_variants_merged_21_01_2016
-output_name=${input_data}_g50_CI
+# output_name=${input_data}_g50_CI
 
 # Straighforward 'basic' PLINK run...
-plink --bfile ${input_data} --allow-no-sex --geno 0.50 --allow-extra-chr --assoc --ci 0.95 --pfilter 1 --test-missing --real-ref-alleles --out ${input_data}_geno50
+plink --bfile ${input_data} --allow-no-sex --geno 0.50 --allow-extra-chr --assoc fisher --ci 0.95 --pfilter 1 --test-missing --out ${input_data}_geno50 --a2-allele ${input_data}.vcf 4 3 '#'
+
+plink --bfile ${input_data} --allow-no-sex --geno 0.25 --allow-extra-chr --assoc fisher --ci 0.95 --pfilter 1 --test-missing --out ${input_data}_geno75 --a2-allele ${input_data}.vcf 4 3 '#'
+
+plink --bfile ${input_data} --allow-no-sex --geno 0.00 --allow-extra-chr --assoc fisher --ci 0.95 --pfilter 1 --test-missing --out ${input_data}_geno100 --a2-allele ${input_data}.vcf 4 3 '#'
 
 # PLINK command with:
 #  `--allow-no-sex` because our fishes' weren't sexed

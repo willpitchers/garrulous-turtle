@@ -24,10 +24,11 @@ java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants -R ${re
 
 ## 
 java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantFiltration -R ${ref} -V ${input_data}.snps.vcf \
-#						--filterExpression "QD < 2.0 || FS > 60.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0" \
-						--filterExpression "QD < 5.0 || FS > 30.0 || MQ < 20.0 || MQRankSum < -8.0 || ReadPosRankSum < -6.0" \
-						-filterName "suggested_hard_filter" -o ${input_data}.filtered.2.snps.vcf \
+ --filterExpression "QD < 2.0 || FS > 60.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0" \
+						-filterName "suggested_hard_filter" -o ${input_data}.filtered.snps.vcf \
 						--setFilteredGtToNocall
+
+rm ${input_data}.snps.vcf
 
 
 ### INDELS ###
@@ -37,11 +38,11 @@ java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants -R ${re
 
 ##
 java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantFiltration -R ${ref} -V ${input_data}.indels.vcf \
-#						--filterExpression "QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0" \
-                        --filterExpression "QD < 5.0 || FS > 100.0 || ReadPosRankSum < -10.0" \
-						-filterName "suggested_indel_filter" -o ${input_data}.filtered.2.indels.vcf \
+						--filterExpression "QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0" \
+						-filterName "suggested_indel_filter" -o ${input_data}.filtered.indels.vcf \
 						--setFilteredGtToNocall
 
+rm ${input_data}.indels.vcf
 
 echo "." | mail -s "The VCF stat job is finishing" ${USER}@msu.edu
 cd ${PBS_O_WORKDIR}

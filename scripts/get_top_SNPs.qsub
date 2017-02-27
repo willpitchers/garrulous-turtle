@@ -24,10 +24,18 @@ module load vcftools/0.1.12a
 R --no-save < ${PBS_O_WORKDIR}/AssocComparison.R
 
 
+
 # grab scaffold & SNP ID
 
-cut -d',' -f 1-2 fisher_all_fish_version_5-1_HPC_geno50.assoc.csv | tr ',' '\t' > temp
+cut -d',' -f 1-2 fisher_all_fish_version_5-1_HPC.filtered.snps_GQ20_geno50.assoc.csv | tr ',' '\t' > temp
 vcftools --vcf all_fish_version_5-1_HPC.vcf --positions temp --extract-FORMAT-info GT -c > fisher_top_SNPs
+rm temp
+
+
+# grab scaffold & SNP ID
+
+# cut -d',' -f 1-2 fisher_all_fish_version_5-1_HPC_geno50.assoc.csv | tr ',' '\t' > temp
+# vcftools --vcf all_fish_version_5-1_HPC.vcf --positions temp --extract-FORMAT-info GT -c > fisher_top_SNPs
 
 
 # grab scaffold & SNP ID – 3 level pheno
