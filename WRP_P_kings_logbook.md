@@ -1090,19 +1090,25 @@ Week of 20-25th
 
   - `vcftools --minGQ` does not appear to have filtered out any variants...
     - solution – `vcftools` can't filter on `INFO` fields that aren't present in *all* rows, and rows with non-variant genotypes don't get `GQ` scores... we fix this by implementing the `GATK` recommended hard-filter *before* the `GQ` filter
-    - this ^ step takes ~2hrs, then renaming takes a few seconds, then `vcftools --plink` takes ~20mins, then awk to fix the `..map` rownames takes ~1min.... safe to leave it in 1 script w/4hr walltime.
-  - genotypes do not seem to match phenoptyes in `filtered_output_GQ20.xlsx`...
+      - this ^ step takes ~2hrs, then renaming takes a few seconds, then `vcftools --plink` takes ~20mins, then awk to fix the `..map` rownames takes ~1min.... safe to leave it in 1 script w/4hr walltime.
+    - genotypes do not seem to match phenoptyes in `filtered_output_GQ20.xlsx`...
+      - the workflow goes: vcf -> filter -> plink files -> add pheno -> bed/bim -> plink assoc -> scrape ID's -> full join -> Excel
+      - filtering step – individual rows that pass are unchanged – filtering removed 12175530 or 18562241 rows!?
+        - indels/snps filtered separately
+      - are genotypes being scraped from the right file? – makes no diff <– filtered or no. Good!
+      - making plink files seems to work as it should
+      - logically, 'F_A' and 'F_U' from the `PLINK assoc` output ought to total to the frequency of 'allele 1', which should be equal to one of the allele frequencies from the `vcftools ..frq` output, assuming that we have a handle on how these programs are behaving...
+      - are the phenotypes being correctly assigned? - `ultimate_phenotype.txt` file is unchanged... - `cut -f 1,6 all_fish_version_5-1_HPC.filtered.snps_GQ20.ped > phenotest.txt` pulls out the phenotypes from the ped file (where plink actually sees them) – these phenotypes are correct
+    - maybe I don't *need* to work out where the problem happens if I can route around it... wrote `vcf_to_bed.qsub` to use the `GATK VariantsToBinaryPed` tool instead of using vcftools->python->plink pipeline...
+      - NB: the VariantsToBinaryPed tool [docs](https://software.broadinstitute.org/gatk/documentation/tooldocs/current/org_broadinstitute_gatk_tools_walkers_variantutils_VariantsToBinaryPed.php) requires the `--minGenotypeQuality` flag, so there's no reason not to combine this with the filtering step
+      - ...aaaaand the missingness-weirdness of vcftools was being compounded by my drawing the genotypes from the main vcf file rather than the filtered vcf file... AT LAST our genotypes match up to our statistics!!
+  - moving forward:
+    - dial down genotyping-rate filter on plink-assoc call -> try 100%, 90%, 80%
+    - play with the GQ filter? -> reduce to phred 15 (95%)?
 
 
-      vcf -> filter -> plink files -> add pheno -> bed/bim -> plink assoc -> scrape ID's -> full join
-  - filtering step – individual rows that pass are unchanged – filtering removed 12175530 or 18562241 rows!?
-    -
-  - are genotypes being scraped from the right file? – makes no diff <– filtered or no. Good!
-  - making plink files seems to work as it should
-  - logically, 'F_A' and 'F_U' from the `PLINK assoc` output ought to total to the frequency of 'allele 1', which should be equal to one of the allele frequencies from the `vcftools ..frq` output, assuming that we have a handle on how these programs are behaving...
-  - are the phenotypes being correctly assigned? - `ultimate_phenotype.txt` file is unchanged... - `cut -f 1,6 all_fish_version_5-1_HPC.filtered.snps_GQ20.ped > phenotest.txt` pulls out the phenotypes from the ped file (where plink actually sees them) – these phenotypes are correct
-  - can I get around the need to write the phenotypes in myself?
+Week of 27th Feb – 3rd March
 
-  - maybe I don't *need* to work out where the problem happens if I can route around it... wrote `vcf_to_bed.qsub` to use the `GATK VariantsToBinaryPed` tool instead of using vcftools->python->plink pipeline...
-    - NB: the VariantsToBinaryPed tool [docs](https://software.broadinstitute.org/gatk/documentation/tooldocs/current/org_broadinstitute_gatk_tools_walkers_variantutils_VariantsToBinaryPed.php) requires the `--minGenotypeQuality` flag, so there's no reason not to combine this with the filtering step
-    -
+  - re-writing `vcf_to_bed.qsub` and `vcf_filter.qsub` to allow for multiple levels of filtering
+  - new R notebook `MakeGenotypeTable.Rmd` to try and automate the process of scraping variant genotypes by P-value and mkaing easy-to-read tables to help us make decisions about filtering params etc...
+  - 
