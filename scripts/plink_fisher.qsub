@@ -19,11 +19,11 @@ module load plink/1.9
 # output_name=${input_data}_g50_CI
 
 # Straighforward 'basic' PLINK run...
-plink --bfile ${input_data} --allow-no-sex --geno 0.50 --allow-extra-chr --assoc fisher --ci 0.95 --pfilter 1 --test-missing --out ${input_data}_geno50 --a2-allele ${input_data}.vcf 4 3 '#'
+plink --bfile ${input_data} --allow-no-sex --geno 0.50 --allow-extra-chr --assoc fisher --ci 0.95 --pfilter 1 --test-missing --out ${input_data}_geno50 --a2-allele ${input_vcf} 4 3 '#'
 
-plink --bfile ${input_data} --allow-no-sex --geno 0.25 --allow-extra-chr --assoc fisher --ci 0.95 --pfilter 1 --test-missing --out ${input_data}_geno75 --a2-allele ${input_data}.vcf 4 3 '#'
+plink --bfile ${input_data} --allow-no-sex --geno 0.25 --allow-extra-chr --assoc fisher --ci 0.95 --pfilter 1 --test-missing --out ${input_data}_geno75 --a2-allele ${input_vcf} 4 3 '#'
 
-plink --bfile ${input_data} --allow-no-sex --geno 0.00 --allow-extra-chr --assoc fisher --ci 0.95 --pfilter 1 --test-missing --out ${input_data}_geno100 --a2-allele ${input_data}.vcf 4 3 '#'
+plink --bfile ${input_data} --allow-no-sex --geno 0.00 --allow-extra-chr --assoc fisher --ci 0.95 --pfilter 1 --test-missing --out ${input_data}_geno100 --a2-allele ${input_vcf} 4 3 '#'
 
 # PLINK command with:
 #  `--allow-no-sex` because our fishes' weren't sexed
@@ -34,14 +34,19 @@ plink --bfile ${input_data} --allow-no-sex --geno 0.00 --allow-extra-chr --assoc
 #  `--pfilter 1` cuts out rows with p-vals >1 (i.e. strips 'NA's)
 #  `--test-missing` Fisher's exact test for non-random missingness across cases/controls (separate output)
 #  `--real-ref-alleles` "Specifies that A2 alleles are based on a real reference genome"...
-#plink --bfile ${input_data} --allow-no-sex --geno 0.50 --allow-extra-chr --model fisher --ci 0.95 --pfilter 1 --test-missing --real-ref-alleles --out ${output_name}
+plink --bfile ${input_data} --allow-no-sex --geno 0.50 --allow-extra-chr --model fisher --ci 0.95 --pfilter 1 --test-missing --out ${input_data}_geno50 --a2-allele ${input_vcf} 4 3 '#'
 
+plink --bfile ${input_data} --allow-no-sex --geno 0.25 --allow-extra-chr --model fisher --ci 0.95 --pfilter 1 --test-missing --out ${input_data}_geno75 --a2-allele ${input_vcf} 4 3 '#'
+
+plink --bfile ${input_data} --allow-no-sex --geno 0.00 --allow-extra-chr --model fisher --ci 0.95 --pfilter 1 --test-missing --out ${input_data}_geno100 --a2-allele ${input_vcf} 4 3 '#'
 
 # separate out the hypothesis-wise output
-#hypoth=( GENO ALLELIC DOM REC TREND )
-#for i in ${hypoth[@]}
-#  do grep --color='never' ${i} ${output_name}.model > `basename ${output_name} .model`.${i}.model
-#done
+hypoth=( GENO ALLELIC DOM REC TREND )
+for i in ${hypoth[@]}
+  do grep --color='never' ${i} ${input_data}_geno50.model > `basename ${input_data}_geno50.model .model`.${i}.model
+	grep --color='never' ${i} ${input_data}_geno75.model > `basename ${input_data}_geno75.model .model`.${i}.model
+	grep --color='never' ${i} ${input_data}_geno100.model > `basename ${input_data}_geno100.model .model`.${i}.model
+done
 
 # reformat hypothesis-wise output for downstream user
 #GENO
