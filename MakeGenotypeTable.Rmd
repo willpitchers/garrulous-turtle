@@ -29,8 +29,8 @@ R.Version()
 
 ```{r, include=FALSE}
 
-my_dir <- "~/Dropbox (MSU Efish Lab)/WILL/genome_assembly/garrulous-turtle/assoc_output/"
-my_file_list <- dir( my_dir )
+# my_dir <- "~/Dropbox (MSU Efish Lab)/WILL/genome_assembly/garrulous-turtle/assoc_output/"
+# my_file_list <- dir( my_dir )
 
 ```
 
@@ -38,14 +38,17 @@ my_file_list <- dir( my_dir )
 
 ```{r, include=FALSE}
 
-filtered_output <- full_join( tbl_df( fread( "fisher_all_fish_version_5-1_HPC.filtered.snps_GQ20_geno100.assoc.fisher.csv" )),
-                            tbl_df( fread( "fisher_filter_topSNPs_geno100.table" )), by=c( "Scaf" = "CHROM", "SNP" = "POS") )
+setwd( "~/Dropbox (MSU Efish Lab)/WILL/genome_assembly/garrulous-turtle/assoc_output/" )
+
+filtered_output <- full_join( tbl_df( fread( "all_fish_version_5-1_HPC.filtered.snps_GQ15_geno50.assoc.fisher.csv" )),
+                            tbl_df( fread( "all_fish_version_5-1_HPC.filtered.snps_GQ15_geno50_topSNPs.table" )), 
+                            by=c( "Scaf" = "CHROM", "SNP" = "POS") )
 
 names( filtered_output ) <- gsub( ".GT", "", names( filtered_output ) )
 
-write.csv( filtered_output, "filtered_output_g100.csv", quote=FALSE )
+write.csv( filtered_output, "filtered_output_GQ15_g50.csv", quote=FALSE )
 
-system( paste( "cat filtered_output_g100.csv | tr '/'", "'_'", "> temp && mv temp filtered_output_g100.csv" ) )
+system( paste( "cat filtered_output_GQ15_g50.csv | tr '/'", "'_'", "> temp && mv temp filtered_output_GQ15_g50.csv" ) )
 
 ```
 
@@ -61,10 +64,11 @@ assoc <- fread( "filtered_output_g100.csv" )
 assoc <- assoc %>% mutate( hom_ref=paste( A1, "_", A1, sep='' ), hom_alt=paste( A2, "_", A2, sep='' ), 
                           het_1=paste( A1, "_", A2, sep='' ), het_2=paste( A2, "_", A1, sep='' ) )
 
-assoc_table <- assoc[ 1:50, 2:73 ]
-assoc <- assoc[ 1:50, ]
+assoc_table <- assoc[ 1:10, 2:73 ]
+assoc <- assoc[ 1:10, ]
 
-assocFT <- FlexTable( assoc_table )
+assocFT <- FlexTable( assoc_table, header.cell.props=cellProperties( text.direction="tbrl" ) )
+assocFT <- setFlexTableWidths( assocFT, widths=c( rep(1, 9), rep(0.5, 63) ) )
 
 names( assoc_table )
 
@@ -76,11 +80,11 @@ for( i in 10:72) {
 }
 
 for( i in p0present ) {
-  assocFT[, i, to='header' ] = cellProperties( background.color= "green", text.direction='lrtb' )
+  assocFT[, i, to='header' ] = cellProperties( background.color= "green" )
 }
 
 for( i in p0absent ) {
-  assocFT[, i, to='header'] = cellProperties(  background.color= "yellow", text.direction='lrtb' )
+  assocFT[, i, to='header'] = cellProperties(  background.color= "yellow" )
 }
 
 # knitr::kable( assoc_table )
@@ -88,6 +92,8 @@ for( i in p0absent ) {
 ```
 
 ```{r, results='asis', echo=FALSE}
+
+datatable( assoc )
 
 cat( as.html( assocFT ))
 
