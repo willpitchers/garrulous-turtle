@@ -29,8 +29,10 @@ R.Version()
 
 ```{r, include=FALSE}
 
-my_dir <- "~/Dropbox (MSU Efish Lab)/WILL/genome_assembly/garrulous-turtle/assoc_output/"
-my_file_list <- dir( my_dir )
+#my_dir <- "~/Dropbox (MSU Efish Lab)/WILL/genome_assembly/garrulous-turtle/assoc_output/"
+#my_file_list <- dir( my_dir )
+
+setwd( "/mnt/ls15/scratch/groups/efish/WILL/V5-1_chunks" )
 
 ```
 
@@ -38,8 +40,9 @@ my_file_list <- dir( my_dir )
 
 ```{r, include=FALSE}
 
-filtered_output <- full_join( tbl_df( fread( "fisher_all_fish_version_5-1_HPC.filtered.snps_GQ20_geno100.assoc.fisher.csv" )),
-                            tbl_df( fread( "fisher_filter_topSNPs_geno100.table" )), by=c( "Scaf" = "CHROM", "SNP" = "POS") )
+filtered_output <- full_join( tbl_df( fread( "all_fish_version_5-1_HPC.filtered.snps_GQ20_geno75.assoc.fisher.csv" )),
+                            tbl_df( fread( "all_fish_version_5-1_HPC.filtered.snps_GQ20_geno75.topSNPs.table" )), 
+							by=c( "Scaf" = "CHROM", "SNP" = "POS") )
 
 names( filtered_output ) <- gsub( ".GT", "", names( filtered_output ) )
 
