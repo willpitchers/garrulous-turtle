@@ -1110,5 +1110,20 @@ Week of 20-25th
 Week of 27th Feb – 3rd March
 
   - re-writing `vcf_to_bed.qsub` and `vcf_filter.qsub` to allow for multiple levels of filtering
-  - new R notebook `MakeGenotypeTable.Rmd` to try and automate the process of scraping variant genotypes by P-value and mkaing easy-to-read tables to help us make decisions about filtering params etc...
-  - 
+  - new R notebook `MakeGenotypeTable.Rmd` to try and automate the process of scraping variant genotypes by P-value and making easy-to-read tables to help us make decisions about filtering params etc...
+
+
+Week of 6-10th  March
+
+  - rewrote `plink_fisher.qsub` to allow for multiple levels of filtering
+  - bug fixes for  `vcf_to_bed.qsub` and `vcf_filter.qsub`
+  - `MakeGenotypeTable.Rmd` replaced with `MakeTopSNPsWidget.qsub` & `MakeTopSNPsWidget.qsub` to use the power/speed of the HPC for building `DT::DataTable` widgets...
+  -
+
+
+apa 6679 - NOT mixed
+p-vals fluctuate among hypothesis
+
+missingness mis-classification?
+
+scaf23 ?
