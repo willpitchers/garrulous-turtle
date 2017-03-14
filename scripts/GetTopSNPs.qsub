@@ -31,7 +31,8 @@ for thisfile in ${AssocFileList[@]}
 	java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants \
 							-V ${input_data}.vcf \
 							-o ${input_data}_topSNPs.vcf \
-							-R ${ref} -L temp.intervals
+#							-R ${ref} -L temp.intervals
+							-R ${ref} --keepIDs temp.intervals
 
 	java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToTable \
 		                    -V ${input_data}_topSNPs.vcf \
@@ -53,7 +54,8 @@ for thisfile in ${AssocModelFileList[@]}
     java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants \
                             -V ${input_data}.vcf \
                             -o ${input_data}_topSNPs.vcf \
-                            -R ${ref} -L temp.intervals
+#                            -R ${ref} -L temp.intervals
+							-R ${ref} --keepIDs temp.intervals
 
     java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToTable \
                             -V ${input_data}_topSNPs.vcf \
