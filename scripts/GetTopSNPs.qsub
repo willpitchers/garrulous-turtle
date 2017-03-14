@@ -29,7 +29,7 @@ for thisfile in ${AssocFileList[@]}
 
 	# pull out relevant lines from vcf file
 	java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants \
-						    -V ${input_data}.vcf \
+							-V ${input_data}.vcf \
 							-o ${input_data}_topSNPs.vcf \
 							-R ${ref} -L temp.intervals
 
@@ -67,6 +67,3 @@ done
 #Print out the statistics for this job
 cd ${PBS_O_WORKDIR}
 qstat -f ${PBS_JOBID}
-
-
-

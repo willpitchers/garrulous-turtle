@@ -1117,13 +1117,48 @@ Week of 6-10th  March
 
   - rewrote `plink_fisher.qsub` to allow for multiple levels of filtering
   - bug fixes for  `vcf_to_bed.qsub` and `vcf_filter.qsub`
-  - `MakeGenotypeTable.Rmd` replaced with `MakeTopSNPsWidget.qsub` & `MakeTopSNPsWidget.qsub` to use the power/speed of the HPC for building `DT::DataTable` widgets...
-  -
+  - `MakeGenotypeTable.Rmd` replaced with `MakeTopSNPsWidget.qsub` & `MakeTopSNPsWidget.R` to use the power/speed of the HPC for building `DT::DataTable` widgets...
+	- leading to lots of problems... knitr and pandoc are set up weirdly on the HPC and I'm going to change my mind about the extent to which extra speed is needed...
+	- the job is now going to get done locally, by `MakeTopSNPsWidget.R` & `MakeTopIndelsWidget.R`
 
 
-apa 6679 - NOT mixed
+Week of 13-17th March
+
+  - some issues are apparent with the output tables:
+    - APA_6679 - NOT mixed, but marked as mixed. Fixed in `ultimate_phenotype.txt`.
+    -
 p-vals fluctuate among hypothesis
 
 missingness mis-classification?
 
-scaf23 ?
+SNP
+Scaffold23:1042779
+
+Deletion
+Scaffold23:1042759
+
+
+
+- these variants don't always come up at tiny p-values...
+- ID of top candidates vary among gq15 & gq0 in a non-intuitive way
+- which build of plink are we using? 1.9....?
+- is there a plink bug with missingness?
+-
+
+
+genotypes visualised wrongly? COB_4004 & BAM_6496 – vcf files match md5sum from server to HPC: either
+  - genotypes scrapped wrong from vcf?
+  - genotypes parsed wrong by R?
+
+  demonstrate the difference between GQ15 & GQ20?
+  are the p-values being correctly ranked?
+
+does GQ vary among individuals/pop.s?
+
+5865521 all_fish_version_5-1_HPC.filtered.indels.vcf
+27875997 all_fish_version_5-1_HPC.filtered.snps.vcf
+40051527 all_fish_version_5-1_HPC.vcf
+
+
+GATK SelectVariants nt 4 -
+GATK SelectVariants nt 1 - 
