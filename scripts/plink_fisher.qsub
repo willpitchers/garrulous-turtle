@@ -7,16 +7,14 @@
 #PBS -m abe
 #PBS -r n
 
+# this script gets submitted as e.g. ` qsub -v input_data=all_fish_version_5-1_HPC.filtered.snps.GQ15,input_vcf=input_data=all_fish_version_5-1_HPC.filtered.snps.GQ15 plink_fisher.qsub `
+
 #dir=/mnt/scratch/pitchers/eFISH/Analysis/
 dir=/mnt/ls15/scratch/groups/efish/WILL/V5-1_chunks/
 
 cd $dir
 
 module load plink/1.9
-
-# mydata=`basename all_variants_merged_27_10_2015.vcf .vcf`
-# mydata=all_variants_merged_21_01_2016
-# output_name=${input_data}_g50_CI
 
 # Straighforward 'basic' PLINK run...
 plink --bfile ${input_data} --allow-no-sex --geno 0.50 --allow-extra-chr --assoc fisher --ci 0.95 --pfilter 1 --test-missing --out ${input_data}_geno50 --a2-allele ${input_vcf} 4 3 '#'

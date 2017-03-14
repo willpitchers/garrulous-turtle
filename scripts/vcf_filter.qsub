@@ -1,10 +1,12 @@
 #!/bin/bash -login
 #PBS -l nodes=1:ppn=4,walltime=04:00:00,mem=62gb
-#PBS -N vcf_filter
+#PBS -N VCF_filter
 #PBS -j oe
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
+
+# This script gets submitted thusly, e.g.: ` qsub -v input_data=all_fish_version_5-1_HPC vcf_filter.qsub `
 
 ## Set up some variables
 
@@ -20,13 +22,21 @@ module load GATK/3.5.0
 ### SNPs ###
 ## call to GATK – input vcf and output SNPs only
 java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants -R ${ref} -V ${input_data}.vcf \
-						-selectType SNP -o ${input_data}.snps.vcf
+						-selectType SNP  -nt 4  -o ${input_data}.snps.vcf
 
 ## 
 java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantFiltration -R ${ref} -V ${input_data}.snps.vcf \
- --filterExpression "QD < 2.0 || FS > 60.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0" \
-						-filterName "suggested_hard_filter" -o ${input_data}.filtered.snps.vcf \
-						--setFilteredGtToNocall
+						--filterExpression "QD < 2.0 || FS > 60.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0" \
+						-filterName "suggested_hard_filter" --setFilteredGtToNocall \
+						--genotypeFilterExpression "GQ < 15" --genotypeFilterName "GQ15" \
+						-o ${input_data}.filtered.snps.GQ15.vcf
+
+##
+java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantFiltration -R ${ref} -V ${input_data}.snps.vcf \
+                        --filterExpression "QD < 2.0 || FS > 60.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0" \
+                        -filterName "suggested_hard_filter" --setFilteredGtToNocall \
+                        --genotypeFilterExpression "GQ < 20" --genotypeFilterName "GQ20" \
+                        -o ${input_data}.filtered.snps.GQ20.vcf
 
 rm ${input_data}.snps.vcf
 
@@ -34,18 +44,28 @@ rm ${input_data}.snps.vcf
 ### INDELS ###
 ## call to GATK – input vcf and output indels only
 java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants -R ${ref} -V ${input_data}.vcf \
-                        -selectType INDEL -o ${input_data}.indels.vcf
+                        -selectType INDEL  -nt 4 -o ${input_data}.indels.vcf
 
 ##
 java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantFiltration -R ${ref} -V ${input_data}.indels.vcf \
 						--filterExpression "QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0" \
-						-filterName "suggested_indel_filter" -o ${input_data}.filtered.indels.vcf \
-						--setFilteredGtToNocall
+						-filterName "suggested_indel_filter" --setFilteredGtToNocall \
+						--genotypeFilterExpression "GQ < 15" --genotypeFilterName "GQ15" \
+						-o ${input_data}.filtered.indels.GQ15.vcf
+
+##
+java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantFiltration -R ${ref} -V ${input_data}.indels.vcf \
+                        --filterExpression "QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0" \
+                        -filterName "suggested_indel_filter" --setFilteredGtToNocall \
+                        --genotypeFilterExpression "GQ < 20" --genotypeFilterName "GQ20" \
+                        -o ${input_data}.filtered.indels.GQ20.vcf
 
 rm ${input_data}.indels.vcf
+
 
 echo "." | mail -s "The VCF stat job is finishing" ${USER}@msu.edu
 cd ${PBS_O_WORKDIR}
 
 #Print out the statistics for this job
 qstat -f ${PBS_JOBID}
+

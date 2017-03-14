@@ -31,15 +31,23 @@ if [ ! -f ../phenotype_metadata.fam ]
   sed -i s/4923/3923/g ../phenotype_metadata.fam
 fi
 
-echo ${input_data}_GQ${GQthreshold}
+#echo ${input_data}_GQ${GQthreshold}
+
+#java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToBinaryPed \
+#						-R ${ref} -V ${input_data}.vcf -m ../phenotype_metadata.fam \
+#						-bed ${input_data}_GQ${GQthreshold}.bed \
+#						-bim ${input_data}_GQ${GQthreshold}.bim \
+#						-fam ${input_data}_GQ${GQthreshold}.fam \
+#						--minGenotypeQuality ${GQthreshold} \
+#						--majorAlleleFirst
 
 java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToBinaryPed \
-						-R ${ref} -V ${input_data}.vcf -m ../phenotype_metadata.fam \
-						-bed ${input_data}_GQ${GQthreshold}.bed \
-						-bim ${input_data}_GQ${GQthreshold}.bim \
-						-fam ${input_data}_GQ${GQthreshold}.fam \
-						--minGenotypeQuality ${GQthreshold} \
-						--majorAlleleFirst
+                        -R ${ref} -V ${input_data}.vcf -m ../phenotype_metadata.fam \
+                        -bed ${input_data}.bed \
+                        -bim ${input_data}.bim \
+                        -fam ${input_data}.fam \
+                        --minGenotypeQuality ${GQthreshold} \
+                        --majorAlleleFirst
 
 # email me
 echo "." | mail -s "The binaryped job is finishing" ${USER}@msu.edu
