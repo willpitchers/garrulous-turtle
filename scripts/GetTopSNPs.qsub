@@ -25,17 +25,17 @@ for thisfile in ${AssocFileList[@]}
 	do Rscript ${PBS_O_WORKDIR}/GetTopSNPs.R ${thisfile}
 
 	# grab scaffold & SNP ID
-	cut -d',' -f 1-2 ${thisfile}.csv | tr ',' '\t' | tail -n +2 | tr '\t' ':'  > temp.intervals
+	cut -d',' -f 1-2 ${thisfile}.csv | tail -n +2 | tr ',' ':'  > temp.intervals
 
 	# pull out relevant lines from vcf file
 	java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants \
 						    -V ${input_data}.vcf \
-							-o ${input_data}_topSNPs.vcf \
-#							-R ${ref} -L temp.intervals
-							-R ${ref} --keepIDs temp.intervals
+							-o ${thisfile}_topSNPs.vcf \
+							-R ${ref} -L temp.intervals
+
 
 	java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToTable \
-		                    -V ${input_data}_topSNPs.vcf \
+		                    -V ${thisfile}_topSNPs.vcf \
 							-F CHROM -F POS -GF GT -R ${ref} \
 							-o `basename ${thisfile} .assoc.fisher`_topSNPs.table
 	rm temp.intervals
@@ -53,14 +53,14 @@ for thisfile in ${AssocModelFileList[@]}
 	 # pull out relevant lines from vcf file
     java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants \
                             -V ${input_data}.vcf \
-                            -o ${input_data}_topSNPs.vcf \
-#                            -R ${ref} -L temp.intervals
-							-R ${ref} --keepIDs temp.intervals
+                            -o ${thisfile}_topSNPs.vcf \
+                            -R ${ref} -L temp.intervals
+
 
     java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToTable \
-                            -V ${input_data}_topSNPs.vcf \
+                            -V ${thisfile}_topSNPs.vcf \
                             -F CHROM -F POS -GF GT -R ${ref} \
-                            -o `basename ${thisfile} .assoc.fisher`_topSNPs.table
+                            -o `basename ${thisfile} .model.reformatted.csv`_topSNPs.table
 	rm temp.intervals
 done
 

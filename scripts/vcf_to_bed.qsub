@@ -8,7 +8,7 @@
 #PBS -r n
 
 ### Call this script with e.g.:
-### `qsub -v input_data=all_fish_version_5-1_HPC -v GQthreshold=20 vcf_to_bed.qsub`
+### `qsub -v input_data=all_fish_version_5-1_HPC,GQthreshold=20 vcf_to_bed.qsub`
 
 # set up working environment
 
