@@ -1125,11 +1125,9 @@ Week of 6-10th  March
 Week of 13-17th March
 
   - some issues are apparent with the output tables:
-    - APA_6679 - NOT mixed, but marked as mixed. Fixed in `ultimate_phenotype.txt`.
-    -
-p-vals fluctuate among hypothesis
-
-missingness mis-classification?
+    - APA_6679 - NOT mixed, but marked as mixed. Fixed in `ultimate_phenotype.txt` and `ultimate_phenotype.xlsx`
+    - p-vals fluctuate among hypothesis (!?)
+      - missingness mis-classification?
 
 SNP
 Scaffold23:1042779
@@ -1159,6 +1157,30 @@ does GQ vary among individuals/pop.s?
 27875997 all_fish_version_5-1_HPC.filtered.snps.vcf
 40051527 all_fish_version_5-1_HPC.vcf
 
+problems at:
 
-GATK SelectVariants nt 4 -
-GATK SelectVariants nt 1 - 
+all_fish_version_5-1_HPC.filtered.indels.GQ15*.model.reformatted.csv_topSNPs.table
+all_fish_version_5-1_HPC.filtered.indels.GQ15*.model.reformatted.csv_topSNPs.vcf
+all_fish_version_5-1_HPC.filtered.indels.GQ15*.model.reformatted.csv_topSNPs.vcf.idx
+all_fish_version_5-1_HPC.filtered.indels.GQ20*.model.reformatted.csv_topSNPs.table
+all_fish_version_5-1_HPC.filtered.indels.GQ20*.model.reformatted.csv_topSNPs.vcf
+all_fish_version_5-1_HPC.filtered.indels.GQ20*.model.reformatted.csv_topSNPs.vcf.idx
+all_fish_version_5-1_HPC.filtered.snps.GQ15*.model.reformatted.csv_topSNPs.table
+all_fish_version_5-1_HPC.filtered.snps.GQ15*.model.reformatted.csv_topSNPs.vcf
+all_fish_version_5-1_HPC.filtered.snps.GQ15*.model.reformatted.csv_topSNPs.vcf.idx
+
+
+1 vcf -> snps & indels separated -> 2 filtering thresholds -> 3 genotyping thresholds -> 6 hypothesis tests = 72
+
+
+scaf 23 – manhat of dom geno rec trend fisher at GQ20 missing 75
+
+
+re-run assoc with mixed ind.s flipped to cases at miss 75 or 100 and GQ20
+
+plink --bfile all_fish_version_5-1_HPC.filtered.snps.GQ20.mix --allow-no-sex --geno 0.00 --allow-extra-chr --assoc fisher --ci 0.95 --pfilter 1 --test-missing --out all_fish_version_5-1_HPC.filtered.snps.GQ20.mix_geno100 --a2-allele all_fish_version_5-1_HPC.filtered.snps.GQ20.vcf 4 3 '#'
+
+
+Week of 20-25th March
+
+  - 
