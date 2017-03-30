@@ -16,8 +16,8 @@ JOBSCRIPT=vcf_disco_chunk_5-1_array.qsub
 ## Set up some variables
 # where do the files live
 #dir=/mnt/scratch/pitchers/eFISH/Analysis/
-dir=/mnt/ls15/scratch/groups/efish/WILL/
-ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6
+ref=/mnt/ls15/scratch/groups/efish/P_kings_genome/supercontigs.fasta
 
 cd ${dir}
 mkdir -p V5-1_chunks
@@ -25,7 +25,7 @@ mkdir -p V5-1_chunks
 #Set manximum number of jobs for this run
 MAXJOBID=`wc -l indices.list | cut -d' ' -f 1`
 
-module load GATK/3.5.0
+module load GATK/3.7.0
 #module load SAMTools/1.3.1
 #module load picardTools/1.89
 
@@ -50,10 +50,10 @@ then
 java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T HaplotypeCaller \
               -R ${ref} ${samples} ${thisindex} \
               --genotyping_mode DISCOVERY \
-              -stand_emit_conf 10 -stand_call_conf 30 \
+              -stand_call_conf 30  -mbq 20 \
               -o V5-1_chunks/${outputfilename} \
               --output_mode EMIT_ALL_CONFIDENT_SITES \
-                    --num_threads 1 --num_cpu_threads_per_data_thread 4
+              --num_threads 1 --num_cpu_threads_per_data_thread 4
 fi
 
 # Calculate next job to run

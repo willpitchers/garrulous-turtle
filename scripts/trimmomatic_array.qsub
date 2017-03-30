@@ -7,6 +7,9 @@
 #PBS -r n
 #PBS -t 0-200
 
+#### Edited Wednesday, 22 March 2017
+#### confirmed that the myfiles glob globs correctly, confirmed that gunzip step gives fasta-looking fastas, confirmed that software version are current, confirmed that trimmomatic name substitution seems to work correctly
+
 #Set manximum number of jobs for this run
 MAXJOBID=256
 
@@ -15,7 +18,7 @@ JOBSCRIPT=trimmomatic_array.qsub
 
 ## Set up some variables
 # where do the files live
-dir=/mnt/scratch/pitchers/eFISH/Analysis/
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6/
 
 # Current job number
 n=${PBS_ARRAYID}
@@ -32,8 +35,8 @@ gunzip -c `basename ${myfiles[${n}]} _R1_001.fastq.gz`_R2_001.fastq.gz > `basena
 thisname=`basename ${myfiles[${n}]} _R1_001.fastq.gz`
 
 # load required modules
-module load Trimmomatic/0.32
-module load Java
+module load Trimmomatic/0.33
+module load Java/1.8.0_31
 
 # Trimmomatic command
 java -jar $TRIM/trimmomatic PE -threads 7 -phred33 ${thisname}_R1_001.fastq ${thisname}_R2_001.fastq ${thisname}_R1_pe.trimmed.fq ${thisname}_R1_se.trimmed.fq ${thisname}_R2_pe.trimmed.fq ${thisname}_R2_se.trimmed.fq ILLUMINACLIP:/mnt/home/pitchers/Illumina_adapters.fa:2:30:10 HEADCROP:10 MAXINFO:50:0.5
@@ -48,7 +51,7 @@ then
     qsub -t ${NEXT} ${JOBSCRIPT}
 fi
 
-#Check to see if this is the last job, if so email me and submit the scritp for the next stage of the pipeline
+#Check to see if this is the last job, if so email me and submit the script for the next stage of the pipeline
 if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The Trimmomatic JOB ARRAY is finishing" ${USER}@msu.edu

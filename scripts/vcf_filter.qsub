@@ -11,17 +11,17 @@
 ## Set up some variables
 
 # where do the files live
-dir=/mnt/ls15/scratch/groups/efish/WILL/V5-1_chunks/
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6/V5-1_chunks/
 ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
 
 # build a list of file names
 cd ${dir}
 
-module load GATK/3.5.0
+module load GATK/3.7.0
 
 ### SNPs ###
 ## call to GATK – input vcf and output SNPs only
-if [ ! -f ${input_data}.vcf ]
+if [ ! -f ${input_data}.snps.vcf ]
 	then java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants -R ${ref} -V ${input_data}.vcf \
 						-selectType SNP  -nt 4  -o ${input_data}.snps.vcf
 fi

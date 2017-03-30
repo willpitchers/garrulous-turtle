@@ -10,7 +10,7 @@
 # this script gets submitted as e.g. ` qsub -v input_data=all_fish_version_5-1_HPC.filtered.snps.GQ15,input_vcf=input_data=all_fish_version_5-1_HPC.filtered.snps.GQ15 plink_fisher.qsub `
 
 #dir=/mnt/scratch/pitchers/eFISH/Analysis/
-dir=/mnt/ls15/scratch/groups/efish/WILL/V5-1_chunks/
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6/V5-1_chunks/
 
 cd $dir
 
@@ -52,27 +52,27 @@ for i in "${filters[@]}"
   # reformat hypothesis-wise output for downstream user
   # GENO
   awk -F "[\t ]+" '{ split( $6, tri, "/") ; split( $7, bi, "/") ; print $0 "\t" tri[1] "\t" tri[2] "\t" tri[3] "\t" bi[1] "\t" bi[2] "\t" bi[3] }' ${input_data}${i}.GENO.model >> ${input_data}${i}.GENO.model.reformatted
-  echo -e "CHR SNP A1 A2 TEST AFF UNAFF P p_Hr p_Het p_Ha np_Hr np_Het np_Ha" | cat - ${input_data}${i}.GENO.model.reformatted | sed s/'\/'/'_'/g | sponge ${input_data}${i}.GENO.model.reformatted
+  echo -e "CHR SNP A1 A2 TEST AFF UNAFF P Aff_Hr Aff_Het Aff_Ha Unaff_Hr Unaff_Het Unaff_Ha" | cat - ${input_data}${i}.GENO.model.reformatted | sed s/'\/'/'_'/g | sponge ${input_data}${i}.GENO.model.reformatted
   awk '{$1=$1}1' OFS="," ${input_data}${i}.GENO.model.reformatted > ${input_data}${i}.GENO.model.reformatted.csv
 
   # ALLELIC
   awk -F "[\t ]+" '{ split( $6, tri, "/") ; split( $7, bi, "/") ; print $0 "\t" tri[1] "\t" tri[2] "\t" bi[1] "\t" bi[2] }' ${input_data}${i}.ALLELIC.model >> ${input_data}${i}.ALLELIC.model.reformatted
-  echo -e "CHR SNP A1 A2 TEST AFF UNAFF P p_ref p_alt np_ref np_alt" | cat - ${input_data}${i}.ALLELIC.model.reformatted | sed s/'\/'/'_'/g | sponge ${input_data}${i}.ALLELIC.model.reformatted
+  echo -e "CHR SNP A1 A2 TEST AFF UNAFF P Aff_ref Aff_alt Unaff_ref Unaff_alt" | cat - ${input_data}${i}.ALLELIC.model.reformatted | sed s/'\/'/'_'/g | sponge ${input_data}${i}.ALLELIC.model.reformatted
   awk '{$1=$1}1' OFS="," ${input_data}${i}.ALLELIC.model.reformatted > ${input_data}${i}.ALLELIC.model.reformatted.csv
 
   # DOM
   awk -F "[\t ]+" '{ split( $6, tri, "/") ; split( $7, bi, "/") ; print $0 "\t" tri[1] "\t" tri[2] "\t" bi[1] "\t" bi[2] }' ${input_data}${i}.DOM.model >> ${input_data}${i}.DOM.model.reformatted
-  echo -e "CHR SNP A1 A2 TEST AFF UNAFF P p_ref_or_het p_alt np_ref_or_het np_alt" | cat - ${input_data}${i}.DOM.model.reformatted | sed s/'\/'/'_'/g | sponge ${input_data}${i}.DOM.model.reformatted
+  echo -e "CHR SNP A1 A2 TEST AFF UNAFF P Aff_ref_or_het Aff_alt Unaff_ref_or_het Unaff_alt" | cat - ${input_data}${i}.DOM.model.reformatted | sed s/'\/'/'_'/g | sponge ${input_data}${i}.DOM.model.reformatted
   awk '{$1=$1}1' OFS="," ${input_data}${i}.DOM.model.reformatted > ${input_data}${i}.DOM.model.reformatted.csv
 
   # REC
   awk -F "[\t ]+" '{ split( $6, tri, "/") ; split( $7, bi, "/") ; print $0 "\t" tri[1] "\t" tri[2] "\t" bi[1] "\t" bi[2] }' ${input_data}${i}.REC.model >> ${input_data}${i}.REC.model.reformatted
-  echo -e "CHR SNP A1 A2 TEST AFF UNAFF P p_ref p_het_or_alt np_ref np_het_or_alt" | cat - ${input_data}${i}.REC.model.reformatted | sed s/'\/'/'_'/g | sponge ${input_data}${i}.REC.model.reformatted
+  echo -e "CHR SNP A1 A2 TEST AFF UNAFF P Aff_ref Aff_het_or_alt Unaff_ref Unaff_het_or_alt" | cat - ${input_data}${i}.REC.model.reformatted | sed s/'\/'/'_'/g | sponge ${input_data}${i}.REC.model.reformatted
   awk '{$1=$1}1' OFS="," ${input_data}${i}.REC.model.reformatted > ${input_data}${i}.REC.model.reformatted.csv
 
   # TREND
   awk -F "[\t ]+" '{ split( $6, tri, "/") ; split( $7, bi, "/") ; print $0 "\t" tri[1] "\t" tri[2] "\t" bi[1] "\t" bi[2] }' ${input_data}${i}.TREND.model >> ${input_data}${i}.TREND.model.reformatted
-  echo -e "CHR SNP A1 A2 TEST AFF UNAFF P p_ref p_alt np_ref np_alt" | cat - ${input_data}${i}.TREND.model.reformatted | sed s/'\/'/'_'/g | sponge ${input_data}${i}.TREND.model.reformatted
+  echo -e "CHR SNP A1 A2 TEST AFF UNAFF P Aff_ref Aff_alt Unaff_ref Unaff_alt" | cat - ${input_data}${i}.TREND.model.reformatted | sed s/'\/'/'_'/g | sponge ${input_data}${i}.TREND.model.reformatted
   awk '{$1=$1}1' OFS="," ${input_data}${i}.TREND.model.reformatted > ${input_data}${i}.TREND.model.reformatted.csv
 
   rm ${input_data}${i}*.model.reformatted

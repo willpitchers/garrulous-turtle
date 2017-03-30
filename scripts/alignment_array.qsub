@@ -7,6 +7,10 @@
 #PBS -r n
 #PBS -t 0-200
 
+#### Edited Wednesday, 22 March 2017
+#### moved reference files to research scratch, confirm that globbing seems to work correctly, details scraped from readgroup tags seem to be correct, checked PE vs. SE detection code working,
+
+
 #Set manximum number of jobs for this run
 MAXJOBID=767
 
@@ -15,10 +19,12 @@ JOBSCRIPT=alignment_array.qsub
 
 ## Set up some variables
 # where do the files live
-dir=/mnt/scratch/pitchers/eFISH/Analysis/
-ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6
+ref=/mnt/ls15/scratch/groups/efish/P_kings_genome/supercontigs.fasta
+
 # Current job number
 n=${PBS_ARRAYID}
+
 # build a list of file names
 cd ${dir}
 paired=(*R1_pe.trimmed.fq)
@@ -26,21 +32,12 @@ unpaired=(*_se.trimmed.fq)
 filelist=(`for file in ${paired[@]} ${unpaired[@]}; do echo ${file} ; done`)
 thisfile=${filelist[${n}]}
 
-# grab details for @RG tag
-#pop=`grep --color='never' -Eo '^[A-Z]{2,4}' <<< $(echo ${thisfile})`
-#ID=`grep --color='never' -Eo '[0-9]{4}' <<< $(echo ${thisfile})`
-#lib=`grep --color='never' -Eo 'L[0-9]{3}' <<< $(echo ${thisfile})`
-#Rn=`grep --color='never' -Eo 'R[0-9]' <<< $(echo ${thisfile})`
-
-# thisTAG=@RG\\tID:${pop}\\tSM:${ID}\\tPL:illumina\\tLB:${lib}\\tPU:${Rn} # old&busted
-#thisTAG=@RG\\tID:${pop}\\tSM:${ID}\\tPL:illumina\\tLB:${lib}\\tPU:${Rn} # newhotness
-
 # pull out info to build new readgroup labels
 thisfastq=`basename ${thisfile}`
 
 flowcell=`head -1 $thisfastq | cut -d' ' -f 1 | cut -d':' -f 3`					   # which flowcell
 lane=`head -1 $thisfastq | cut -d' ' -f 1 | cut -d':' -f 4`						   # which lane
-sample=`grep --color='never' -Eo '^[A-Z]{2,4}_[0-9]{4}' <<< $(echo ${thisfile})`   # which fish
+sample=`grep --color='never' -Eo '^[A-Z]{3,4}_[0-9]{4}' <<< $(echo ${thisfile})`   # which fish
 barcode=`head -1 $thisfastq | cut -d' ' -f 2 | cut -d':' -f 4`					   # which barcode
 
 thisTAG=@RG\\tID:${flowcell}.${lane}\\tSM:${sample}\\tPL:illumina\\tLB:${flowcell}\\tPU:${flowcell}.${lane}.${barcode} # newhotness
