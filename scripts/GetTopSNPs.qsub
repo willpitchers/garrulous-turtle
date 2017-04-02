@@ -15,7 +15,7 @@ cd $dir
 
 module load GNU/4.9
 module load R/3.3.2
-module load GATK/3.5.0
+module load GATK/3.7.0
 
 AssocFileList=( ${input_data}*.assoc.fisher )
 
@@ -23,19 +23,19 @@ for thisfile in ${AssocFileList[@]}
 	do Rscript ${PBS_O_WORKDIR}/GetTopSNPs.R ${thisfile}
 
 	# grab scaffold & SNP ID
-	cut -d',' -f 1-2 ${thisfile}.csv | tr ',' '\t' | tail -n +2 | tr '\t' ':'  > temp.intervals
+	cut -d',' -f 1-2 ${thisfile}.csv | tr ',' '\t' | tail -n +2 | tr '\t' ':'  > ${thisfile}.intervals
 
 	# pull out relevant lines from vcf file
 	java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants \
 							-V ${input_data}.vcf \
 							-o ${input_data}_topSNPs.vcf \
-							-R ${ref} -L temp.intervals
+							-R ${ref} -L ${thisfile}.intervals
 
 	java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToTable \
 		                    -V ${input_data}_topSNPs.vcf \
 							-F CHROM -F POS -GF GT -R ${ref} \
 							-o `basename ${thisfile} .assoc.fisher`_topSNPs.table
-	rm temp.intervals
+	rm ${thisfile}.intervals
 done
 
 
@@ -45,19 +45,19 @@ for thisfile in ${AssocModelFileList[@]}
 	do Rscript ${PBS_O_WORKDIR}/GetTopSNPs.R ${thisfile}
 
 	# grab scaffold & SNP ID
-    cut -d',' -f 1-2 top_250_${thisfile} | tail -n +2 | tr ',' ':'  > temp.intervals
+    cut -d',' -f 1-2 top_250_${thisfile} | tail -n +2 | tr ',' ':'  > ${thisfile}.intervals
 
 	 # pull out relevant lines from vcf file
     java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants \
                             -V ${input_data}.vcf \
                             -o ${input_data}_topSNPs.vcf \
-							-R ${ref} -L temp.intervals
+							-R ${ref} -L ${thisfile}.intervals
 
     java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToTable \
                             -V ${input_data}_topSNPs.vcf \
                             -F CHROM -F POS -GF GT -R ${ref} \
                             -o `basename ${thisfile} .model.reformatted.csv`_topSNPs.table
-	rm temp.intervals
+	rm ${thisfile}.intervals
 done
 
 

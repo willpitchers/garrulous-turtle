@@ -7,7 +7,7 @@
 #PBS -m abe
 #PBS -r n
 
-# this script gets submitted as e.g. ` qsub -v input_data=all_fish_version_5-1_HPC.filtered.snps.GQ15,input_vcf=input_data=all_fish_version_5-1_HPC.filtered.snps.GQ15 plink_fisher.qsub `
+# this script gets submitted as e.g. ` qsub -v input_data=all_fish_version_5-1_HPC.filtered.snps.GQ15  plink_fisher.qsub `
 
 #dir=/mnt/scratch/pitchers/eFISH/Analysis/
 dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6/V5-1_chunks/
@@ -80,8 +80,9 @@ done
 
 ####
 echo "." | mail -s "The PLINK assoc job is finishing" ${USER}@msu.edu
+
 cd ${PBS_O_WORKDIR}
-#    qsub nextjerb
+qsub -v input_data=${input_data}  GetTopSNPs.qsub
 
 #Print out the statistics for this job
 qstat -f ${PBS_JOBID}
