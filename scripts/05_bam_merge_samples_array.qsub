@@ -28,10 +28,6 @@ fi
 
 individual=`head -${n} samples.list | tail -1 `
 
-#sample=(${individual}*.trimmed.aligned.dedup.realigned.recalibrated.bam)
-#sample=(${individual}*.trimmed.aligned.dedup.realigned.bam)
-#sample=(${individual}*.recalibrated.bam)
-
 sample=(${individual}*.aligned.dedup.recalibrated.bam)
 
 samples=`for i in "${sample[@]}" ; do echo I=${i} ; done | xargs`
@@ -50,7 +46,7 @@ if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The BAM individual merging array is finishing" ${USER}@msu.edu
     cd $PBS_O_WORKDIR
-    qsub 06_vcf_disco_chunk_6-1_array.qsub
+#    qsub 06_bam_file_check.qsub
 fi
 
 #Print out the statistics for this job

@@ -66,8 +66,8 @@ if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The BWA alignment JOB ARRAY is finishing" ${USER}@msu.edu
     cd ${PBS_O_WORKDIR}
-    qsub 03_deduplication_array.qsub
+#    qsub 03_deduplication_array.qsub
 fi
 
-#Print out the statistics for this job
+#Print out sfastq=`basename ${thisfile}`the statistics for this job
 qstat -f ${PBS_JOBID}

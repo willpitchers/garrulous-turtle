@@ -40,7 +40,7 @@ thisindex=`head -${n} indices.list | tail -1`
 # build a list of file names
 bamfiles=(*_all_libraries.bam)
 
-samples=`for i in ${bamfiles[@]} ; do echo -I ${i} ; done | xargs`
+samples=`for i in "${bamfiles[@]}" ; do echo -I ${i} ; done | xargs`
 
 outputfilename=all_fish_`date '+%d_%m_%Y'`_slice_${n}.vcf
 
