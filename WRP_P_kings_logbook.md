@@ -1128,49 +1128,16 @@ Week of 13-17th March
     - APA_6679 - NOT mixed, but marked as mixed. Fixed in `ultimate_phenotype.txt` and `ultimate_phenotype.xlsx`
     - p-vals fluctuate among hypothesis (!?)
       - missingness mis-classification?
+      - ID of top candidates vary among gq15 & gq0 in a non-intuitive way
+      - is there a plink bug with missingness?
+  - genotypes visualised wrongly? COB_4004 & BAM_6496 – vcf files match md5sum from server to HPC: either
+    - genotypes scraped wrong from vcf?
+    - genotypes parsed wrong by R?
+    - GT's being scraped from once-filtered VCF, not twice-filtered VCF!
+  - 1 vcf -> snps & indels separated -> 2 filtering thresholds -> 3 genotyping thresholds -> 6 hypothesis tests = 72 output files in 1 'set'...
+    - dropping 50% genotyped analyses == 48 files now a 'set'
+  - demonstrate the difference between GQ15 & GQ20? ...venn sets? p-val overlap by threshold?
 
-SNP
-Scaffold23:1042779
-
-Deletion
-Scaffold23:1042759
-
-
-
-- these variants don't always come up at tiny p-values...
-- ID of top candidates vary among gq15 & gq0 in a non-intuitive way
-- which build of plink are we using? 1.9....?
-- is there a plink bug with missingness?
--
-
-
-genotypes visualised wrongly? COB_4004 & BAM_6496 – vcf files match md5sum from server to HPC: either
-  - genotypes scrapped wrong from vcf?
-  - genotypes parsed wrong by R?
-
-  demonstrate the difference between GQ15 & GQ20?
-  are the p-values being correctly ranked?
-
-does GQ vary among individuals/pop.s?
-
-5865521 all_fish_version_5-1_HPC.filtered.indels.vcf
-27875997 all_fish_version_5-1_HPC.filtered.snps.vcf
-40051527 all_fish_version_5-1_HPC.vcf
-
-problems at:
-
-all_fish_version_5-1_HPC.filtered.indels.GQ15*.model.reformatted.csv_topSNPs.table
-all_fish_version_5-1_HPC.filtered.indels.GQ15*.model.reformatted.csv_topSNPs.vcf
-all_fish_version_5-1_HPC.filtered.indels.GQ15*.model.reformatted.csv_topSNPs.vcf.idx
-all_fish_version_5-1_HPC.filtered.indels.GQ20*.model.reformatted.csv_topSNPs.table
-all_fish_version_5-1_HPC.filtered.indels.GQ20*.model.reformatted.csv_topSNPs.vcf
-all_fish_version_5-1_HPC.filtered.indels.GQ20*.model.reformatted.csv_topSNPs.vcf.idx
-all_fish_version_5-1_HPC.filtered.snps.GQ15*.model.reformatted.csv_topSNPs.table
-all_fish_version_5-1_HPC.filtered.snps.GQ15*.model.reformatted.csv_topSNPs.vcf
-all_fish_version_5-1_HPC.filtered.snps.GQ15*.model.reformatted.csv_topSNPs.vcf.idx
-
-
-1 vcf -> snps & indels separated -> 2 filtering thresholds -> 3 genotyping thresholds -> 6 hypothesis tests = 72
 
 
 scaf 23 – manhat of dom geno rec trend fisher at GQ20 missing 75
@@ -1183,4 +1150,176 @@ plink --bfile all_fish_version_5-1_HPC.filtered.snps.GQ20.mix --allow-no-sex --g
 
 Week of 20-25th March
 
+  - made new manhattan plots...
+  - does GQ vary among individuals/pop.s?
+
+
+  SNP
+  Scaffold23:1042779
+
+  Deletion
+  Scaffold23:1042759
+
+
+----
+
+1. which test to use?
+2. why not haz variant – coverage too low?
+                      - some weird repetitive code?
+
+run APA/BAM/BAVA only, with filtering & mix – Bed/Bim files are cooking
+
+look up how to set up a power analysis for GWAS
+
+GATK depth of coverage analysis?
+
+
+n. cases – 35 (41 mix)
+n. ctrls – 28 (22 mix)
+prevalence – 0.6
+
+
+can I collapse the SNP & indel at Scaf 23?
+
+1. can I find BAM contamination elsewhere?
+    - went to `/mnt/scratch/pitchers/eFISH/Analysis` and ran ``for i in `ls *dedup.bam` ; do echo $i >> bamgrep ; samtools view -h ${i} | grep '^@PG' >> bamgrep ; done``
+    - went to `/home/willpitchers/individual_bams` on Shockly and ran ``for i in `ls *bam` ; do samtools view -h $i | grep '^@PG' >> ${i}_headrows ; done``
+  - change of plan: both on HPC and Shockly, bams tested with ```for i in `ls *all_libraries.bam` ; do echo ${i} ; samtools view -H ${i} | grep --color="never" -Eo "SM:[0-9A-Z_]{3,9}" | uniq ; done``` – misplaced samples are easily spotted in this output...
+  - contamination seems limited to:
+    - 2 instances of APA_6676 found in `APA_6681_all_libraries.bam`
+    - 2 instances of APA_6682 mislabelled as 6682 in `APA_6682_all_libraries.bam`
+
+2. suspicious that readgroup assignment might be source of problem...
+    - reminder: our read names look like [this](https://support.illumina.com/help/SequencingAnalysisWorkflow/Content/Vault/Informatics/Sequencing_Analysis/CASAVA/swSEQ_mCA_FASTQFiles.htm): `@HWI-D00731:65:C6UU2ANXX:1:1101:2046:1852 1:N:0:GAGATTCCTATAGCC`, which means;
+    - @ instrument_name : runID : flowcellID : lane# : tile# : tile_x-coord : tile_y-coord <space> pair_member# : filtered? : control_bits? : index_sequence
+
+  -
+
+
+Week of 27th-31st March
+
+  - rerunning pipeline to regenerate all the things...
+  - taking this opportunity to update the pipeline to work with latest version of GATK (3.7.0):
+    - allows for dropping the indel realignment step
+    - speeds up filtering
+    -
+  -
+
+
+Week 3rd-7th April
+
+  - **data storage mishap!**
+    - the current analysis directory (`/mnt/ls15/scratch/groups/efish/WILL/Pipeline6`) was accidentally `rm -rf`-ed incompletely... Since non-missing files *might* be truncated/decapitated (command was ctrl-c-ed), for safety I elected to nuke the folder, reimport the raw `..fastq.gz` files and restart the pipeline.
+    - using this as an opportunity to streamline/check for software updates etc.
+  -
+
+
+Week of 10-15th April
+
+  - some weirdness seems to have been occurring...
+  - attach JG's permutation command to the end of pipeline
+
+
+  - nperms?
+  - n. PCs to incorporate?
+  - repeat/understand EMP2 calculation
+  - try logistic+ model flags?
+
+
+plan for methods/results section?
+  -
+
+  - http://meeting.spsp.org/2016/sites/default/files/Lane,%20Hennes,%20West%20SPSP%20Power%20Workshop%202016.pdf
+
+read about taqman assay?
+
+
+Week of 17th-21st April
+
+  -
+
+
+
+Scaffold4236      Var-Scaffold4236-574        574    T        ADD       39        inf        11.58    4.974e-31
+Scaffold4236      Var-Scaffold4236-574        574    T     DOMDEV       39          0       -11.58    4.982e-31
+Scaffold4236      Var-Scaffold4236-574        574    T   GENO_2DF       39         NA        134.3    6.993e-30
+Scaffold322    Var-Scaffold322-616692     616692    A        ADD       32        inf        5.777    7.593e-09
+Scaffold322    Var-Scaffold322-616692     616692    A     DOMDEV       32          0       -5.777    7.608e-09
+Scaffold79    Var-Scaffold79-1141895    1141895    A     DOMDEV       44      82.43        3.263     0.001102
+Scaffold375    Var-Scaffold375-123643     123643    G        ADD       45      21.62        3.184     0.001452
+Scaffold84      Var-Scaffold84-66482      66482    G     DOMDEV       38      141.5        3.174     0.001504
+Scaffold2     Var-Scaffold2-5834893    5834893    G     DOMDEV       48  1.485e+04        3.169     0.001531
+
+
+
+
+
+odds ratio for biphasic het/biphasic homo. alt.
+odds ratio for biphasic homo. ref./biphasic homo. alt.
+
+my plan is to list all <0.05 (permuted-p-value) markers, then bin them into these categories and simulate to encompass the range of OR values present in our output...
+  - subset p<0.05 tests: `cat all_fish_version_6-1.filtered.snps.GQ20_pruned_GENO_assoc_mperm.assoc.logistic.mperm | awk '{if ($3 < 0.5) print $0}' > all_fish_version_6-1.filtered.snps.GQ20_pruned_GENO_assoc_mperm.assoc.logistic.sigP`
+  - pull out SNP indices: `cat all_fish_version_6-1.filtered.snps.GQ20_pruned_GENO_assoc_mperm.assoc.logistic.sigP | awk '{print $1 ":" $2}' | sed s/Var-Scaffold[0-9]\\+-//g > sigP.intervals`
+  - pull out genotypes: `java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants -V all_fish_version_6-1.filtered.snps.GQ20.vcf -o sigP.vcf -R ${ref} -L sigP.intervals`
+  - convert genotypes to table: `java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToTable -V sigP.vcf -F CHROM -F POS -GF GT -R ${ref} -o sigP.genotypes.table` (then reformat with `cat sigP.genotypes.table | tr '/' '_' > temp && mv temp sigP.genotypes.table`)
+  - now I need to pull out variants with the right combinations... the 1st biphasic fish in order is APA_6681, but since this is a mixed fish I'll also use the first non-mixed biphasic fish, BAM_6496... I can combine the SNP table with the assoc output to get the ID of the ref allele...
+    - NB: I may have misunderstood this... I think that I need to calculate the odds ratio of the combinations analysis-wide... OK. I can read the `sigP.genotypes.table`
+
+  - plink `--simulate` can take a missingness argument: `plink --bfile all_fish_version_6-1.filtered.snps.GQ20_pruned --missing --allow-extra-chr` to get missingness report for our data. Overall genotyping rate is 0.48022
+
+Week of 1st-5th May
+
+  - mean p-value `awk '{ total += $9 } END { print total/NR }' simulation.assoc.logistic`, and proportion of p-vals < 0.05 `awk '$9 < 0.05 { count ++ } END { print count/NR }' simulation.assoc.logistic`
+  - some tests:
+      - 1000 sims, mean p-value 0.444829, prop. <0.05 = 0.0767441
+      - with none missingness, 1000 sims, mean-P =0.399, prop. <0.05 = 0.12538
+      - with double no. of cases/controls; 1000 sims, mean p 0.319102, prop. <0.05 = 0.220276
+  - so... what sets of simulations are needed?
+      - vary sample size
+          - straightforward – can just alter call at the command line
+      - vary OR for class membership... calculate using only extreme pop.s vs. only mixed pop.s?
+          - IVI, BAVA, MOV are the consistent populations... BAVA is the only 100% P0-absent pop.
+          -
+
+
+          threshold! where and why!?
+          LD pattern
+          graph power by n. , OR?, missingness?,
+
+
+Week of 8-12th May
+
+  -
+
+
+Week of 15-19th May
+
+  - Scaffold0:309 – tri C_T 20 & T_T 8 vs. bi C_T 25  
+
+  - Scaffold 23 is weird...
+    1. pull out all the reads mapped to Scaffold23 – ```for i in ${bamfiles[@]} ; do samtools view ${i} "Scaffold23" > `basename ${i} .bam`.Scaf23.sam ; done```
+      - change of plan; sticking closer to the problem region... ```for i in ${bamfiles[@]} ; do samtools view ${i} "Scaffold23:1042000-1043500" > `basename ${i} .bam`.Scaf23.sam ; done```
+    2.
+
+  - COB-free analysis: start with:
+    `java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants \
+        -V all_fish_version_6-1.filtered.all_variants.GQ20.vcf \
+        -o all_fish_version_6-1.filtered.all_variants_noCOB.GQ20.vcf \
+        -R /mnt/ls15/scratch/groups/efish/P_kings_genome/supercontigs.fasta -xl_se 'COB_[0-9]{4}' `
+  - things
+
+
+Week of 22nd-26th May
+
+  - setting up to run 100,000 permutation on Shockly
+	- older version of PLINK is installed - updating...
+    - brew recipe for plink/1.9 not working out of the box...
+    - troubleshooting not successful after ~1hr => just `wget` precompiled version from website
+		- this seems to run just fine.
+  -
+
+
+Week of 29th May – 2nd June
+
+  - at this point, we have tried so many different permutations (ha-ha!) of the association analysis that I'm getting confused... I'm going to need to spend some time tidying up
   - 

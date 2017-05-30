@@ -44,7 +44,7 @@ samples=`for i in "${bamfiles[@]}" ; do echo -I ${i} ; done | xargs`
 
 outputfilename=all_fish_`date '+%d_%m_%Y'`_slice_${n}.vcf
 
-if [ ! -f V5-1_chunks/all_fish*slice_${n}.vcf ]
+if [ ! -f V6-1_chunks/all_fish*slice_${n}.vcf ]
 then
 # # the call to the GATK HaplotypeCaller
 java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T HaplotypeCaller \
