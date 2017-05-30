@@ -1,0 +1,89 @@
+#!/bin/bash -login
+#PBS -o /mnt/research/efish/2015_genomic_data/scripts
+#PBS -l nodes=1:ppn=1,walltime=04:00:00,mem=32gb
+#PBS -N PLINK_ALPCP
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+
+#dir=/mnt/scratch/pitchers/eFISH/Analysis/
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6/V6-1_chunks
+
+cd $dir
+
+module load plink/1.9
+
+
+# PLINK command with:
+#  `--allow-no-sex` because our fishes' weren't sexed
+#  `--geno` 0.50 requires a min. 50% genotyping rate
+#  `--allow-extra-chr` required because our assembly has 1000's of scaffolds
+#  `--assoc` calls reports for a quantitative phenotype
+#  `--ci 0.95` to report 95% confidence intervals on odds ratios
+#  `--pfilter 1` cuts out rows with p-vals >1 (i.e. strips 'NA's)
+#  `--test-missing` Fisher's exact test for non-random missingness across cases/controls (separate output)
+#  `--real-ref-alleles` "Specifies that A2 alleles are based on a real reference genome"...
+
+plink --bfile ${input_data} --indep-pairwise 50 10 0.1 --allow-extra-chr --allow-no-sex
+
+
+plink --bfile ${input_data} --extract plink.prune.in --make-bed --out ${input_data}_pruned --allow-extra-chr --allow-no-sex
+
+
+plink --bfile ${input_data}_pruned --pca header --out ${input_data}_pruned_pca --allow-extra-chr --allow-no-sex
+
+
+plink --bfile ${input_data} --logistic hide-covar --covar ${input_data}_pruned_pca.eigenvec --covar-name PC1,PC2,PC3 --out ${input_data}  --pfilter 1 --allow-no-sex --geno 0.50 --allow-extra-chr --test-missing --real-ref-alleles
+
+# alternate hypotheses
+plink --bfile ${input_data} --model fisher --covar ${input_data}_pruned_pca.eigenvec --covar-name PC1,PC2,PC3 --out ${input_data}  --pfilter 1 --allow-no-sex --geno 0.50 --allow-extra-chr --test-missing --real-ref-alleles
+
+plink --bfile ${input_data} --covar ${input_data}_pruned_pca.eigenvec --covar-name PC1,PC2,PC3 --allow-extra-chr --allow-no-sex --geno 0.50 --logistic hide-covar mperm=10000 --mperm-save --out ${input_data}_mperm --pfilter 1 
+
+####
+
+# separate out the hypothesis-wise output
+hypoth=( GENO ALLELIC DOM REC TREND )
+for i in ${hypoth[@]}
+  do grep --color='never' ${i} ${input_data}.model > `basename ${input_data} .model`.${i}.model
+done
+
+# reformat hypothesis-wise output for downstream user
+#GENO
+awk -F "[\t ]+" ' NR>1 { split( $6, tri, "/") ; split( $7, bi, "/") ; print $0 "\t" tri[1] "\t" tri[2] "\t" tri[3] "\t" bi[1] "\t" bi[2] "\t" bi[3] }' ${input_data}.GENO.model >> ${input_data}.GENO.model.reformatted
+echo -e "CHR SNP A1 A2 TEST AFF UNAFF P p_Hr p_Het p_Ha np_Hr np_Het np_Ha" | cat - ${input_data}.GENO.model.reformatted | sponge ${input_data}.GENO.model.reformatted
+awk '{$1=$1}1' OFS="," ${input_data}.GENO.model.reformatted > ${input_data}.GENO.model.reformatted.csv
+
+#ALLELIC
+awk -F "[\t ]+" ' NR>1 { split( $6, tri, "/") ; split( $7, bi, "/") ; print $0 "\t" tri[1] "\t" tri[2] "\t" bi[1] "\t" bi[2] }' ${input_data}.ALLELIC.model >> ${input_data}.ALLELIC.model.reformatted
+echo -e "CHR SNP A1 A2 TEST AFF UNAFF P p_ref p_alt np_ref np_alt" | cat - ${input_data}.ALLELIC.model.reformatted | sponge ${input_data}.ALLELIC.model.reformatted
+awk '{$1=$1}1' OFS="," ${input_data}.ALLELIC.model.reformatted > ${input_data}.ALLELIC.model.reformatted.csv
+
+#DOM
+awk -F "[\t ]+" ' NR>1 { split( $6, tri, "/") ; split( $7, bi, "/") ; print $0 "\t" tri[1] "\t" tri[2] "\t" bi[1] "\t" bi[2] }' ${input_data}.DOM.model >> ${input_data}.DOM.model.reformatted
+echo -e "CHR SNP A1 A2 TEST AFF UNAFF P p_ref_or_het p_alt np_ref_or_het np_alt" | cat - ${input_data}.DOM.model.reformatted | sponge ${input_data}.DOM.model.reformatted
+awk '{$1=$1}1' OFS="," ${input_data}.DOM.model.reformatted > ${input_data}.DOM.model.reformatted.csv
+
+#REC
+awk -F "[\t ]+" ' NR>1 { split( $6, tri, "/") ; split( $7, bi, "/") ; print $0 "\t" tri[1] "\t" tri[2] "\t" bi[1] "\t" bi[2] }' ${input_data}.REC.model >> ${input_data}.REC.model.reformatted
+echo -e "CHR SNP A1 A2 TEST AFF UNAFF P p_ref p_het_or_alt np_ref np_het_or_alt" | cat - ${input_data}.REC.model.reformatted | sponge ${input_data}.REC.model.reformatted
+awk '{$1=$1}1' OFS="," ${input_data}.REC.model.reformatted > ${input_data}.REC.model.reformatted.csv
+
+#TREND
+awk -F "[\t ]+" ' NR>1 { split( $6, tri, "/") ; split( $7, bi, "/") ; print $0 "\t" tri[1] "\t" tri[2] "\t" bi[1] "\t" bi[2] }' ${input_data}.TREND.model >> ${input_data}.TREND.model.reformatted
+echo -e "CHR SNP A1 A2 TEST AFF UNAFF P p_ref p_alt np_ref np_alt" | cat - ${input_data}.TREND.model.reformatted | sponge ${input_data}.TREND.model.reformatted
+awk '{$1=$1}1' OFS="," ${input_data}.TREND.model.reformatted > ${input_data}.TREND.model.reformatted.csv
+
+rm ${input_data}*.model.reformatted
+
+####
+
+echo "." | mail -s "The PLINK assoc job is finishing" ${USER}@msu.edu
+cd ${PBS_O_WORKDIR}
+#    qsub nextjerb
+
+#Print out the statistics for this job
+qstat -f ${PBS_JOBID}
+
+

@@ -1,0 +1,72 @@
+#!/bin/bash -login
+#PBS -l nodes=1:ppn=4,walltime=04:00:00,mem=60gb
+#PBS -N VCFdisc_V6-1
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+#PBS -t 1-200
+
+# Current job number
+n=${PBS_ARRAYID}
+
+#The JOBSCRIPT variable should be the name of this script
+JOBSCRIPT=07_vcf_disco_chunk_6-1_array.qsub
+
+## Set up some variables
+# where do the files live
+#dir=/mnt/scratch/pitchers/eFISH/Analysis/
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6
+ref=/mnt/ls15/scratch/groups/efish/P_kings_genome/supercontigs.fasta
+
+cd ${dir}
+mkdir -p V6-1_chunks
+
+#Set manximum number of jobs for this run
+MAXJOBID=`wc -l indices.list | cut -d' ' -f 1`
+
+module load GATK/3.7.0
+
+# select a chunk
+thisindex=`head -${n} indices.list | tail -1`
+
+
+# build a list of file names
+bamfiles=(*_all_libraries.bam)
+
+samples=`for i in "${bamfiles[@]}" ; do echo -I ${i} ; done | xargs`
+
+outputfilename=all_fish_`date '+%d_%m_%Y'`_slice_${n}.vcf
+
+if [ ! -f V6-1_chunks/all_fish*slice_${n}.vcf ]
+then
+# # the call to the GATK HaplotypeCaller
+java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T HaplotypeCaller \
+              -R ${ref} ${samples} ${thisindex} \
+              --genotyping_mode DISCOVERY \
+              -stand_call_conf 30  -mbq 20 \
+              -o V6-1_chunks/${outputfilename} \
+              --output_mode EMIT_ALL_CONFIDENT_SITES \
+              --num_threads 1 --num_cpu_threads_per_data_thread 4
+fi
+
+# Calculate next job to run
+NEXT=$(( ${n} + 200 ))
+
+#Check to see if next job is past the maximum job id
+if [ ${NEXT} -le ${MAXJOBID} ]
+then
+    cd ${PBS_O_WORKDIR}
+    qsub -t ${NEXT} ${JOBSCRIPT}
+fi
+
+#Check to see if this is the last job and email user
+if [ ${n} -eq ${MAXJOBID} ]
+then
+    echo "." | mail -s "The vcf_discovery 6.1 ARRAY is finishing" ${USER}@msu.edu
+    cd ${PBS_O_WORKDIR}
+
+fi
+
+#Print out the statistics for this job
+qstat -f ${PBS_JOBID}
