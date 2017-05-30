@@ -28,16 +28,19 @@ if [ ! -f samples.list ]
 fi
 
 individual=`head -${n} samples.list | tail -1 `
+
 # write the individual ID clearly to the stdout report
-echo ${individual} 
+echo ${individual}
 # view the bam header, and grep out anything that looks like a sample ID
 samtools view -H ${individual}_all_libraries.bam | grep --color="never" -Eo "SM:[0-9A-Z_]{3,9}" | uniq > ${individual}.samples
+
 # count rows – if 1 sample is present there ought to be 1 row
 count=`wc -l ${individual}.samples | cut -d' ' -f1`
+
 if [ $count -gt 1 ]
 	then
 		echo "ERROR IN ${individual}_all_libraries.bam"
-else 
+else
 	rm ${individual}.samples
 fi
 

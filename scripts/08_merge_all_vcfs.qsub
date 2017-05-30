@@ -14,23 +14,27 @@
 dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6/V6-1_chunks
 ref=/mnt/ls15/scratch/groups/efish/P_kings_genome/supercontigs.fasta
 
-# load modules
 cd ${dir}
+mkdir -p ../Assoc
 
+# load modules
 module load Java/1.8.0_31
 
-#sample=(*libraries.vcf)
-#sample=(all_fish*slice*.vcf)
-#samples=`for i in $(seq 1 2765) ; do echo --variant all_fish_slice_${i}.vcf ; done | xargs`
-samples=`for i in $(ls all_fish_*_slice_*.vcf) ; do echo --variant ${i} ; done | xargs`
+sample_list=(all_fish_*_slice_*.vcf)
+samples=`for i in "${sample_list[@]}" ; do echo --variant ${i} ; done | xargs`
 
-java -Xmx60g -Djava.io.tmpdir=${TMPDIR} -cp /mnt/home/pitchers/GenomeAnalysisTK.jar org.broadinstitute.gatk.tools.CatVariants -R ${ref} ${samples} -out all_fish_version_6-1.vcf 
+java -Xmx60g -Djava.io.tmpdir=${TMPDIR} -cp /mnt/home/pitchers/GenomeAnalysisTK.jar \
+							org.broadinstitute.gatk.tools.CatVariants \
+							-R ${ref} ${samples} -out ../Assoc/all_fish_version_6-1.vcf
+
+mv all_fish_version_6-1.vcf  ../Assoc/
 
 # email user & start the next job
 	echo "." | mail -s "The vcf_all_merge job is finished" ${USER}@msu.edu
 	cd $PBS_O_WORKDIR
-	#input_data=all_variants_merged_`date '+%d_%m_%Y'`.vcf
-	#qsub -V calc_Fst_array.qsub
+	# qsub 09_vcf_disco_chunk_5-2_array.qsub
+	# qsub -v 10_vcf_genotype_chunk_6-2_array.qsub
+	qsub -v all_fish_version_6-1 vcf_filter.qsub
 
 #Print out the statistics for this job
 qstat -f ${PBS_JOBID}
