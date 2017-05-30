@@ -1,7 +1,7 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=2,walltime=02:00:00,mem=32gb,feature='intel16'
+#PBS -l nodes=1:ppn=2,walltime=02:00:00,mem=32gb
 #PBS -o /mnt/research/efish/2015_genomic_data/scripts
-#PBS -N BAM_sample_merge
+#PBS -N BAM_check
 #PBS -j oe
 #PBS -M pitchers@msu.edu
 #PBS -m abe
@@ -19,6 +19,7 @@ MAXJOBID=63
 
 # load modules
 cd ${dir}
+module load SAMTools/1.3.1
 module load picardTools/1.89
 
 # make sure that the samples.list file is available
@@ -27,26 +28,29 @@ if [ ! -f samples.list ]
 fi
 
 individual=`head -${n} samples.list | tail -1 `
-
-sample=(${individual}*.aligned.dedup.recalibrated.bam)
-
-samples=`for i in "${sample[@]}" ; do echo I=${i} ; done | xargs`
-
-# the call to Picard
-if [ ! -f ${individual}_all_libraries.bam ]
-then
- java -jar $PICARD/MergeSamFiles.jar ${samples} O=${individual}_all_libraries.bam
+# write the individual ID clearly to the stdout report
+echo ${individual} 
+# view the bam header, and grep out anything that looks like a sample ID
+samtools view -H ${individual}_all_libraries.bam | grep --color="never" -Eo "SM:[0-9A-Z_]{3,9}" | uniq > ${individual}.samples
+# count rows – if 1 sample is present there ought to be 1 row
+count=`wc -l ${individual}.samples | cut -d' ' -f1`
+if [ $count -gt 1 ]
+	then
+		echo "ERROR IN ${individual}_all_libraries.bam"
+else 
+	rm ${individual}.samples
 fi
 
-# and now index our new bam
-java -jar $PICARD/BuildBamIndex.jar I=${individual}_all_libraries.bam
+# secondarily, auto-check the bam files are 'valid'
+java -jar ${PICARD}/ValidateSamFile.jar  I=${individual}_all_libraries.bam  MODE=SUMMARY
+
 
 #Check to see if this is the last job and email user
 if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The BAM individual merging array is finishing" ${USER}@msu.edu
     cd $PBS_O_WORKDIR
-#    qsub 06_bam_file_check.qsub
+    qsub 07_vcf_disco_chunk_6-1_array.qsub
 fi
 
 #Print out the statistics for this job

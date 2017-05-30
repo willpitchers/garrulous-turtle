@@ -1,6 +1,6 @@
 #!/bin/bash -login
 #PBS -o /mnt/research/efish/2015_genomic_data/scripts
-#PBS -l nodes=1:ppn=4,walltime=04:00:00,mem=30gb
+#PBS -l nodes=1:ppn=4,walltime=02:00:00,mem=30gb
 #PBS -N powersim
 #PBS -j oe
 #PBS -M pitchers@msu.edu
@@ -27,9 +27,9 @@ module load plink/1.9
 ## 5. odds ratio for biphasic het/biphasic homo. alt. (bava 1.07)
 ## 6. odds ratio for biphasic homo. ref./biphasic homo. alt. (bava 0.63)
 
-#rm simspec
 
-for i in `seq 1 20`
+
+for i in `seq 1 60`
   do
   nCS=`head -${i} pow_sim_sizes | tail -1 | cut -f 1`
   nCT=`head -${i} pow_sim_sizes | tail -1 | cut -f 2`
@@ -49,7 +49,8 @@ for i in `seq 1 20`
 			--allow-extra-chr --out sim${i}_00miss
 done
 
-for i in `seq 1 20`
+
+for i in `seq 1 60`
   do
   nCS=`head -${i} pow_sim_sizes | tail -1 | cut -f 1`
   nCT=`head -${i} pow_sim_sizes | tail -1 | cut -f 2`
@@ -69,7 +70,10 @@ for i in `seq 1 20`
 			--allow-extra-chr --out sim${i}_00miss_nm
 done
 
-for i in `seq 1 20`
+
+
+
+for i in `seq 1 60`
   do
   nCS=`head -${i} pow_sim_sizes | tail -1 | cut -f 1`
   nCT=`head -${i} pow_sim_sizes | tail -1 | cut -f 2`
@@ -79,7 +83,6 @@ for i in `seq 1 20`
   plink --simulate simspec --simulate-missing 0.24 --out sim${i}_24miss_n \
         --simulate-ncases ${nCS} --simulate-ncontrols ${nCT}
   plink --simulate simspec --simulate-missing 0.0 --out sim${i}_00miss_n \
-        --simulate-ncases ${nCS} --simulate-ncontrols ${nCT}
 
 	plink --bfile sim${i}_48miss_m --logistic --pfilter 1 --allow-no-sex --geno 0.50 \
 			--allow-extra-chr --out sim${i}_48miss_m

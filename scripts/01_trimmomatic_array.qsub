@@ -18,7 +18,8 @@ JOBSCRIPT=trimmomatic_array.qsub
 
 ## Set up some variables
 # where do the files live
-dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6/
+#dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6/
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6/trimtest/
 
 # Current job number
 n=${PBS_ARRAYID}
@@ -39,7 +40,9 @@ module load Trimmomatic/0.33
 module load Java/1.8.0_31
 
 # Trimmomatic command
-java -jar $TRIM/trimmomatic PE -threads 7 -phred33 ${thisname}_R1_001.fastq ${thisname}_R2_001.fastq ${thisname}_R1_pe.trimmed.fq ${thisname}_R1_se.trimmed.fq ${thisname}_R2_pe.trimmed.fq ${thisname}_R2_se.trimmed.fq ILLUMINACLIP:/mnt/home/pitchers/Illumina_adapters.fa:2:30:10 HEADCROP:10 MAXINFO:50:0.5
+#java -jar $TRIM/trimmomatic PE -threads 7 -phred33 ${thisname}_R1_001.fastq ${thisname}_R2_001.fastq ${thisname}_R1_pe.trimmed.fq ${thisname}_R1_se.trimmed.fq ${thisname}_R2_pe.trimmed.fq ${thisname}_R2_se.trimmed.fq ILLUMINACLIP:/mnt/home/pitchers/Illumina_adapters.fa:2:30:10 HEADCROP:10 MAXINFO:50:0.5
+
+java -jar $TRIM/trimmomatic PE -threads 7 -phred33 ${thisname}_R1_001.fastq ${thisname}_R2_001.fastq ${thisname}_R1_pe.trimmed.fq ${thisname}_R1_se.trimmed.fq ${thisname}_R2_pe.trimmed.fq ${thisname}_R2_se.trimmed.fq ILLUMINACLIP:/mnt/home/pitchers/Illumina_adapters.fa:2:30:10 LEADING:20 TRAILING:20 MAXINFO:50:0.5
 
 # Calculate next job to run
 NEXT=$(( ${n} + 200 ))
@@ -56,7 +59,7 @@ if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The Trimmomatic JOB ARRAY is finishing" ${USER}@msu.edu
     cd ${PBS_O_WORKDIR}
-    qsub 01_trimmomatic_array.qsub
+    qsub 02_alignment_array.qsub
 fi
 
 #Print out the statistics for this job

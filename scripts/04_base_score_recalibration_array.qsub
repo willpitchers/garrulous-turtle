@@ -11,7 +11,7 @@
 MAXJOBID=767
 
 #The JOBSCRIPT variable should be the name of this script
-JOBSCRIPT=base_score_recalibration_array.qsub
+JOBSCRIPT=04_base_score_recalibration_array.qsub
 
 ## Set up some variables
 # where do the files live
@@ -59,8 +59,7 @@ then
     echo "." | mail -s "The base_score_recalibration JOB ARRAY is finishing" ${USER}@msu.edu
 	zip base_recal_plots.zip *recal_plots.pdf
     cd ${PBS_O_WORKDIR}
-	qsub vcf_disco_chunk_5-1_array.qsub
-	qsub vcf_disco_chunk_5-2_array.qsub
+	qsub 05_bam_merge_samples_array.qsub
 fi
 
 #Print out the statistics for this job

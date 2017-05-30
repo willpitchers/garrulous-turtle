@@ -1,6 +1,6 @@
 #!/bin/bash -login
 #PBS -l nodes=1:ppn=4,walltime=04:00:00,mem=60gb
-#PBS -N VCFdisc_V5-1
+#PBS -N VCFdisc_V6-1
 #PBS -j oe
 #PBS -M pitchers@msu.edu
 #PBS -m abe
@@ -11,7 +11,7 @@
 n=${PBS_ARRAYID}
 
 #The JOBSCRIPT variable should be the name of this script
-JOBSCRIPT=06_vcf_disco_chunk_6-1_array.qsub
+JOBSCRIPT=07_vcf_disco_chunk_6-1_array.qsub
 
 ## Set up some variables
 # where do the files live
@@ -20,22 +20,16 @@ dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6
 ref=/mnt/ls15/scratch/groups/efish/P_kings_genome/supercontigs.fasta
 
 cd ${dir}
-mkdir -p V5-1_chunks
+mkdir -p V6-1_chunks
 
 #Set manximum number of jobs for this run
 MAXJOBID=`wc -l indices.list | cut -d' ' -f 1`
 
 module load GATK/3.7.0
-#module load SAMTools/1.3.1
-#module load picardTools/1.89
 
-# cut out a chunk
+# select a chunk
 thisindex=`head -${n} indices.list | tail -1`
-#thischunk=${thisfile}_chunk${n}.bam
-#samtools view -b ${thisfile} ${thisindex} > ${thischunk}
 
-# index the chunk
-#java -jar ${PICARD}/BuildBamIndex.jar I=${thischunk}
 
 # build a list of file names
 bamfiles=(*_all_libraries.bam)
@@ -51,7 +45,7 @@ java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T HaplotypeCaller \
               -R ${ref} ${samples} ${thisindex} \
               --genotyping_mode DISCOVERY \
               -stand_call_conf 30  -mbq 20 \
-              -o V5-1_chunks/${outputfilename} \
+              -o V6-1_chunks/${outputfilename} \
               --output_mode EMIT_ALL_CONFIDENT_SITES \
               --num_threads 1 --num_cpu_threads_per_data_thread 4
 fi
@@ -69,7 +63,7 @@ fi
 #Check to see if this is the last job and email user
 if [ ${n} -eq ${MAXJOBID} ]
 then
-    echo "." | mail -s "The vcf_discovery 5.1 ARRAY is finishing" ${USER}@msu.edu
+    echo "." | mail -s "The vcf_discovery 6.1 ARRAY is finishing" ${USER}@msu.edu
     cd ${PBS_O_WORKDIR}
 
 fi

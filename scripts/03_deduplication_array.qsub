@@ -11,7 +11,7 @@
 MAXJOBID=767
 
 #The JOBSCRIPT variable should be the name of this script
-JOBSCRIPT=deduplication_array.qsub
+JOBSCRIPT=03_deduplication_array.qsub
 
 ## Set up some variables
 # where do the files live
