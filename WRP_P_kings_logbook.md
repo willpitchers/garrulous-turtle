@@ -1322,4 +1322,5 @@ Week of 22nd-26th May
 Week of 29th May – 2nd June
 
   - at this point, we have tried so many different permutations (ha-ha!) of the association analysis that I'm getting confused... I'm going to need to spend some time tidying up
+    - tidying/rationalization is timely – after talking with JG we agree that the best candidate list that we can obtain at this point is going to come from organized comparison of candidate intersects between analysis...
   - 

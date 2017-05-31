@@ -11,34 +11,64 @@
 ### `qsub -v input_data=all_fish_version_5-1_HPC,GQthreshold=20 vcf_to_bed.qsub`
 
 # set up working environment
-
-#dir=/mnt/scratch/pitchers/eFISH/Analysis/
 dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6/V6-1_chunks/
-# dir=/mnt/ls15/scratch/groups/efish/WILL/V5-2_chunks/
 ref=/mnt/ls15/scratch/groups/efish/P_kings_genome/supercontigs.fasta
 
-
 cd $dir
-
 module load GATK/3.7.0
 
 if [ ! -f ../alt_phenotype_metadata.fam ]
-# this file has no header, but the columns are:
-# FamilyID IndividualID DadID MomID Sex Phenotype
+  # this file has no header, but the columns are:  FamilyID IndividualID DadID MomID Sex Phenotype
   then tail -63 /mnt/research/efish/2015_genomic_data/ultimate_phenotype.txt | awk '{ if ($2 == "P0-Absent") PHENO=2; else PHENO=1;  print $1 "\t" $1 "\t0\t0\t0\t" PHENO }' > ../alt_phenotype_metadata.fam
-
   ### seq. data filenames contain a typo; IVI_3923 should have been IVI_4923 (discovered 23/02/2016)
-  ### this line alters the phenotype lookup table so that the mis-named reads get the correct phenotype.
-  sed -i s/4923/3923/g ../alt_phenotype_metadata.fam
+  sed -i s/4923/3923/g ../alt_phenotype_metadata.fam  ### this line alters the phenotype lookup table so that the mis-named reads get the correct phenotype.
 fi
 
+Pheno=../alt_phenotype_metadata.fam
+
+###### alt-pheno ALL FISH
 java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToBinaryPed \
-                        -R ${ref} -V ${input_data}.vcf -m ../alt_phenotype_metadata.fam \
-                        -bed ${input_data}_alt_pheno.GQ${GQthreshold}.bed \
-                        -bim ${input_data}_alt_pheno.GQ${GQthreshold}.bim \
-                        -fam ${input_data}_alt_pheno.GQ${GQthreshold}.fam \
-                        --minGenotypeQuality ${GQthreshold} \
-                        --majorAlleleFirst
+              -R ${ref} -V ${input_data}.vcf -m ${Pheno} \
+              -bed ${input_data}_alt_pheno.bed \
+              -bim ${input_data}_alt_pheno.bim \
+              -fam ${input_data}_alt_pheno.fam \
+              --minGenotypeQuality 20 --majorAlleleFirst
+
+###### alt-pheno No COB fisher
+java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants \
+              -R ${ref} -V ${input_data}.vcf \
+              -xl_se 'COB_[0-9]{4}' -o ${input_data}_noCOB.vcf
+
+java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToBinaryPed \
+              -R ${ref} -V ${input_data}_noCOB.vcf -m ${Pheno} \
+              -bed ${input_data}_alt_pheno_noCOB.bed \
+              -bim ${input_data}_alt_pheno_noCOB.bim \
+              -fam ${input_data}_alt_pheno_noCOB.fam \
+              --minGenotypeQuality 20 --majorAlleleFirst
+
+###### alt-pheno APA & BAM only
+java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants \
+              -R ${ref} -V ${input_data}.vcf \
+              -se 'APA_[0-9]{4}' -se 'BAM_[0-9]{4}' -o ${input_data}_APA-BAM.vcf
+
+java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToBinaryPed \
+              -R ${ref} -V ${input_data}_APA-BAM.vcf -m ${Pheno} \
+              -bed ${input_data}_alt_pheno_APA-BAM.bed \
+              -bim ${input_data}_alt_pheno_APA-BAM.bim \
+              -fam ${input_data}_alt_pheno_APA-BAM.fam \
+              --minGenotypeQuality 20 --majorAlleleFirst
+
+###### alt-pheno MOV & BAM only
+java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants \
+              -R ${ref} -V ${input_data}.vcf \
+              -se 'MOV_[0-9]{4}' -se 'BAM_[0-9]{4}' -o ${input_data}_MOV-BAM.vcf
+
+java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToBinaryPed \
+              -R ${ref} -V ${input_data}_MOV-BAM.vcf -m ${Pheno} \
+              -bed ${input_data}_alt_pheno_MOV-BAM.bed \
+              -bim ${input_data}_alt_pheno_MOV-BAM.bim \
+              -fam ${input_data}_alt_pheno_MOV-BAM.fam \
+              --minGenotypeQuality 20 --majorAlleleFirst
 
 # email me
 echo "." | mail -s "The binaryped job is finishing" ${USER}@msu.edu
