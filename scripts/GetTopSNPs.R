@@ -13,14 +13,14 @@ assoc <- tbl_df( fread( filename,  header=TRUE ))
 
 if ( grepl( "model", filename ) == TRUE ) {
 		assoc %>% arrange( P ) %>% mutate( BP=as.numeric( gsub( "Var-Scaffold[0-9]+-", "", SNP ))) %>% head( 1000 ) %>%
-				write.csv( paste( "topSNPs_", filename, coll='', sep='' ), quote=FALSE, row.names=FALSE )
+				write.csv( paste( filename, coll='', sep='' ), quote=FALSE, row.names=FALSE )
 	}
 
 
 if ( grepl( "assoc.logistic", filename ) == TRUE ) {
 		perms <- tbl_df( fread( paste( filename, ".mperm", sep='', coll='' )))
 		full_join( assoc, perms, by=c( "SNP", "SNP" )) %>% arrange( EMP2 ) %>%
-				head( 1000 ) %>% write.csv( paste( "topSNPs_", filename, ".csv", coll='', sep='' ), quote=FALSE, row.names=FALSE )
+				head( 1000 ) %>% write.csv( paste( filename, ".csv", coll='', sep='' ), quote=FALSE, row.names=FALSE )
 	}
 
 
