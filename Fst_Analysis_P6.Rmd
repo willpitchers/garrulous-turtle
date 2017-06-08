@@ -1,0 +1,182 @@
+---
+title: "Fst_Analysis_Version_6"
+author: "Will Pitchers"
+date: "07/06/2017"
+output: html_document
+---
+
+
+```{r set up env, results='hide', echo=FALSE, message=FALSE}
+rm( list=ls( ))
+
+require( tidyverse )
+require( data.table )
+require( ggplot2 )
+require( ggExtra )
+require( cowplot )
+require( MCMCglmm )
+require( vegan )
+require( OmicCircos )
+
+fstfiles <- c( "APA_BAM", "APA_BAVA", "APA_COB", "APA_IVI", "APA_MOV", "BAM_BAVA", "BAM_COB", "BAM_IVI", "BAM_MOV", "BAVA_COB", "BAVA_IVI", "BAVA_MOV", "COB_IVI", "COB_MOV", "IVI_MOV" )
+comparisons <- c( "APA_vs_BAM", "APA_vs_BAVA", "APA_vs_COB", "APA_vs_IVI", "APA_vs_MOV", "BAM_vs_BAVA", "BAM_vs_COB", "BAM_vs_IVI", "BAM_vs_MOV", "BAVA_vs_COB", "BAVA_vs_IVI", "BAVA_vs_MOV", "COB_vs_IVI", "COB_vs_MOV", "IVI_vs_MOV" )
+
+Fsts <- list()
+
+for( i in 1:15 ){
+  Fsts[[i]] <- tbl_df( fread( paste( "Fsts/Fst_", comparisons[i], ".windowed5kb.step5kb.weir.fst", sep="", coll="" ), header=TRUE ))
+  names( Fsts )[i] <- comparisons[i]
+}
+```
+
+The F~st~ data I'm working with here was calculated from the file `all_fish_version_6-1.filtered.all_variants.GQ20.vcf`, using 5kb window, stepped at 5kb intervals (i.e. non-overlapping windows).
+
+```{r data munging, results='hide', echo=FALSE, message=FALSE}
+FstList <- list()
+cor_fst <- rep( NA, 15 )
+
+for( i in 1:15 ) {
+  FstList[[i]] <- as.data.frame( Fsts[[i]] ) %>% group_by( CHROM ) %>% filter( WEIGHTED_FST > 0, MEAN_FST > 0 ) %>% summarise( w_fst=mean( WEIGHTED_FST ), m_fst=mean( MEAN_FST ), m_var=mean( N_VARIANTS ) )
+  names( FstList )[i] <- names( Fsts )[i]
+  cor_fst[i] <- cor( FstList[[i]][2], FstList[[i]][3] )
+  new_names <- paste( names( FstList[i] ), "_", names( FstList[[i]] ), sep='', coll='' )
+  names( FstList[[i]] ) <- c( "SCAF", new_names[ 2:4 ] )
+}
+
+mean( cor_fst )
+
+AllFsts <- FstList$APA_vs_BAM
+
+for (i in 2:15 ) {
+  AllFsts <- full_join( AllFsts, FstList[[i]], by="SCAF" )
+}
+```
+
+The plot below shows the relationship of the two F~st~ estimates across all scaffolds and all 15 comparisons (the red line is 1:1). The R^2^ for the correlation here is `r round(mean( cor_fst ),2)`, suggesting that it still *probably* doesn't matter a great deal which statistic we use -- though the adjusted F~st~ is generally somewhat higher.
+
+```{r fst vs adj fst plot, message=FALSE, echo=FALSE, results='hide', warning=FALSE, fig.width=7, fig.height=7}
+AllFsts %>%  ggplot(  aes( APA_vs_BAM_w_fst,  APA_vs_BAM_m_fst ) ) + geom_point( col=rgb( 0, 0, 1, 0.1 ) ) + 
+          geom_point( aes( APA_vs_BAVA_w_fst, APA_vs_BAVA_m_fst ), col=rgb( 0, 0, 1, 0.1 ) ) +
+          geom_point( aes( APA_vs_COB_w_fst,  APA_vs_COB_m_fst ), col=rgb( 0, 0, 1, 0.1 ) ) +
+          geom_point( aes( APA_vs_IVI_w_fst,  APA_vs_IVI_m_fst ), col=rgb( 0, 0, 1, 0.1 ) ) +
+          geom_point( aes( APA_vs_MOV_w_fst,  APA_vs_MOV_m_fst ), col=rgb( 0, 0, 1, 0.1 ) ) +
+          geom_point( aes( BAM_vs_BAVA_w_fst, BAM_vs_BAVA_m_fst ), col=rgb( 0, 0, 1, 0.1 ) ) +
+          geom_point( aes( BAM_vs_COB_w_fst,  BAM_vs_COB_m_fst ), col=rgb( 0, 0, 1, 0.1 ) ) +
+          geom_point( aes( BAM_vs_IVI_w_fst,  BAM_vs_IVI_m_fst ), col=rgb( 0, 0, 1, 0.1 ) ) +
+          geom_point( aes( BAM_vs_MOV_w_fst,  BAM_vs_MOV_m_fst ), col=rgb( 0, 0, 1, 0.1 ) ) +
+          geom_point( aes( BAVA_vs_COB_w_fst, BAVA_vs_COB_m_fst ), col=rgb( 0, 0, 1, 0.1 ) ) +
+          geom_point( aes( BAVA_vs_IVI_w_fst, BAVA_vs_IVI_m_fst ), col=rgb( 0, 0, 1, 0.1 ) ) +
+          geom_point( aes( BAVA_vs_MOV_w_fst, BAVA_vs_MOV_m_fst ), col=rgb( 0, 0, 1, 0.1 ) ) +
+          geom_point( aes( COB_vs_IVI_w_fst,  COB_vs_IVI_m_fst ), col=rgb( 0, 0, 1, 0.1 ) ) +
+          geom_point( aes( COB_vs_MOV_w_fst,  COB_vs_MOV_m_fst ), col=rgb( 0, 0, 1, 0.1 ) ) +
+          geom_point( aes( IVI_vs_MOV_w_fst,  COB_vs_IVI_m_fst ), col=rgb( 0, 0, 1, 0.1 ) ) +
+          geom_point( aes( APA_vs_BAM_w_fst,  APA_vs_BAM_m_fst ),  col=rgb( 0.3, 0,0, 0.1 ) ) + 
+          geom_point( aes( APA_vs_BAVA_w_fst, APA_vs_BAVA_m_fst ), col=rgb( 0.3, 0,0, 0.1 ) ) +
+          geom_point( aes( APA_vs_COB_w_fst,  APA_vs_COB_m_fst ), col=rgb( 0.3, 0,0, 0.1 ) ) +
+          geom_point( aes( APA_vs_IVI_w_fst,  APA_vs_IVI_m_fst ), col=rgb( 0.3, 0,0, 0.1 ) ) +
+          geom_point( aes( APA_vs_MOV_w_fst,  APA_vs_MOV_m_fst ), col=rgb( 0.3, 0,0, 0.1 ) ) +
+          geom_point( aes( BAM_vs_BAVA_w_fst, BAM_vs_BAVA_m_fst ), col=rgb( 0.3, 0,0, 0.1 ) ) +
+          geom_point( aes( BAM_vs_COB_w_fst,  BAM_vs_COB_m_fst ), col=rgb( 0.3, 0,0, 0.1 ) ) +
+          geom_point( aes( BAM_vs_IVI_w_fst,  BAM_vs_IVI_m_fst ), col=rgb( 0.3, 0,0, 0.1 ) ) +
+          geom_point( aes( BAM_vs_MOV_w_fst,  BAM_vs_MOV_m_fst ), col=rgb( 0.3, 0,0, 0.1 ) ) +
+          geom_point( aes( BAVA_vs_COB_w_fst, BAVA_vs_COB_m_fst ), col=rgb( 0.3, 0,0, 0.1 ) ) +
+          geom_point( aes( BAVA_vs_IVI_w_fst, BAVA_vs_IVI_m_fst ), col=rgb( 0.3, 0,0, 0.1 ) ) +
+          geom_point( aes( BAVA_vs_MOV_w_fst, BAVA_vs_MOV_m_fst ), col=rgb( 0.3, 0,0, 0.1 ) ) +
+          geom_point( aes( COB_vs_IVI_w_fst,  COB_vs_IVI_m_fst ), col=rgb( 0.3, 0,0, 0.1 ) ) +
+          geom_point( aes( COB_vs_MOV_w_fst,  COB_vs_MOV_m_fst ), col=rgb( 0.3, 0,0, 0.1 ) ) +
+  xlab( "adjusted Fst" ) + ylab( "Fst" ) + geom_abline( intercept=0, slope=1, col="red" )
+
+```
+
+```{r fst distributions, results='hide', echo=FALSE, fig.height=6, fig.width=8}
+
+AllFsts %>% mutate( Scaf=factor( SCAF )) %>% dplyr::select( SCAF, matches( "_m_fst" )) %>% gather( "Comparison", "Fsts", APA_vs_BAM_m_fst:IVI_vs_MOV_m_fst ) %>%
+        ggplot( aes( x=Fsts )) + geom_density( aes( col=Comparison, fill=Comparison ), alpha=.1 )
+
+```
+
+```{r fst distributions panel, results='hide', echo=FALSE, fig.height=7, fig.width=10}
+
+AllFsts %>% mutate( Scaf=factor( SCAF )) %>% dplyr::select( SCAF, matches( "_w_fst" )) %>% gather( "Comparison", "Fsts", APA_vs_BAM_w_fst:IVI_vs_MOV_w_fst ) %>%
+        ggplot( aes( x=Fsts )) + facet_wrap( ~Comparison ) + geom_density( aes( fill=Comparison ), alpha=.7 )
+
+```
+
+
+```{r Fst across the genome, fig.width=20, fig.height=8, echo=FALSE, message=FALSE}
+
+Apa_vs_Bam <- tbl_df( fread( "Fsts/Fst_APA_vs_BAM.windowed5kb.step5kb.weir.fst", header=TRUE )) %>% 
+                      mutate( CHROM=factor( CHROM ), scafno=as.integer( sub( "Scaffold", "", CHROM )), window=1:length( CHROM ))
+
+Mov_vs_Bam <- tbl_df( fread( "Fsts/Fst_APA_vs_MOV.windowed5kb.step5kb.weir.fst", header=TRUE )) %>% 
+                      mutate( CHROM=factor( CHROM ), scafno=as.integer( sub( "Scaffold", "", CHROM )), window=1:length( CHROM ))
+
+plot_grid( Apa_vs_Bam %>% ggplot( aes( x=window, y=abs( WEIGHTED_FST ) )) + geom_point( col="blue", alpha=.1 ) + 
+                          ylab( "weighted Fst" ) + xlab( "window no. (Scafs in numeric order)" ) + ggtitle( "Apa. vs. Bam." ), 
+           Mov_vs_Bam %>% ggplot( aes( x=window, y=abs( WEIGHTED_FST ) )) + geom_point( col="red", alpha=.1 ) + 
+                          ylab( "weighted Fst" ) + xlab( "window no. (Scafs in numeric order)" ) + ggtitle( "Mov. vs. Bam." ), ncol=1 )
+```
+
+```{r Fst along scaffolds apa v bam, results='hide', echo=FALSE, fig.height=8, fig.width=10}
+
+Apa_vs_Bam %>% filter( scafno < 12 ) %>% ggplot( aes( x=BIN_START, y=abs( WEIGHTED_FST ) )) + geom_point( col="blue", alpha=.5 ) + 
+                ylab( "weighted Fst" ) + xlab( "window start pos." ) + facet_wrap( ~CHROM ) + ggtitle( "Apa. vs. Bam." )
+```
+
+```{r Fst along scaffolds mov v bam, results='hide', echo=FALSE, fig.height=8, fig.width=10}
+
+Mov_vs_Bam %>% filter( scafno < 12 ) %>% ggplot( aes( x=BIN_START, y=abs( WEIGHTED_FST ) )) + geom_point( col="red", alpha=.5 ) + 
+                ylab( "weighted Fst" ) + xlab( "window start pos." ) + facet_wrap( ~CHROM ) + ggtitle( "Mov. vs. Bam." )
+```
+
+
+```{r , include=FALSE}
+# mycircdata <- dplyr::select(Apa_vs_Bam, CHROM, BIN_START, window, WEIGHTED_FST ) %>% mutate( window=as.character( window ))
+# 
+# SegDat <- tbl_df( fread( "scaf.lengths" )) %>% transmute( SegName=V1, SegStart=integer( 1 ), SegEnd=V2 )
+# 
+# segAnglePo( seg.dat=sim.out$seg.frame, seg=seg.name )
+# 
+# plot(c(1,800), c(1,800), type="n", axes=FALSE, xlab="", ylab="", main="")
+# circos( mapping=mycircdata, type="h", cir= )
+# 
+# 
+# 
+# sim.out <- sim.circos(seg=10, po=c(20:50), ind=20, link=10, link.pg=4 )
+# seg.name <- paste("chr", 1:10, sep="")
+# db <- segAnglePo( seg.dat=sim.out$seg.frame, seg=seg.name )
+# plot(c(1,800), c(1,800), type="n", axes=FALSE, xlab="", ylab="", main="") ; circos( cir=db )
+```
+
+
+
+```{r , include=FALSE}
+
+# distances <- c( "APA_vs_BAM" = 5.7, "APA_vs_BAVA" = 11.4, "APA_vs_COB" = 411.8, "APA_vs_IVI" = 341.2, "APA_vs_MOV" = 27.9, "BAM_vs_BAVA" = 13.4, "BAM_vs_COB" = 411.8, "BAM_vs_IVI" = 329.4, "BAM_vs_MOV" = 34.3, "BAVA_vs_COB" = 411.8, "BAVA_vs_IVI" = 329.5, "BAVA_vs_MOV" = 17.1, "COB_vs_IVI" = 364.7, "COB_vs_MOV" = 429.4, "IVI_vs_MOV" = 341.2 )
+# 
+# Gdistances <- group_by( these_fsts_51, comp) %>% summarise( mFst = mean( fst ) ) %>% mutate( dist=distances )
+# 
+# Fst_matrix <- matrix( c( 0, Gdistances$mFst[ c(1:5, 1) ], 
+#                          0, Gdistances$mFst[ c(6:9, 2, 6) ],
+#                          0, Gdistances$mFst[ c(10:12, 3, 7, 10) ],
+#                          0, Gdistances$mFst[ c(13:14, 4, 8, 11, 13) ],
+#                          0, Gdistances$mFst[ c(15, 5, 9, 12, 14, 15) ],
+#                          0 ), nrow=6, ncol=6 )
+# 
+# Dist_matrix <- matrix( c( 0, Gdistances$dist[ c(1:5, 1) ], 
+#                          0, Gdistances$dist[ c(6:9, 2, 6) ],
+#                          0, Gdistances$dist[ c(10:12, 3, 7, 10) ],
+#                          0, Gdistances$dist[ c(13:14, 4, 8, 11, 13) ],
+#                          0, Gdistances$dist[ c(15, 5, 9, 12, 14, 15) ],
+#                          0 ), nrow=6, ncol=6 )
+# 
+# mantel( Fst_matrix, Dist_matrix )
+# 
+# Gdistances %>% ggplot( aes( x=dist, y=mFst ) ) + geom_point( )
+
+```
+
+
+
+
+
