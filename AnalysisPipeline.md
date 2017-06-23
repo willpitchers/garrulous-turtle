@@ -81,9 +81,25 @@ Once data reaches the **Statistical Analysis** stage it may become necessary for
 8. | **Variant Calling** | `vcf_disco_chunk_array.qsub` | SAMTools/1.3.1, picardTools/1.89 & GATK/3.5.0 | `view -b`, `BuildBamIndex` & `HaplotypeCaller --genotyping_mode DISCOVERY --output_mode EMIT_ALL_SITES` | `all_bam_merged_'+%d_%m_%Y'.bam`, `indices.list` & `Reference.fa` | `all_bam_merged_'+%d_%m_%Y'.bam_chunkNNN.bam` | this script uses samtools to slice the all-fishes BAM file into chunks of ~1.5Mbp in length, passes that to picard in order to index it, then passes that to GATK-HaplotypeCaller
 9. | | `reunite_vcf_chunks.qsub` | tabix/0.2.6 & vcftools/0.1.9 | `--remove-duplicates` |
 
-
+---
 
 ## Version 6 (joint genotyping with HaplotypeCaller, indel realignment now deprecated, now with more paranoia)
+
+|  Stage   |   Script    |   Tool(s)   |   Options   |   Input   |   Output    |   Description
+---|----------|-------------|-------------|-------------|-----------|-------------|---------------
+0. | **QC** | `00_fastQC_array.qsub`  | FastQC/0.11.2 | | `Sample_library_Lane_RX_Ye.fastq.gz` | ??? | read quality assessment...
+1. | **Trimming** | `01_trimmomatic_array.qsub ` | Trimmomatic/0.32 | `ILLUMINACLIP:Illumina_adapters.fa:2:30:10 HEADCROP:10 MAXINFO:50:0.5` | `Sample_library_Lane_RX_Ye.fastq.gz` | `Sample_library_Lane_RX_Ye.trimmed.fq` | gunzips ..fastq.gz files and runs trimmomatic
+2. | **Alignment** | `02_alignment_array.qsub` | bwa/0.7.12.r1044 | `bwa mem -M -R ..` | `Sample_library_Lane_RX_Ye.trimmed.fq` & `Reference.fa` | `Sample_library_Lane_RX_Ye.trimmed.aligned.sam` | pulls details from fastq files to build a GATK-compatible `@RG` tag, and then runs alignment
+3. | **Sorting/Indexing** | `03_deduplication_array.qsub` | picardTools/1.89 | `SORT_ORDER=coordinate` | `Sample_library_Lane_RX_Ye.trimmed.aligned.sam` | `Sample_library_Lane_RX_Ye.trimmed.aligned.dedup.bam` | SortSam.jar sorts, MarkDuplicates.jar marks duplicates & BuildBamIndex.jar indexes
+4. | **Base Score Recalibration** | `04_base_score_recalibration_array.qsub` | GATK/3.5.0 | `--run_without_dbsnp_potentially_ruining_quality` | `Sample_library_Lane_RX_Ye.trimmed.aligned.dedup.realigned.bam` & `Reference.fa` | `Sample_library_Lane_RX_Ye.recal_data.table` & `Sample_library_Lane_RX_Ye.recal_plots.pdf` & `Sample_library_Lane_RX_Ye.aligned.dedup.realigned.recalibrated.bam` | 2 passes with `BaseRecalibrator` (with the infamous no-dbsnp flag), then `AnalyzeCovariates` prints the plots/stats, then `PrintReads` writes the output bam
+5. | **Sample Merging** | `05_bam_merge_samples_array.qsub` | picardTools/1.89 | `MergeSamFiles.jar` & `BuildBamIndex` | `XXX_NNNN_library_Lane_RX_Ye.aligned.dedup.realigned.recalibrated.bam` | `XXX_NNNN_all_libraries.bam` | I added this step so that we could use the GATK 'Joint Variant Calling' workflow; parallelizing over individuals. Merging files within individual, then re-index the resulting `..bam`
+6. | | `06_bam_file_check.qsub` | picardTools/1.89 | `ValidateSamFile` | `XXX_NNNN_all_libraries.bam` | `XXX_NNNN_samples`
+7. | **Variant Calling** | `07_vcf_disco_chunk_6-1_array.qsub` | GATK/3.7.0 `-T HaplotypeCaller` | `--genotyping_mode DISCOVERY -stand_call_conf 30  -mbq 20 --output_mode EMIT_ALL_CONFIDENT_SITES` | 63 x`POP_ID##_all_libraries.bam` & `indices.list` | ```all_fish_`date '+%d_%m_%Y'`_slice_${n}.vcf``` | builds *n* 'slices' of `..vcf` file, where slice size is set by the file `indices.list` (itself build by `write_scaf_indices.sh`)
+<!-- 8. | | `07_vcf_disco_chunk_6-2_array.qsub` | GATK/3.7.0 `-T HaplotypeCaller` | `--genotyping_mode DISCOVERY -stand_call_conf 30  -mbq 20 --output_mode EMIT_ALL_CONFIDENT_SITES --emitRefConfidence GVCF` | 63 x`POP_ID##_all_libraries.bam` & `indices.list` | ```all_fish_`date '+%d_%m_%Y'`_slice_${n}.g.vcf``` | builds *n* 'slices' of `..g.vcf` file, where slice size is set by the file `indices.list` (itself build by `write_scaf_indices.sh`) -->
+
+---
+
+## Version 7...
 
 |  Stage   |   Script    |   Tool(s)   |   Options   |   Input   |   Output    |   Description
 ---|----------|-------------|-------------|-------------|-----------|-------------|---------------
@@ -120,7 +136,7 @@ Once data reaches the **Statistical Analysis** stage it may become necessary for
   - GATK/3.7.0
   - R/3.2.0
   - tabix/0.2.6
-  - vcftools/0.1.9
+  - vcftools/0.1.14
   - plink/1.9
 
 

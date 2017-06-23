@@ -1324,3 +1324,51 @@ Week of 29th May – 2nd June
   - at this point, we have tried so many different permutations (ha-ha!) of the association analysis that I'm getting confused... I'm going to need to spend some time tidying up
     - tidying/rationalization is timely – after talking with JG we agree that the best candidate list that we can obtain at this point is going to come from organized comparison of candidate intersects between analysis...
   - 
+
+Week of 3th – 9th June
+
+  - Added sections on comparison between analyses to `GWAS_methods_summary.Rmd`:
+    - intersection plots to show how few SNPs are 'candidates' from multiple analyses
+    - EMP2 distributions to show the power drop of subset analyses 
+    - we are *really* at full stretch to support any candidates when the results are this unstable...
+  - Meeting with JG -- plan is to switch focus to pattern of pop. gen. stats for the nonce, plan for further sequencing
+    - to that end, updated my `calc_Fst_array` script
+    - ...and the `calc_TajD` script
+    - new notebook -- `Fst_Analysis_P6.Rmd` -- added to keep pop gen type analyses together
+    
+    - need to calculate pairwise LD too
+    - can I set up LD & Fst calculations by p0p vs. p0a?
+    - visualize the set-based logic
+
+
+Week of 12th - 16th June
+
+  - reanalysed Fst with fish grouped by *phenotype* and ignore pop.
+  - searching for correlation between Fst and variant p-values
+    - correlation is there, but not super-strong (~0.28)
+  - re-examining the distributions of missingness, depth and quality in our data...
+  - this leads us back to alignment rates. grabbing a summary of how these look with: `bamtools stats -insert -in THISFISH_all_libraries.bam`
+  - *much* missingness concentrated in IVI pop... going to re-run assoc analysis without IVI fish
+    - to that end, new script `vcf_to_bed_noIVI.qsub`
+  - JG found realtionship between coverage & missingness...
+    - are we filtering too agressively?
+    - the GQ-genotype filter seems to cut deeper in IVI than other pops...
+    - 
+  - ...
+  - So, with a new canonical VCF **all** the downstream analyses will need to be re-run... also, indels need to be re-incorporated...
+      - old VCFs zipped & cold-stored in `research/2015_genomic_data/P_kings_VCFs/`
+      - 
+
+
+Week 19th - 23rd June
+
+  - tidying up old files in dropbox and HPC research space...
+    - make sure all current scripts are git-logged
+    - zip up and stash obsolete scripts/outputs...
+  - trying again to get `BreakDancer` to detect [structural variants...](http://gmt.genome.wustl.edu/packages/breakdancer/documentation.html)
+    - looks like loooong run times for the 2nd step
+    - attempted to install on Shockly... no success as yet (sadface)
+      - dep.s on samtools and 'boost'... both of these installed without problem
+      - 
+    - `breakdancer_config.qsub` and `breakdancer_max.qsub` scripts added
+  
