@@ -60,11 +60,11 @@ for i in `seq 1 4667`  ; do
         echo "-L ${thisScaf}:${theseBreaks[@]:(-1)}-${thisLen}"
     fi
     if [ ${thisLen} -lt `expr ${chunkLen} / 6` ] ; then
-        echo "-L ${thisScaf} quarter"
+        echo "${thisScaf} quarter"
     elif [ ${thisLen} -lt `expr ${chunkLen} / 2` ] ; then
-        echo "-L ${thisScaf} half"
+        echo "${thisScaf} half"
     elif [ ${thisLen} -lt ${chunkLen} ] ; then
-        echo "-L ${thisScaf}"
+        echo "${thisScaf}"
     fi
 done > break_indices.list
 
@@ -78,4 +78,5 @@ for i in `seq 1 2` ; do
 done
 sed -i s/quarter//g break_indices.list
 
+# sed -i s/'\(Scaffold[0-9]\+\)'/'"'\\1'"'/g break_indices.list
 

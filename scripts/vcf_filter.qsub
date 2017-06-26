@@ -16,8 +16,8 @@ cd ${dir}
 module load GATK/3.7.0
 
 ### call to GATK – input vcf and output filtered vcf ###
-if [ ! -f ${input_data}.filtered.all_variants.GQ${GQ}.vcf ]
-	then
+#if [ ! -f ${input_data}.filtered.all_variants.GQ${GQ}.vcf ]
+#	then
 	### SNPs ###
 	java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants -R ${ref} -V ${input_data}.vcf \
 						-selectType SNP  -nt 4  -o ${input_data}.snps.vcf
@@ -25,7 +25,7 @@ if [ ! -f ${input_data}.filtered.all_variants.GQ${GQ}.vcf ]
 	java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantFiltration -R ${ref} -V ${input_data}.snps.vcf \
 						--filterExpression "QD < 2.0 || FS > 60.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0" \
 						-filterName "suggested_hard_filter" --setFilteredGtToNocall \
-						--genotypeFilterExpression "GQ < ${GQ}" --genotypeFilterName "GQ${GQ}" \
+#						--genotypeFilterExpression "GQ < ${GQ}" --genotypeFilterName "GQ${GQ}" \
 						-o ${input_data}.filtered.snps.GQ${GQ}.vcf
 	### INDELS ###
 	java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants -R ${ref} -V ${input_data}.vcf \
@@ -34,7 +34,7 @@ if [ ! -f ${input_data}.filtered.all_variants.GQ${GQ}.vcf ]
 	java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantFiltration -R ${ref} -V ${input_data}.indels.vcf \
 						--filterExpression "QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0" \
 						-filterName "suggested_indel_filter" --setFilteredGtToNocall \
-						--genotypeFilterExpression "GQ < ${GQ}" --genotypeFilterName "GQ${GQ}" \
+#						--genotypeFilterExpression "GQ < ${GQ}" --genotypeFilterName "GQ${GQ}" \
 						-o ${input_data}.filtered.indels.GQ${GQ}.vcf
 
     rm ${input_data}.snps.vcf  ${input_data}.indels.vcf
@@ -44,10 +44,10 @@ if [ ! -f ${input_data}.filtered.all_variants.GQ${GQ}.vcf ]
 						--variant ${input_data}.filtered.snps.GQ${GQ}.vcf \
 						--variant ${input_data}.filtered.indels.GQ${GQ}.vcf \
 						-o ${input_data}.filtered.all_variants.GQ${GQ}.vcf \
-						-genotypeMergeOptions UNIQIFY
+#						-genotypeMergeOptions UNIQIFY
 
-	rm ${input_data}.filtered.snps.GQ${GQ}.vcf  ${input_data}.filtered.indels.GQ${GQ}.vcf
-fi
+#	rm ${input_data}.filtered.snps.GQ${GQ}.vcf  ${input_data}.filtered.indels.GQ${GQ}.vcf
+#fi
 
 echo "." | mail -s "The VCF filtering job is finishing" ${USER}@msu.edu
 cd ${PBS_O_WORKDIR}

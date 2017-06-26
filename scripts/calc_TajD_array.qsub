@@ -8,35 +8,18 @@
 
 ## Set up some variables
 # where do the files live
-dir=/mnt/scratch/pitchers/eFISH/Analysis/
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6/Assoc
 popdir=/mnt/research/efish/2015_genomic_data/Populations/
 
 # load modules
 cd ${dir}
-module load vcftools/4.2
+module load vcftools/0.1.14
 
-# write some needed variables into memory
-#MAXJOBID=14
-#source ${popdir}pop_comparisons.sh
-#n=${PBS_ARRAYID}
-input_data=all_variants_merged_27_10_2015.vcf
+vcftools --vcf ${input_data}.vcf --TajimaD 5000
 
-#POP1=population_${leftpop[${n}]}.txt
-#POP2=population_${rightpop[${n}]}.txt
-#OUTN=Fst_${leftpop[${n}]}_vs_${rightpop[${n}]}
-
-# the call to vcftools
-#vcftools --vcf ${input_data} --weir-fst-pop ${popdir}${POP1} --weir-fst-pop ${popdir}${POP2} --fst-window-size 100000 --fst-window-step 50000 --out ${OUTN}
-
-vcftools --vcf ${input_data} --TajimaD 5000
-
-#Check to see if this is the last job and email user
-#if [ ${n} -eq ${MAXJOBID} ]
-#then
-#    echo "." | mail -s "The TajD job is finishing" ${USER}@msu.edu
-#    cd ${PBS_O_WORKDIR}
-#    qsub nextjerb
-#fi
+# Email user
+echo "." | mail -s "The TajD job is finishing" ${USER}@msu.edu
+cd ${PBS_O_WORKDIR}
 
 #Print out the statistics for this job
 qstat -f ${PBS_JOBID}

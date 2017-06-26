@@ -7,37 +7,43 @@
 #PBS -r n
 #PBS -t 0-14
 
-## Set up some variables
+# Run this script with e.g.:
+# qsub -v input_data=all_fish_version_6-1.filtered.all_variants.GQ20,window_size=1000,window_step=1000 cal_Fst_array.qsub
 
-### Adjust Here ###
-#window_size=WSIZE
-#window_step=WSTEP
-###################
+## Set up some variables
 
 Wsz=$(( ${window_size} / 1000 ))kb
 Wst=$(( ${window_step} / 1000 ))kb
 
 # where do the files live
-dir=/mnt/ls15/scratch/groups/efish/WILL
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6/Assoc
 popdir=/mnt/research/efish/2015_genomic_data/Populations/
 
 # load modules
 cd ${dir}
-module load vcftools/0.1.12a
+module load vcftools/0.1.14
 
 # write some needed variables into memory
 MAXJOBID=14
 source ${popdir}pop_comparisons.sh
 n=${PBS_ARRAYID}
 
-
 POP1=population_${leftpop[${n}]}.txt
 POP2=population_${rightpop[${n}]}.txt
-OUTN=Fst_${version}_${leftpop[${n}]}_vs_${rightpop[${n}]}
-
+OUTN=Fst_${leftpop[${n}]}_vs_${rightpop[${n}]}
 
 # the call to vcftools
-vcftools --vcf ${input_data} --weir-fst-pop ${popdir}${POP1} --weir-fst-pop ${popdir}${POP2} --fst-window-size ${window_size} --fst-window-step ${window_step} --out ${OUTN}
+vcftools --vcf ${input_data}.vcf --weir-fst-pop ${popdir}${POP1} --weir-fst-pop ${popdir}${POP2} --fst-window-size ${window_size} --fst-window-step ${window_step} --out ${OUTN}
+
+#vcftools --vcf ${input_data}.vcf --max-missing-count 2 --keep ${popdir}${POP1} --kept-sites --out out1_${n}
+
+#vcftools --vcf ${input_data}.vcf --max-missing-count 2 --keep ${popdir}${POP2} --kept-sites --out out2_${n}
+
+#sort out1_${n}.kept.sites out2_${n}.kept.sites | uniq -d > intersection_${n}.txt
+
+#vcftools --vcf ${input_data}.vcf --weir-fst-pop ${popdir}${POP1} --weir-fst-pop ${popdir}${POP2} --positions intersection_${n}.txt --fst-window-size ${window_size} --fst-window-step ${window_step} --remove-filtered-all --out ${OUTN}
+
+#rm out1_${n}.kept.sites out2_${n}.kept.sites intersection_${n}.txt
 
 mv ${OUTN}.windowed.weir.fst ${OUTN}.windowed${Wsz}.step${Wst}.weir.fst
 

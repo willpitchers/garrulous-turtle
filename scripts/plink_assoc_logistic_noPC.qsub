@@ -8,7 +8,7 @@
 #PBS -r n
 
 #dir=/mnt/scratch/pitchers/eFISH/Analysis/
-dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6/V6-1_chunks
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6/Assoc
 
 cd $dir
 

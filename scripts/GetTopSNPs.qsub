@@ -15,7 +15,7 @@ module load GNU/4.9
 module load R/3.3.2
 module load GATK/3.7.0
 
-## AssocFileList=( ${input_data}*.assoc.fisher )
+#AssocFileList=( ${input_data}*.assoc.fisher )
 AssocFileList=( ${input_data}*_mperm.assoc.logistic )
 
 for thisfile in ${AssocFileList[@]}
@@ -33,6 +33,7 @@ for thisfile in ${AssocFileList[@]}
 	java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToTable \
 							-V ${thisfile}.topSNPs.vcf \
 							-F CHROM -F POS -F REF -F ALT -GF GT -R ${ref} \
+#							-o ${thisfile}.topSNPs_byP.table
 							-o ${thisfile}.topSNPs.table
 
 	rm ${thisfile}.intervals  ${thisfile}.topSNPs.vcf  ${thisfile}.topSNPs.vcf.idx

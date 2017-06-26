@@ -1,6 +1,6 @@
 #!/bin/bash -login
 #PBS -o /mnt/research/efish/2015_genomic_data/scripts
-#PBS -l nodes=1:ppn=1,walltime=04:00:00,mem=32gb
+#PBS -l nodes=1:ppn=1,walltime=04:00:00,mem=60gb
 #PBS -N PLINK_ALPCP
 #PBS -j oe
 #PBS -M pitchers@msu.edu
@@ -37,7 +37,11 @@ plink --bfile ${input_data}_pruned --pca header --out ${input_data}_pruned_pca -
 # alternate hypotheses
 plink --bfile ${input_data} --model fisher --covar ${input_data}_pruned_pca.eigenvec --covar-name PC1,PC2,PC3 --out ${input_data}  --pfilter 1 --allow-no-sex --geno 0.50 --allow-extra-chr --test-missing --real-ref-alleles
 
-plink --bfile ${input_data} --covar ${input_data}_pruned_pca.eigenvec --covar-name PC1,PC2,PC3 --allow-extra-chr --allow-no-sex --geno 0.50 --logistic hide-covar mperm=10000 --mperm-save --out ${input_data}_mperm --pfilter 1 
+# logistic with permutation and PCs
+plink --bfile ${input_data} --covar ${input_data}_pruned_pca.eigenvec --covar-name PC1,PC2,PC3 --allow-extra-chr --allow-no-sex --geno 0.50 --logistic hide-covar mperm=10000 --mperm-save --out ${input_data}_mperm_PCs --pfilter 1 
+
+# logistic with permutation without PCs
+plink --bfile ${input_data} --allow-extra-chr --allow-no-sex --geno0.50 --logistic mperm=10000 --mperm-save --out ${input_data}_mperm_noPC --pfilter 1
 
 ####
 

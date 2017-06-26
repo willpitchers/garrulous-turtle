@@ -9,20 +9,34 @@
 ## Set up some variables
 
 # where do the files live
-dir=/mnt/ls15/scratch/groups/efish/WILL/V5-1_chunks/
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6/Assoc
 ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
 
 # build a list of file names
 cd ${dir}
 
-module load GATK/3.5.0
+module load vcftools/0.1.14
+module load GATK/3.7.0
+
+vcftools --vcf ${input_data}.vcf --out ${input_data} --depth
+
+vcftools --vcf ${input_data}.vcf --out ${input_data} --site-depth
+
+vcftools --vcf ${input_data}.vcf --out ${input_data} --site-mean-depth
+
+vcftools --vcf ${input_data}.vcf --out ${input_data} --geno-depth
+
+vcftools --vcf ${input_data}.vcf --out ${input_data} --hap-r2
+
+vcftools --vcf ${input_data}.vcf --out ${input_data} --geno-chisq
+
+vcftools --vcf ${input_data}.vcf --out ${input_data} --geno-r2
 
 ## call to GATK – input vcf and output quality/depth/etc. stats
-java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToTable -R ${ref} -V ${input_data} -o ${input_data}.stats.table \
-							-F CHROM -F POS -F ID -F QUAL -F AC -F HET -F HOM-REF -F HOM-VAR \
-							-F MQRankSum -F GQ -F QD -F FS -F MQ -F ReadPosRankSum \
-							--allowMissingData
-
+#java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToTable -R ${ref} -V ${input_data}.vcf -o ${input_data}.stats.table \
+#							-F CHROM -F POS -F ID -F QUAL -F AC -F HET -F HOM-REF -F HOM-VAR \
+#							-F MQRankSum -F GQ -F QD -F FS -F MQ -F ReadPosRankSum \
+#							--allowMissingData
 
 echo "." | mail -s "The VCF stat job is finishing" ${USER}@msu.edu
 cd ${PBS_O_WORKDIR}
