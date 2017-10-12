@@ -19,8 +19,9 @@ mkdir -p ../Assoc
 
 # load modules
 module load Java/1.8.0_31
+#module load Java/jdk1.8.0
 
-sample_list=(all_fish_*_slice_*.vcf)
+sample_list=(all_fish_vcf_slice_*.vcf)
 samples=`for i in "${sample_list[@]}" ; do echo --variant ${i} ; done | xargs`
 
 java -Xmx60g -Djava.io.tmpdir=${TMPDIR} -cp /mnt/home/pitchers/GenomeAnalysisTK.jar org.broadinstitute.gatk.tools.CatVariants -R ${ref} ${samples} -out ../Assoc/all_fish_version_6-1.vcf
@@ -32,7 +33,7 @@ mv all_fish_version_6-1.vcf  ../Assoc/
 	cd $PBS_O_WORKDIR
 	# qsub 09_vcf_disco_chunk_5-2_array.qsub
 	# qsub -v 10_vcf_genotype_chunk_6-2_array.qsub
-	qsub -v all_fish_version_6-1 vcf_filter.qsub
+#	qsub -v all_fish_version_6-1 vcf_filter.qsub
 
 #Print out the statistics for this job
 qstat -f ${PBS_JOBID}

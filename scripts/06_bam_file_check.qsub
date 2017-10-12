@@ -53,7 +53,7 @@ if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The BAM individual merging array is finishing" ${USER}@msu.edu
     cd $PBS_O_WORKDIR
-    qsub 07_vcf_disco_chunk_6-1_array.qsub
+#    qsub 07_vcf_disco_chunk_6-1_array.qsub
 fi
 
 #Print out the statistics for this job

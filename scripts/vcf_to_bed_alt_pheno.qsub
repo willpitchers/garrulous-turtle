@@ -35,40 +35,40 @@ java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToBinaryPed \
               --minGenotypeQuality 20 --majorAlleleFirst
 
 ###### alt-pheno No COB fisher
-java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants \
-              -R ${ref} -V ${input_data}.vcf \
-              -xl_se 'COB_[0-9]{4}' -o ${input_data}_noCOB.vcf
+#java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants \
+#              -R ${ref} -V ${input_data}.vcf \
+#              -xl_se 'COB_[0-9]{4}' -o ${input_data}_noCOB.vcf
 
-java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToBinaryPed \
-              -R ${ref} -V ${input_data}_noCOB.vcf -m ${Pheno} \
-              -bed ${input_data}_alt_pheno_noCOB.bed \
-              -bim ${input_data}_alt_pheno_noCOB.bim \
-              -fam ${input_data}_alt_pheno_noCOB.fam \
-              --minGenotypeQuality 20 --majorAlleleFirst
+#java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToBinaryPed \
+#              -R ${ref} -V ${input_data}_noCOB.vcf -m ${Pheno} \
+#              -bed ${input_data}_alt_pheno_noCOB.bed \
+#              -bim ${input_data}_alt_pheno_noCOB.bim \
+#              -fam ${input_data}_alt_pheno_noCOB.fam \
+#              --minGenotypeQuality 20 --majorAlleleFirst
 
 ###### alt-pheno APA & BAM only
-java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants \
-              -R ${ref} -V ${input_data}.vcf \
-              -se 'APA_[0-9]{4}' -se 'BAM_[0-9]{4}' -o ${input_data}_APA-BAM.vcf
+#java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants \
+#              -R ${ref} -V ${input_data}.vcf \
+#              -se 'APA_[0-9]{4}' -se 'BAM_[0-9]{4}' -o ${input_data}_APA-BAM.vcf
 
-java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToBinaryPed \
-              -R ${ref} -V ${input_data}_APA-BAM.vcf -m ${Pheno} \
-              -bed ${input_data}_alt_pheno_APA-BAM.bed \
-              -bim ${input_data}_alt_pheno_APA-BAM.bim \
-              -fam ${input_data}_alt_pheno_APA-BAM.fam \
-              --minGenotypeQuality 20 --majorAlleleFirst
+#java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToBinaryPed \
+#              -R ${ref} -V ${input_data}_APA-BAM.vcf -m ${Pheno} \
+#              -bed ${input_data}_alt_pheno_APA-BAM.bed \
+#              -bim ${input_data}_alt_pheno_APA-BAM.bim \
+#              -fam ${input_data}_alt_pheno_APA-BAM.fam \
+#              --minGenotypeQuality 20 --majorAlleleFirst
 
 ###### alt-pheno MOV & BAM only
-java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants \
-              -R ${ref} -V ${input_data}.vcf \
-              -se 'MOV_[0-9]{4}' -se 'BAM_[0-9]{4}' -o ${input_data}_MOV-BAM.vcf
+#java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants \
+#              -R ${ref} -V ${input_data}.vcf \
+#              -se 'MOV_[0-9]{4}' -se 'BAM_[0-9]{4}' -o ${input_data}_MOV-BAM.vcf
 
-java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToBinaryPed \
-              -R ${ref} -V ${input_data}_MOV-BAM.vcf -m ${Pheno} \
-              -bed ${input_data}_alt_pheno_MOV-BAM.bed \
-              -bim ${input_data}_alt_pheno_MOV-BAM.bim \
-              -fam ${input_data}_alt_pheno_MOV-BAM.fam \
-              --minGenotypeQuality 20 --majorAlleleFirst
+#java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToBinaryPed \
+#              -R ${ref} -V ${input_data}_MOV-BAM.vcf -m ${Pheno} \
+#              -bed ${input_data}_alt_pheno_MOV-BAM.bed \
+#              -bim ${input_data}_alt_pheno_MOV-BAM.bim \
+#              -fam ${input_data}_alt_pheno_MOV-BAM.fam \
+#              --minGenotypeQuality 20 --majorAlleleFirst
 
 # email me
 echo "." | mail -s "The binaryped job is finishing" ${USER}@msu.edu

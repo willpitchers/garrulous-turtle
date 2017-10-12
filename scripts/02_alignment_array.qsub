@@ -1,5 +1,5 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=8,walltime=04:00:00,mem=32gb
+#PBS -l nodes=1:ppn=4,walltime=04:00:00,mem=60gb
 #PBS -N Align_${PBS_ARRAYID}
 #PBS -j oe
 #PBS -M pitchers@msu.edu
@@ -12,14 +12,15 @@
 
 
 #Set manximum number of jobs for this run
-MAXJOBID=767
+MAXJOBID=1079
 
 #The JOBSCRIPT variable should be the name of this script
-JOBSCRIPT=alignment_array.qsub
+JOBSCRIPT=02_alignment_array.qsub
 
 ## Set up some variables
 # where do the files live
-dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6
+# dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6/
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline7
 ref=/mnt/ls15/scratch/groups/efish/P_kings_genome/supercontigs.fasta
 
 # Current job number
@@ -47,9 +48,9 @@ module load bwa/0.7.12.r1044
 # the BWA command -- the 'if' statement decides whether the alignment should be single or paired-end
 if [ `grep -Eo 'pe' <<< $(echo ${thisfile})` ]
 then
-  bwa mem -M -T 40 -R ${thisTAG} ${ref} ${thisfile} `basename ${thisfile} R1_pe.trimmed.fq`R2_pe.trimmed.fq > `basename ${thisfile} .trimmed.fq`.aligned.sam
+  bwa mem -t 4 -M -T 40 -R ${thisTAG} ${ref} ${thisfile} `basename ${thisfile} R1_pe.trimmed.fq`R2_pe.trimmed.fq > `basename ${thisfile} .trimmed.fq`.aligned.sam
 else
-  bwa mem -M -T 40 -R ${thisTAG} ${ref} ${thisfile} > `basename ${thisfile} .trimmed.fq`.aligned.sam
+  bwa mem -t 4 -M -T 40 -R ${thisTAG} ${ref} ${thisfile} > `basename ${thisfile} .trimmed.fq`.aligned.sam
 fi
 
 NEXT=$(( ${n} + 200 ))

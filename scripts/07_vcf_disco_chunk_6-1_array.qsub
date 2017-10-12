@@ -28,6 +28,7 @@ fi
 #Set manximum number of jobs for this run
 MAXJOBID=`wc -l indices.list | cut -d' ' -f 1`
 
+module load Java/1.8.0_31
 module load GATK/3.7.0
 
 # select a chunk
@@ -38,9 +39,9 @@ bamfiles=(*_all_libraries.bam)
 
 samples=`for i in "${bamfiles[@]}" ; do echo -I ${i} ; done | xargs`
 
-outputfilename=all_fish_`date '+%d_%m_%Y'`_slice_${n}.vcf
+outputfilename=all_fish_vcf_slice_${n}.vcf
 
-if [ ! -f V6-1_chunks/all_fish*slice_${n}.vcf ]
+if [ ! -f V6-1_chunks/all_fish_vcf_slice_${n}.vcf ]
     then
     # # the call to the GATK HaplotypeCaller
     java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T HaplotypeCaller \
@@ -52,22 +53,32 @@ if [ ! -f V6-1_chunks/all_fish*slice_${n}.vcf ]
                   --num_threads 1 --num_cpu_threads_per_data_thread 4
 fi
 
+# remove output where GATK fails after writing the header only
+slice_out_length=`wc -l V6-1_chunks/all_fish_vcf_slice_70.vcf | cut -d' ' -f 1`
+
+if [ ! ${slice_out_length} -gt 4696 ]
+	then
+	rm V6-1_chunks/${outputfilename}
+fi
+
 # Calculate next job to run
 NEXT=$(( ${n} + 200 ))
 
-#Check to see if next job is past the maximum job id
+# Check to see if next job is past the maximum job id
 if [ ${NEXT} -le ${MAXJOBID} ]
 then
     cd ${PBS_O_WORKDIR}
     qsub -t ${NEXT} ${JOBSCRIPT}
 fi
 
-#Check to see if this is the last job and email user
+# Check to see if this is the last job and email user
+# the last job is NOT always the last one to *finish* -- I ought to make this more reliable....
 if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The vcf_discovery 6.1 ARRAY is finishing" ${USER}@msu.edu
     cd ${PBS_O_WORKDIR}
-    qsub 08_merge_all_vcfs.qsub
+	qsub slice_check.qsub
+#    qsub 08_merge_all_vcfs.qsub
 fi
 
 #Print out the statistics for this job

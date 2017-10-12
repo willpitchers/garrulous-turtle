@@ -1,5 +1,5 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=8,walltime=02:00:00,mem=32gb,feature='intel16'
+#PBS -l nodes=1:ppn=2,walltime=04:00:00,mem=32gb
 #PBS -N Dedup_${PBS_ARRAYID}
 #PBS -j oe
 #PBS -M pitchers@msu.edu
@@ -7,15 +7,14 @@
 #PBS -r n
 #PBS -t 0-200
 
-#Set manximum number of jobs for this run
-MAXJOBID=767
 
 #The JOBSCRIPT variable should be the name of this script
 JOBSCRIPT=03_deduplication_array.qsub
 
 ## Set up some variables
 # where do the files live
-dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6
+# dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6/
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline7/
 ref=/mnt/ls15/scratch/groups/efish/P_kings_genome/supercontigs.fasta
 
 # Current job number
@@ -25,6 +24,10 @@ cd ${dir}
 filelist=(*.aligned.sam)
 thisfile=${filelist[${n}]}
 
+#Set manximum number of jobs for this run
+MAXJOBID=`echo ${#filelist[@]}`
+
+# Load PICARDtools
 module load picardTools/1.89
 
 # the PICARD commands – I could probably pipe then together, but this way less is lost if we crash
@@ -49,7 +52,7 @@ if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The PICARDTools JOB ARRAY is finishing" ${USER}@msu.edu
     cd ${PBS_O_WORKDIR}
-    qsub 04_base_score_recalibration_array.qsub
+#    qsub 04_base_score_recalibration_array.qsub
 fi
 
 #Print out the statistics for this job
