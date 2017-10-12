@@ -115,7 +115,7 @@ Once data reaches the **Statistical Analysis** stage it may become necessary for
 
 
 
----
+
 
 ### File Flow
   1. 512 `..fastq.gz` files
@@ -128,16 +128,16 @@ Once data reaches the **Statistical Analysis** stage it may become necessary for
 
 
 ### Tools & Version
-  - Trimmomatic/0.33
+  - [Trimmomatic/0.33]( http://www.usadellab.org/cms/?page=trimmomatic )
   - Java/1.8.0_31
-  - bwa/0.7.12.r1044
+  - [bwa/0.7.12.r1044]( http://bio-bwa.sourceforge.net/bwa.shtml )
   - picardTools/1.89
   - SAMTools/1.3.1
-  - GATK/3.7.0
+  - [GATK/3.7.0]( https://software.broadinstitute.org/gatk/ )
   - R/3.2.0
   - tabix/0.2.6
-  - vcftools/0.1.14
-  - plink/1.9
+  - [vcftools/0.1.14]( https://vcftools.github.io/man_latest.html )
+  - [plink/1.9]( https://www.cog-genomics.org/plink/1.9/ )
 
 
 

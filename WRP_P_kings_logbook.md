@@ -158,7 +158,7 @@ Saturday, 3rd October 2015
 
 Sunday, 4 October 2015
 
-  - Found a *bizarre* bug whereeby the colour-coding in my shell settings was causing `bwa mem` to add colour-code escaped characters to the outputed `..sam` files (but only sometimes because it wants me to doubt my sanity). I have edited my script to pass the call to named variables in the `bwa mem` command through `sed` to trip out any color-codes that make it that far.
+  - Found a *bizarre* bug whereby the colour-coding in my shell settings was causing `bwa mem` to add colour-code escaped characters to the outputed `..sam` files (but only sometimes because it wants me to doubt my sanity). I have edited my script to pass the call to named variables in the `bwa mem` command through `sed` to trip out any color-codes that make it that far.
   - Now re-re-running.
 
 
@@ -166,7 +166,7 @@ Wednesday, 7 October 2015
 
   - FTP-ed the replacement `.bam` files from the replacement 'Original_data' set to the lab NAS drive for cold storage.
   - pipe has run unsupervised through trimming, alignment, indexing, sorting, deduping, indel realignment and base recalibration! ...but some files seem to have been dropped on the way.
-  - I wrote `find_missing_files.sh` to list what's missing... 3 fastq files are weird in a way that breaks Picard. Investigating...
+  - I wrote `find_missing_files.sh` to list what's missing... 3 fastq files are weird in a way that s Picard. Investigating...
 
 
 Thursday, 8 October 2015
@@ -299,8 +299,9 @@ Week of 14th – 18th December
 
 21st December – 1st January
 
-  - Xmas break week -- conveniently enough the iCER staff have partially shut down the HPC to fix some problem with scratch... inconveniently, that is where all our data lives.
+  - Xmas  week -- conveniently enough the iCER staff have partially shut down the HPC to fix some problem with scratch... inconveniently, that is where all our data lives.
 
+---
 
 Week of 4th – 8th January
 
@@ -335,17 +336,17 @@ Week of 25th – 29th January
 Week of 1st – 5th February
 
   - rewrote `PLINK_assoc_results_PostBS.Rmd` report
-  - worked out how to get `BreakDancer` running...
-  - `BreakDancer` run appears not to have finished cleanly... the problem seems to be in the `.bam` files. Investigating...
+  - worked out how to get `Dancer` running...
+  - `Dancer` run appears not to have finished cleanly... the problem seems to be in the `.bam` files. Investigating...
 
 
 Week of 8th – 12th February
 
-  - so BreakDancer seems to fail due to a missing end of file (EOF) marker on one of the bam files.
+  - so Dancer seems to fail due to a missing end of file (EOF) marker on one of the bam files.
       - I'm backtracking along my pipeline to see when this got dropped...
       - I now suspect this may the result of PICARD & SAMTools disagreeing about what a `.bam` file *ought* to look like...
-      - I'm running a test of BreakDancer on a `.bam` file that SAMTools hasn't touched.
-  - BreakDancer repeatedly fails to finish the run, still blaming EOF marker problems...
+      - I'm running a test of Dancer on a `.bam` file that SAMTools hasn't touched.
+  - Dancer repeatedly fails to finish the run, still blaming EOF marker problems...
   - while I'm trying to discover the root of the BAM EOF problem, I'm also setting up jobs for a 2nd GATK vcf-bootstrap
 
 
@@ -369,13 +370,13 @@ Week of 22nd – 26th February
       - this run failed seemingly because of a *2nd* [typo](https://msuefishlab.slack.com/files/willpitchers/F0NS88DHU/specimens_for_genome_reseq_wp.xlsx)...
     - set GWAS mk.3 running 24/02/2016
       - *this* run failed with `FEXACT error 3` message... message appears unknown to the FAQ.
-  - trying plan E re: BreakDancer `.bam` EOF problem...
+  - trying plan E re: Dancer `.bam` EOF problem...
 
 
 Week of 29th Feb. – 4th March
 
-  - BreakDancer still failing... got as far as sample BAVA_6623. I am going to back-track to the recalibration step to (hopefully) find where the file got truncated/lost its EOF.
-    - there seem to be quite a few of the original pool of 768 bam files that left the recalibration step with a malformed EOF (but not severely enough to break the variant caller)... checking them all.
+  - Dancer still failing... got as far as sample BAVA_6623. I am going to back-track to the recalibration step to (hopefully) find where the file got truncated/lost its EOF.
+    - there seem to be quite a few of the original pool of 768 bam files that left the recalibration step with a malformed EOF (but not severely enough to  the variant caller)... checking them all.
   - the HPC is replacing a rack of storage, so there's been much waiting/crashing.
 
 
@@ -431,7 +432,7 @@ Week of 16th - 20th May
     - build fake vcf rows -> append to subset of real vcf file
     - use vcftools to convert altered vcf file -> plink files
     - use awk to edit phenotypes in doctored plink files –> run plink
-  - We think that a proportion of the apparently missing-data codes in the multi-individual vcf files may in fact represent homozygous loci for the reference allele... [seqanswers](http://seqanswers.com/forums/archive/index.php/t-28325.html) suggests that this is a know 'feature' of GATK.
+  - We think that a proportion of the apparently missing-data codes in the multi-individual vcf files may in fact represent homozygous loci for the reference allele... [seqanswers](http://seqanswers.com/forums/archive/index.php/t-28325.html) suggests that this is a known 'feature' of GATK.
     - a few hours of poking through manuals/googling suggests that the best way to fix this is to detour around the problem by moving the coalescence-of-individuals point further up the pipeline.
     - 1st attempt: coalesce individuals as recalibrated BAM files immediately prior to vcf discovery run..
       - NB: using `samtools merge` sequentially to merge e.g. 1.bam + 2.bam + 3.bam gives identical (i.e. no `diff`) results to merging 1.bam + 2.bam, followed by merging 1+2.bam + 3.bam (tested on Shockly with SAMtools/0.1.19)
@@ -528,20 +529,20 @@ Week of 11th-15th
   - copying all the `..g.vcf` files over to Shockly so I can run there...
     - in addition to md5sum-checking the transfer, I'm double-checking files first with `java -Xmx30g -jar /home/GATK/GenomeAnalysisTK.jar -T ValidateVariants -R supercontigs.fasta --validationTypeToExclude ALL -V APA_6675_all_libraries.bam.g.vcf`
   - on Tuesday 12th I ran out of patience and went to iCER to ask for help. Chun-Min Chang sat with me and we re-ran my tests together. He said that the most recent failure of my job was "probably due to a problem we had with scratch last night"
-  - BREAKTHROUGH: the job appears to have run correctly in the small hours of the morning Wednesday 13th!
+  - THROUGH: the job appears to have run correctly in the small hours of the morning Wednesday 13th!
     - running PLINK pipeline: "File contains 31896675 entries and 63 individuals"
       - re-running the analysis
       - `vcftools --vcf all_individuals_12_07_16.out.vcf --out "tophits_all_individuals_12_07_16.out" --positions ${DIR}top_hit_variants --recode`
       - `vcftools --vcf tophits_all_individuals_12_07_16.out.recode.vcf --out "tophits_all_individuals_12_07_16" --freq`
       - output the genotype-by-individual (GT) format using `vcftools --vcf tophits_all_individuals_12_07_16.out.recode.vcf --extract-FORMAT-info GT --out all_individuals_12_07_16`
       - reformat this output using `cat all_individuals_12_07_16.GT.FORMAT | sed s/1\\/1/2/g | sed s/0\\/0/0/g | sed s/0\\/1/1/g | sed s/\\.\\/\\./NA/g > all_individuals_12_07_16.GT.FORMAT.recode`
-
-`grep "Scaffold81" all_individuals_12_07_16.20x4.out.vcf > scaf81.list`
-
-`for i in {0..4667} ; do grep "Scaffold${i}[[:space:]]" all_individuals_12_07_16.out.vcf | tail -1 > scaf.test ; done`
+      - `grep "Scaffold81" all_individuals_12_07_16.20x4.out.vcf > scaf81.list`
+      - `for i in {0..4667} ; do grep "Scaffold${i}[[:space:]]" all_individuals_12_07_16.out.vcf | tail -1 > scaf.test ; done`
 
 
-  - 15 July vcf/PLINK testing: association analysis seems to have some weirdness – SNPs called that are at coords > length of scaffold...
+  - 15 July
+
+    - vcf/PLINK testing: association analysis seems to have some weirdness – SNPs called that are at coords > length of scaffold...
     - `head -9000 all_individuals_12_07_16.out.vcf > plinky/test.vcf && tail -1000 all_individuals_12_07_16.out.vcf >> plinky/test.vcf` gives me a 10000 row vcf file with 5230 sites and all 63 individuals
     - `java -Xmx20g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T ValidateVariants -R ../../P_kings_genome/supercontigs.fasta --validationTypeToExclude ALL -V test.vcf` confirms that the vcf is valid from GATK's POV
     - `vcftools --vcf test.vcf --out test --plink` makes .ped and .map files. These seem to be correctly formed.
@@ -561,16 +562,11 @@ Week of 18th-22nd July
   - just APA/BAM: `java -Xmx20g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants -R ../P_kings_genome/supercontigs.fasta -V all_individuals_12_07_16.20x4.out.vcf -o APA_BAM_only_12_07_16.20x4.out.vcf -sn 6675 -sn 6676 -sn 6677 -sn 6678 -sn 6679 -sn 6680 -sn 6681 -sn 6682 -sn 6683 -sn 6684 -sn 6685 -sn 6737 -sn 6494 -sn 6496 -sn 6497 -sn 6498 -sn 6499 -sn 6500 -sn 6501 -sn 6502 -sn 6597 -sn 6598 -sn 6599 -sn 6602 -sn 6603 -sn 6604 -sn 6605`
 
 
-Week of 25–29th July
-
-  -
-
-
-Week of 1st-5th August
+Week of 29th July - 5th August
 
   - The goal of this week is to make sense of the lack of overlap among the lists of 'top hits' from the four different PLINK association runs...
   - bootstrap things...
-  -
+
 
 Week of 8th August
 
@@ -624,12 +620,10 @@ Week of August 15th
     - to fix this it they [recommend](http://gatkforums.broadinstitute.org/gatk/discussion/2909) using picardTools' `AddOrReplaceReadGroups`... added `fix_readgroup_array.qsub` script to run between the deduplication and the indel realignment steps.
       - but *of course* the scratch space on the HPCC is doing the I/O error thing where it can't glob files correctly... delays.
       - I sent a list of the node IDs for the failed jobs to the iCER team (using `grep Owner Dedup_* | cut -d '@' -f 2 | uniq > failed.job.nodes`)
-    -
+
 
 Week of August 22nd
 
-  - things!
-  -
   - [ABySS](http://computing.bio.cam.ac.uk/local/doc/abyss.html#scaffolding) is now able to do super-scaffolding with long reads. I'm going to try it with our reference genome and the Bionano map:
     - `abyss-pe np=8 k=64 name=new_P_kings lib='pe1' pe1='../../P_kings_genome/supercontigs.fasta' long='../super_scaffold/Para_king_2015_013_20_40_15_90_3_superscaffold.fasta_contig.fasta'`
     - then to compare the old vs. new assemblies using BUSCO...
@@ -637,6 +631,7 @@ Week of August 22nd
     - to run BUSCO, need to load `BLAST+`, `augustus`, `HMMER` modules
     - `python ~/BUSCO_v1.22/BUSCO_v1.1b.py -o P_k_genome_test -in /mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta -l /mnt/home/pitchers/vertebrata/ –m genome`
     - `python ~/BUSCO_v1.22/BUSCO_v1.1b.py -o P_k_genome_test -in /mnt/scratch/pitchers/eFISH/bionano/Abyss_scaffolded_assembly/new_P_kings-1.fa -l /mnt/home/pitchers/vertebrata/ –m genome`
+
 
 Week of August 29th
 
@@ -652,6 +647,7 @@ Week of August 29th
     - make vcf subset with *only* APA & BAM `bcftools view -Ov -s APA_6675,APA_6676,APA_6677,APA_6678,APA_6679,APA_6680,APA_6681,APA_6682,APA_6683,APA_6684,APA_6685,APA_6737,BAM_6494,BAM_6496,BAM_6497,BAM_6498,BAM_6499,BAM_6500,BAM_6501,BAM_6502,BAM_6597,BAM_6598,BAM_6599,BAM_6602,BAM_6603,BAM_6604,BAM_6605 all_individuals_29_08_16.noloc.out.vcf > only_APA_and_BAM_29_08_16.noloc.out.vcf`
     - make vcf subset *without* COB `bcftools view -Ov -s ^COB_4004,COB_4006,COB_4018,COB_4019,COB_4027,COB_4029 all_individuals_29_08_16.noloc.out.vcf > without_COB_29_08_16.noloc.out.vcf`
   - run `GATK/GenotypeGVCFs` *in parallel* on all 63 fish for the sake of comparison
+
 
 Week of 6th September
 
@@ -678,6 +674,7 @@ Week of 6th September
         - wondering which sites appear in both files, but with different alternate allele... `awk '{ if ( $3 == "B" && $5 != $6 )  print $1 "\t" $2 "\t" $3 "\t" $4 "\t" $5 "\t" $6 }' out.diff.sites_in_files >> out.diff.sites_varible_between_files`
   - also added `pop_level_vcf_discovery.qsub` script to call genotypes on a per-population basis...
 
+
 Week of 12-16th September
 
   - ran a few tests of `pop_level_vcf_discovery.qsub` over the weekend. These are going to be long-running jobs. I have them queued on the HPC to run for 24hrs – currently due to start on the 18/19th. 1st job is also running on Shockly as a full-scale test. (these jobs started early as it happened: 15 September 2016)
@@ -700,7 +697,8 @@ Week of 12-16th September
           - `..aligned.rg.sam` fails with 'MISMATCH_READ_LENGTH_AND_QUALS_LENGTH'...
           - but re-running the `$PICARD/AddOrReplaceReadGroups` command manually yields a `..aligned.rg.sam` that passes (!?) This is odd. Testing again with `BAM_6498_ATTACTCG-GGCTCTG_L002_R1_pe.fq`...
           - these files produce `..aligned.rg.sam` outputs that pass, but contain only a header!
-          - the header breaks (at least in this test case) because the `$PICARD/AddOrReplaceReadGroups` tool meets an empty/missing read with an incomplete header... the plot thickens..
+          - the header s (at least in this test case) because the `$PICARD/AddOrReplaceReadGroups` tool meets an empty/missing read with an incomplete header... the plot thickens..
+
 
 Week of 19-23rd September
 
@@ -725,6 +723,8 @@ Week of 19-23rd September
   - OK. change of plans... using `split` is much faster than using `samtools view` for the files I was testing on, but to chunk a merged `..bam` file covering the full genome and all 63 fish requires it to run for ~12 hrs. I made 3 attempts but in every case the job encountered an I/O error long before nearing completion... `samtools view` it is!
     - the way I've set this up is to build a script - `write_scaf_indices.sh` - that generates a list - `indices.list` - of scaffolds and coordinates that can be read into `vcf_disco_chunk_array.qsub`.
     - `write_scaf_indices.sh` has a setting for the max. length of chunk, and writes out scaf-subsets where scaf-length > chunk-length, and doubles-up or octuples-up scafs where scaf-length << chunk-length...
+
+====
 
 Week of 26-30th September
 
@@ -757,50 +757,21 @@ Week of 10-14th October
 
   - 124820 V5-2 vcf files
   - find duplicate files with ``ls all_fish_*slice_*.vcf > foo && for i in `cat foo` ; do slice=`echo ${i} | cut -d'_' -f 7`;  if [ `ls *slice_${slice} | wc -l` -gt 1 ]; then echo ${i}; fi; done``
+  - `java -Xmx10g -cp /opt/software/GATK/3.5.0/GenomeAnalysisTK.jar org.broadinstitute.gatk.tools.CatVariants -R ${ref} ${samples} -out all_fish_version_5-2_HPC.vcf`
+  - **Stopping points**
+    - V5-2_chunks/IVI_4897/IVI_4897_10_2016_slice_598.g.vcf x
+    - V5-2_chunks/MOV_6725/MOV_6725_10_2016_slice_1211.g.vcf x
+    - V5-2_chunks/MOV_6724/MOV_6724_10_2016_slice_1397.g.vcf x
+    - V5-2_chunks/BAVA_6621/BAVA_6621_10_2016_slice_1423.g.vcf x
+    - V5-2_chunks/MOV_6724/MOV_6724_10_2016_slice_1382.g.vcf x
+    - V5-2_chunks/BAVA_6627/BAVA_6627_10_2016_slice_1367.g.vcf x
+    - V5-2_chunks/COB_4029/COB_4029_10_2016_slice_1375.g.vcf x
+    - V5-2_chunks/MOV_6716/MOV_6716_10_2016_slice_1404.g.vcf x
+    - V5-2_chunks/MOV_6718/MOV_6718_10_2016_slice_1365.g.vcf x
+    - V5-2_chunks/MOV_6717/MOV_6717_10_2016_slice_1374.g.vcf x
+    - V5-2_chunks/MOV_6722/MOV_6722_10_2016_slice_1432.g.vcf x
+    - V5-2_chunks/MOV_6720/MOV_6720_10_2016_slice_1202.g.vcf x
 
-
-java -Xmx10g -cp /opt/software/GATK/3.5.0/GenomeAnalysisTK.jar org.broadinstitute.gatk.tools.CatVariants -R ${ref} ${samples} -out all_fish_version_5-2_HPC.vcf
-
-
-**Stopping points**
-V5-2_chunks/IVI_4897/IVI_4897_10_2016_slice_598.g.vcf x
-V5-2_chunks/MOV_6725/MOV_6725_10_2016_slice_1211.g.vcf x
-V5-2_chunks/MOV_6724/MOV_6724_10_2016_slice_1397.g.vcf x
-V5-2_chunks/BAVA_6621/BAVA_6621_10_2016_slice_1423.g.vcf x
-V5-2_chunks/MOV_6724/MOV_6724_10_2016_slice_1382.g.vcf x
-V5-2_chunks/BAVA_6627/BAVA_6627_10_2016_slice_1367.g.vcf x
-V5-2_chunks/COB_4029/COB_4029_10_2016_slice_1375.g.vcf x
-V5-2_chunks/MOV_6716/MOV_6716_10_2016_slice_1404.g.vcf x
-V5-2_chunks/MOV_6718/MOV_6718_10_2016_slice_1365.g.vcf x
-V5-2_chunks/MOV_6717/MOV_6717_10_2016_slice_1374.g.vcf x
-V5-2_chunks/MOV_6722/MOV_6722_10_2016_slice_1432.g.vcf x
-V5-2_chunks/MOV_6720/MOV_6720_10_2016_slice_1202.g.vcf x
-
-n=1798
-thisindex=`head -${n} indices.list | tail -1`
-readarray thesefiles < samples.list
-ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
-for thisfile in ${thesefiles[@]}
-    do
-    outputfilename=${thisfile}_`date '+%m_%Y'`_slice_${n}.g.vcf
-    outdir=V5-2_chunks/${thisfile}
-    mkdir -p ${outdir}
-
-    if [ ! -f V5-2_chunks/${outputfilename} ]
-    then
-    # # the call to the GATK HaplotypeCaller
-    java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T HaplotypeCaller \
-                -R ${ref} -I ${thisfile}_all_libraries.bam \
-                ${thisindex} \
-                --genotyping_mode DISCOVERY \
-                -stand_emit_conf 10 -stand_call_conf 30 \
-                -o ${outdir}/${outputfilename} \
-                --output_mode EMIT_ALL_CONFIDENT_SITES \
-                --num_threads 1 --num_cpu_threads_per_data_thread 6 \
-                --emitRefConfidence GVCF \
-                --sample_name ${thisfile}
-    fi
-done
 
 Week of 17th-21st October
 
@@ -862,7 +833,7 @@ Week of 31st Oct. - 4th Nov.
   - latest 5.2 discovery array seems to be running well, but after **3** complete runs, there are still **293** `..g.vcf` files missing.
     - I'm re-running a couple of these interactively to see if I can find out what's going on...
       - 1 thing to note: the `readarray` command seems to not be stripping whitespace. Added the `-t` flag to force this behaviour...
-      - 2ndarily, one of the java error-checks suggested by AK seems to be breaking my error-checking `if` statements... I'm commenting it out for the nonce
+      - 2ndarily, one of the java error-checks suggested by AK seems to be ing my error-checking `if` statements... I'm commenting it out for the nonce
       - so there also appear to be a pair of version-specific GATK issues to work around:
         - the "v3.6-0-g89b7209" version cannot handle >20 variants at a locus. This appears to be the cause of some of the failed `HaplotypeCaller` jobs, specifically e.g. slice 1807 which failed for all fish. Presumably these regions are just particularly variant-rich
         - the "vnightly-2016-11-01-gaca5d7b" nightly build handles many multiple alleles handily, but does not include (strangely) the ability to use the '-gvcf' flag for `ValidateVariants`.
@@ -911,14 +882,13 @@ Week of 14 – 18th Nov.
 
 Week of 21 – 25th Nov.
 
-  - HPC is giving me error messages about having no free space (won't even let me delete old files), so I scp-ing to shockly today (Monday)... [*Update*](http://icer.msu.edu/service-status)
+  - HPC is giving me error messages about having no free space (won't even let me delete old files), so I'm scp-ing to shockly today (Monday)... [*Update*](http://icer.msu.edu/service-status)
     - subsetting out the APA & BAM individuals from the v5.1 vcf file with: `java -Xmx30g -jar /home/GenomeAnalysisTK-3.6/GenomeAnalysisTK.jar -T SelectVariants -R ../individual_bams/supercontigs.fasta -V all_fish_version_5-1_HPC.vcf -o APA_BAM_only_Nov_HPC.vcf -sn APA_6675 -sn APA_6676 -sn APA_6677 -sn APA_6678 -sn APA_6679 -sn APA_6680 -sn APA_6681 -sn APA_6682 -sn APA_6683 -sn APA_6684 -sn APA_6685 -sn APA_6737 -sn BAM_6494 -sn BAM_6496 -sn BAM_6497 -sn BAM_6498 -sn BAM_6499 -sn BAM_6500 -sn BAM_6501 -sn BAM_6502 -sn BAM_6597 -sn BAM_6598 -sn BAM_6599 -sn BAM_6602 -sn BAM_6603 -sn BAM_6604 -sn BAM_6605`
     - subsetting out the IVI & MOV individuals from the v5.1 vcf file with: `java -Xmx30g -jar /home/GenomeAnalysisTK-3.6/GenomeAnalysisTK.jar -T SelectVariants -R ../individual_bams/supercontigs.fasta -V all_fish_version_5-1_HPC.vcf -o IVI_MOV_only_Nov_HPC.vcf -sn IVI_3923 -sn IVI_4816 -sn IVI_4832 -sn IVI_4834 -sn IVI_4893 -sn IVI_4894 -sn IVI_4895 -sn IVI_4896 -sn IVI_4897 -sn IVI_4921 -sn IVI_4925 -sn MOV_6716 -sn MOV_6717 -sn MOV_6718 -sn MOV_6719 -sn MOV_6720 -sn MOV_6721 -sn MOV_6722 -sn MOV_6723 -sn MOV_6724 -sn MOV_6725`
     - subsetting out the IVI & APA individuals from the v5.1 vcf file with: `java -Xmx30g -jar /home/GenomeAnalysisTK-3.6/GenomeAnalysisTK.jar -T SelectVariants -R ../individual_bams/supercontigs.fasta -V all_fish_version_5-1_HPC.vcf -o APA_IVI_only_Nov_HPC.vcf -sn APA_6675 -sn APA_6676 -sn APA_6677 -sn APA_6678 -sn APA_6679 -sn APA_6680 -sn APA_6681 -sn APA_6682 -sn APA_6683 -sn APA_6684 -sn APA_6685 -sn APA_6737 -sn IVI_3923 -sn IVI_4816 -sn IVI_4832 -sn IVI_4834 -sn IVI_4893 -sn IVI_4894 -sn IVI_4895 -sn IVI_4896 -sn IVI_4897 -sn IVI_4921 -sn IVI_4925`
     - subsetting out the BAM & BAVA individuals from the v5.1 vcf file with: `java -Xmx30g -jar /home/GenomeAnalysisTK-3.6/GenomeAnalysisTK.jar -T SelectVariants -R ../individual_bams/supercontigs.fasta -V all_fish_version_5-1_HPC.vcf -o BAVA_BAM_only_Nov_HPC.vcf -sn BAM_6494 -sn BAM_6496 -sn BAM_6497 -sn BAM_6498 -sn BAM_6499 -sn BAM_6500 -sn BAM_6501 -sn BAM_6502 -sn BAM_6597 -sn BAM_6598 -sn BAM_6599 -sn BAM_6602 -sn BAM_6603 -sn BAM_6604 -sn BAM_6605 -sn BAVA_6619 -sn BAVA_6620 -sn BAVA_6621 -sn BAVA_6622 -sn BAVA_6623 -sn BAVA_6624 -sn BAVA_6625 -sn BAVA_6626 -sn BAVA_6627`
   - re-ran the PLINK association on the subset vcfs. IVI vs MOV is a comparison that we can't make with this data as all IVI & MOV fish are triphasic...
   - Updating the installation or R on Shockly... some weirdness occurring...
-  -
 
 
 Week 28th Nov. – 2nd Dec.
@@ -964,22 +934,11 @@ Week of Dec. 5-10th
   - for the `ALLELIC` file:
 
 
-Week of Dec. 12-16th
-
-  -
-
-
- ––– Break for the Holidays: 19th Dec. - 9th Jan. –––
-
-
-Week of 9-13th Jan. 2017
-
-  -
+ –––  for the Holidays: 12th Dec. - 9th Jan. –––
 
 
 Week of 16-20th Jan.
 
-  -
   - can we test biallelic-esque ref vs. not-ref as a way of shoehorning multi-allelic-ness
   - `bcftools norm all_fish_version_5-1_HPC.vcf.gz -o all_fish_version_5-1_HPC.NORMALIZED.vcf.gz` ?
   - `plink --file all_fish_version_5-1_HPC --freq --out all_fish_version_5-1_HPC.freq`
@@ -1007,72 +966,46 @@ Week of 30th Jan. – 3rd Feb.
       2. - 5. as above for other 4 hypothesis-wise tests
       6. comparison/ranking between p-vals from files 1-5
       7. analysis of p-val distribution
-
-
   - making a vcf subset using: `java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants -R ${ref} -V all_fish_version_5-1_HPC.vcf -o without_COB_5-1_HPC.2017.vcf -sn APA_6675 -sn APA_6676 -sn APA_6677 -sn APA_6678 -sn APA_6679 -sn APA_6680 -sn APA_6681 -sn APA_6682 -sn APA_6683 -sn APA_6684 -sn APA_6685 -sn APA_6737 -sn BAM_6494 -sn BAM_6496 -sn BAM_6497 -sn BAM_6498 -sn BAM_6499 -sn BAM_6500 -sn BAM_6501 -sn BAM_6502 -sn BAM_6597 -sn BAM_6598 -sn BAM_6599 -sn BAM_6602 -sn BAM_6603 -sn BAM_6604 -sn BAM_6605 -sn BAVA_6619 -sn BAVA_6620 -sn BAVA_6621 -sn BAVA_6622 -sn BAVA_6623 -sn BAVA_6624 -sn BAVA_6625 -sn BAVA_6626 -sn BAVA_6627 -sn IVI_3923 -sn IVI_4816 -sn IVI_4832 -sn IVI_4834 -sn IVI_4893 -sn IVI_4894 -sn IVI_4895 -sn IVI_4896 -sn IVI_4897 -sn IVI_4921 -sn IVI_4925 -sn MOV_6716 -sn MOV_6717 -sn MOV_6718 -sn MOV_6719 -sn MOV_6720 -sn MOV_6721 -sn MOV_6722 -sn MOV_6723 -sn MOV_6724 -sn MOV_6725`
 
 
 Week of 6-10th Feb.
 
   - quick-pic manhattan code: `assoc %>% filter( Scaf == "Scaffold858" ) %>% ggplot( aes( x=SNP, y=-log10( P )) ) + geom_point() + ylab( "-log(10) p value" ) + xlab( "BP coord" ) + ggtitle( "Scaffold 858" )`
-  -
   - maf settings and link to 'bands' in mahattan plots?
   - what happens if we bin *all* P0 as present?
   - what happens if we drop the mid-P0 individuals?
     - making a vcf subset using: `java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants -R ${ref} -V all_fish_version_5-1_HPC.vcf -o no_small_P0_5-1_HPC_2017.vcf -sn APA_6675 -sn APA_6676 -sn APA_6677 -sn APA_6678 -sn APA_6679 -sn APA_6680 -sn APA_6682 -sn APA_6683 -sn APA_6684 -sn APA_6685 -sn APA_6737 -sn BAM_6496 -sn BAM_6497 -sn BAM_6498 -sn BAM_6500 -sn BAM_6501 -sn BAM_6502 -sn BAM_6597 -sn BAM_6598 -sn BAM_6599 -sn BAM_6602 -sn BAM_6603 -sn BAM_6605 -sn BAVA_6619 -sn BAVA_6620 -sn BAVA_6621 -sn BAVA_6622 -sn BAVA_6623 -sn BAVA_6626 -sn BAVA_6627 -sn IVI_3923 -sn IVI_4816 -sn IVI_4832 -sn IVI_4834 -sn IVI_4893 -sn IVI_4894 -sn IVI_4895 -sn IVI_4896 -sn IVI_4897 -sn IVI_4921 -sn IVI_4925 -sn MOV_6716 -sn MOV_6717 -sn MOV_6718 -sn MOV_6719 -sn MOV_6720 -sn MOV_6721 -sn MOV_6722 -sn MOV_6723 -sn MOV_6724 -sn MOV_6725`
-  -
+  - can we filter out SNPs that are 'private' to populations?
+  - NB: microsat scaffs - 4,8,22,60,77
 
-
-can we filter out SNPs that are 'private' to populations?
-
-
-alignment rates
-pop gen
-microsat scaffs - 4,8,22,60,77
-
-vcftools to output *all* the stats
-
-  - `vcftools --vcf all_fish_version_5-1_HPC.vcf --out all_fish_version_5-1_HPC_out --freq`
-  - `vcftools --vcf all_fish_version_5-1_HPC.vcf --out all_fish_version_5-1_HPC_out --site-mean-depth`
-  - `vcftools --vcf all_fish_version_5-1_HPC.vcf --geno-depth`
-  - `vcftools --vcf all_fish_version_5-1_HPC.vcf --out all_fish_version_5-1_HPC_out --site-quality`
-  - `vcftools --vcf all_fish_version_5-1_HPC.vcf --out all_fish_version_5-1_HPC_out --SNPdensity 1000`
-  - `vcftools --vcf all_fish_version_5-1_HPC.vcf --out all_fish_version_5-1_HPC_out --hardy`
-    - outputs are `all_fish_version_5-1_HPC_out.frq`, `...ldpeth.mean`, `...ldepth`, `...gdepth`, `...lqual`, `...snpden` & `...hwe` respectively
-  - `depth_...` script to read these outputs and generate some plots summaries...
-
-
-'QD' over 'QUAL'
-
-follow hard-filter guidelines unless there's a good reason not to – then throw into PLINK again
-
-java -jar GenomeAnalysisTK.jar \
-     -R reference.fasta -T VariantsToTable \
-     -V file.vcf \
-     -F CHROM -F POS -F ID -F QUAL -F AC \
-     -o results.table
-
-`sed 's/0_//g' all_fish_version_5-1_HPC.assoc | sed s/":"/"_"/g > all_fish_version_5-1_HPC.assoc.in`
-`awk '{ print $0 "\t" $1 "_" $2 }' all_fish_version_5-1_HPC.vcf.stats.table > all_fish_version_5-1_HPC.stats.in`
-`sort -g -k 2 all_fish_version_5-1_HPC.assoc.in > all_fish_version_5-1_HPC.assoc.in.sorted`
-
-`sort -n -k 15 all_fish_version_5-1_HPC.stats.in > all_fish_version_5-1_HPC.vcf.stats.in.sorted`
-`sort -n -k 2 all_fish_version_5-1_HPC.assoc.in > all_fish_version_5-1_HPC.assoc.in.sorted`
-`join -1 2 -2 15 all_fish_version_5-1_HPC.assoc.in.sorted all_fish_version_5-1_HPC.vcf.stats.in.sorted > tacopark`
+  - vcftools to output *all* the stats:
+    - `vcftools --vcf all_fish_version_5-1_HPC.vcf --out all_fish_version_5-1_HPC_out --freq`
+    - `vcftools --vcf all_fish_version_5-1_HPC.vcf --out all_fish_version_5-1_HPC_out --site-mean-depth`
+    - `vcftools --vcf all_fish_version_5-1_HPC.vcf --geno-depth`
+    - `vcftools --vcf all_fish_version_5-1_HPC.vcf --out all_fish_version_5-1_HPC_out --site-quality`
+    - `vcftools --vcf all_fish_version_5-1_HPC.vcf --out all_fish_version_5-1_HPC_out --SNPdensity 1000`
+    - `vcftools --vcf all_fish_version_5-1_HPC.vcf --out all_fish_version_5-1_HPC_out --hardy`
+      - outputs are `all_fish_version_5-1_HPC_out.frq`, `...ldpeth.mean`, `...ldepth`, `...gdepth`, `...lqual`, `...snpden` & `...hwe` respectively
+    - `depth_...` script to read these outputs and generate some plots summaries...
+  - 'QD' over 'QUAL'
+  - follow hard-filter guidelines unless there's a good reason not to – then throw into PLINK again
+    - `java -jar GenomeAnalysisTK.jar -R reference.fasta -T VariantsToTable -V file.vcf -F CHROM -F POS -F ID -F QUAL -F AC -o results.table`
+    - `sed 's/0_//g' all_fish_version_5-1_HPC.assoc | sed s/":"/"_"/g > all_fish_version_5-1_HPC.assoc.in`
+    - `awk '{ print $0 "\t" $1 "_" $2 }' all_fish_version_5-1_HPC.vcf.stats.table > all_fish_version_5-1_HPC.stats.in`
+    - `sort -g -k 2 all_fish_version_5-1_HPC.assoc.in > all_fish_version_5-1_HPC.assoc.in.sorted`
+    - `sort -n -k 15 all_fish_version_5-1_HPC.stats.in > all_fish_version_5-1_HPC.vcf.stats.in.sorted`
+    - `sort -n -k 2 all_fish_version_5-1_HPC.assoc.in > all_fish_version_5-1_HPC.assoc.in.sorted`
+    - `join -1 2 -2 15 all_fish_version_5-1_HPC.assoc.in.sorted all_fish_version_5-1_HPC.vcf.stats.in.sorted > tacopark`
 
 
 Week of 13-17th
 
   - before filtering: 27871297 snps, & 5860821 indels --- after filtering: 26345714 snps, & 5572344 indels
   - filtered out 1525583 snps, & 288477 indels --- ~5.5% snps, & ~5% indels
-  -
-
   - loop over fish to produce quality density plots? ...wrote `loop_over_fishes.qsub` that calls `plot_depth_by_fish.R`
-  -
-
   - extract individual-fish quality scores from vcf with `vcftools --vcf all_fish_version_5-1_HPC.filtered.snps.vcf --extract-FORMAT-info GQ --out filtered_SNPs`
-
-  estimate of heterozygosity in *P. kingsleyae* 2.7e-2 – compare wild stickleback 1.43e−3, wild Medaka 1.5e-3...
+  - estimate of heterozygosity in *P. kingsleyae* 2.7e-2 – compare wild stickleback 1.43e−3, wild Medaka 1.5e-3...
 
     > Coefficients:                  Estimate Std. Error t value Pr(>|t|)
     > (Intercept)                   2.234e-01  2.125e-03 105.134  < 2e-16
@@ -1083,7 +1016,6 @@ Week of 13-17th
 
   - after looking at GQ distributions for each fish, decided to run association analyses with cut-offs at ≤20 and ≤25
     - to that end, wrote `plink_prep_w_filter.qsub` script – using vcftools rather than GATK to do the filtering, because the GATK `VariantsToBinaryPed` tool skips from `...vcf` to `...bed` etc. and I need a `...ped` (i.e. flat text file) in order to be able to add in the phenotype values
-    -
 
 
 Week of 20-25th
@@ -1137,28 +1069,19 @@ Week of 13-17th March
   - 1 vcf -> snps & indels separated -> 2 filtering thresholds -> 3 genotyping thresholds -> 6 hypothesis tests = 72 output files in 1 'set'...
     - dropping 50% genotyped analyses == 48 files now a 'set'
   - demonstrate the difference between GQ15 & GQ20? ...venn sets? p-val overlap by threshold?
-
-
-
-scaf 23 – manhat of dom geno rec trend fisher at GQ20 missing 75
-
-
-re-run assoc with mixed ind.s flipped to cases at miss 75 or 100 and GQ20
-
-plink --bfile all_fish_version_5-1_HPC.filtered.snps.GQ20.mix --allow-no-sex --geno 0.00 --allow-extra-chr --assoc fisher --ci 0.95 --pfilter 1 --test-missing --out all_fish_version_5-1_HPC.filtered.snps.GQ20.mix_geno100 --a2-allele all_fish_version_5-1_HPC.filtered.snps.GQ20.vcf 4 3 '#'
+  - Make manhattan plots for scaf 23 – panel by dom. geno. rec. trend, & fisher tests at GQ20, missing 75...
+  - re-run assoc with mixed ind.s flipped to cases at miss 75 or 100 and GQ20
+    - `plink --bfile all_fish_version_5-1_HPC.filtered.snps.GQ20.mix --allow-no-sex --geno 0.00 --allow-extra-chr --assoc fisher --ci 0.95 --pfilter 1 --test-missing --out all_fish_version_5-1_HPC.filtered.snps.GQ20.mix_geno100 --a2-allele all_fish_version_5-1_HPC.filtered.snps.GQ20.vcf 4 3 '#' `
 
 
 Week of 20-25th March
 
   - made new manhattan plots...
   - does GQ vary among individuals/pop.s?
-
-
-  SNP
-  Scaffold23:1042779
-
-  Deletion
-  Scaffold23:1042759
+  - check out:
+      - SNP Scaffold23:1042779
+      - Deletion Scaffold23:1042759
+  -   
 
 
 ----
@@ -1323,19 +1246,19 @@ Week of 29th May – 2nd June
 
   - at this point, we have tried so many different permutations (ha-ha!) of the association analysis that I'm getting confused... I'm going to need to spend some time tidying up
     - tidying/rationalization is timely – after talking with JG we agree that the best candidate list that we can obtain at this point is going to come from organized comparison of candidate intersects between analysis...
-  - 
+  -
 
 Week of 3th – 9th June
 
   - Added sections on comparison between analyses to `GWAS_methods_summary.Rmd`:
     - intersection plots to show how few SNPs are 'candidates' from multiple analyses
-    - EMP2 distributions to show the power drop of subset analyses 
+    - EMP2 distributions to show the power drop of subset analyses
     - we are *really* at full stretch to support any candidates when the results are this unstable...
   - Meeting with JG -- plan is to switch focus to pattern of pop. gen. stats for the nonce, plan for further sequencing
     - to that end, updated my `calc_Fst_array` script
     - ...and the `calc_TajD` script
     - new notebook -- `Fst_Analysis_P6.Rmd` -- added to keep pop gen type analyses together
-    
+
     - need to calculate pairwise LD too
     - can I set up LD & Fst calculations by p0p vs. p0a?
     - visualize the set-based logic
@@ -1353,11 +1276,11 @@ Week of 12th - 16th June
   - JG found realtionship between coverage & missingness...
     - are we filtering too agressively?
     - the GQ-genotype filter seems to cut deeper in IVI than other pops...
-    - 
+    -
   - ...
   - So, with a new canonical VCF **all** the downstream analyses will need to be re-run... also, indels need to be re-incorporated...
       - old VCFs zipped & cold-stored in `research/2015_genomic_data/P_kings_VCFs/`
-      - 
+      -
 
 
 Week 19th - 23rd June
@@ -1365,10 +1288,234 @@ Week 19th - 23rd June
   - tidying up old files in dropbox and HPC research space...
     - make sure all current scripts are git-logged
     - zip up and stash obsolete scripts/outputs...
-  - trying again to get `BreakDancer` to detect [structural variants...](http://gmt.genome.wustl.edu/packages/breakdancer/documentation.html)
+  - trying again to get `Dancer` to detect [structural variants...](http://gmt.genome.wustl.edu/packages/dancer/documentation.html)
     - looks like loooong run times for the 2nd step
     - attempted to install on Shockly... no success as yet (sadface)
       - dep.s on samtools and 'boost'... both of these installed without problem
-      - 
-    - `breakdancer_config.qsub` and `breakdancer_max.qsub` scripts added
-  
+      - seems to be some issue with the compiler. Tried 2 alternate compilers without success...
+    - `dancer_config.qsub` and `dancer_max.qsub` scripts added
+      -
+      - running with incrementally increasing runtimes to estimate hrs needed
+
+
+Week 26 - 30th June
+
+  - dancer workflow still has problems;
+    - I'm taking a VCF-chunk-type approach, slicing the single-fish BAM files into smaller bamfiles, then combining these to get ~1200 all-fish slices
+    - this process takes a good while, as for each slice I need to loop over 63 fish, then loop again to index these 1-fish-bam-slices, then they can be merged into an all-fish-bam-slice, then *that* needs to be indexed, then that can be fed into `dancer-config`
+-  Following JG's suggestion of scraping the literature for fish gwas to compare to
+
+
+Week 3rd - 7th July
+
+  - dancer finishes run after ~187 hrs (!) – thankful for the use of Shockly!
+    - suggests that the genome contains: 2021 inversions, 20879 deletions, 160964 CTX?, 917415 ITX? and 0 insertions(?)
+        - CTX and ITX are intrachromosomal and interchromosomal translocations respectively (?)
+        - output format detailed [here](/Users/willpitchers/Dropbox\ \(MSU\ Efish\ Lab\/WILL/genome_assembly/garrulous-turtle/dancer_output_format.txt)
+    -
+
+    empirically what OR do we care about - more depth vs. more fish?
+    make lit. results table for JG
+    LAB GURU!! talk to Colin about auto-slurping JSON format notes? (check how much data LG can handle in a lump)
+    JG targeted 8x coverage but we maybe need more like 12-20x ?
+    genome quality score by individual/position
+    what can we say about LD? decay functions for LD differ among pop.s?
+
+
+Week 10–14th July
+
+  - ?
+
+
+Week 17th–21st July
+
+  - ?
+
+`vcftools --vcf all_fish_version_6-1.stringent.filtered.missingrm.snps.recode.vcf --chr "Scaffold0" --geno-r2 --ld-window-bp 10000 --keep apa_bam.txt --remove-filtered-all --max-missing 0 --out apa_bam_` takes ~1min
+
+`...--ld-window-bp 5000...` takes ~35secs
+`...--ld-window-bp 100000...` takes ~5.5mins
+`...--ld-window-bp 50000...` takes ~3mins
+
+
+Week 24–28th July
+
+  - QQ-plots!! XX
+  - model varying sample size and case:ctrl ratio XX
+  - GIF lambda thing...?
+
+
+Week 31st July - 4th Aug.
+
+  - writing up analyses on labguru
+
+
+
+Week 7–11th Aug.
+
+  - PHENOTYPES!
+
+
+Week 14-18th Aug.
+
+  - mostly just recovering from surgery...
+
+
+Week 21-25th Aug.
+
+  - Selection of re-re-sequencing candidates
+  - more labguru-ing
+  -
+
+
+vcftools --vcf all_fish_version_6-1.filtered.all_variants.GQ20.vcf --chr "Scaffold0" --geno-r2 --ld-window-bp 5000 --keep apa.txt --remove-filtered-all --max-missing 0 --out apa
+
+After filtering, kept 86,716 out of a possible 9,335,131 Sites
+
+vcftools --vcf all_fish_version_6-1.filtered.all_variants.GQ20.vcf --chr "Scaffold0" --geno-r2 --ld-window-bp 5000 --keep apa.txt --remove-filtered-all --max-missing 0 --out apa --remove-indels
+
+After filtering, kept 73,205 out of a possible 9335131 Sites
+Run Time = 214.00 seconds
+
+vcftools --vcf all_fish_version_6-1.filtered.all_variants.GQ20.vcf --chr "Scaffold0" --geno-r2 --ld-window-bp 5000 --keep apa.txt --remove-filtered-all --max-missing 0 --out apa --remove-indels --maf 0.05
+
+After filtering, kept 36,514 out of a possible 9,335,131 Sites
+
+Run Time = 111.00 seconds
+
+vcftools --vcf all_fish_version_6-1.filtered.all_variants.GQ20.vcf --chr "Scaffold0" --geno-r2 --ld-window-bp 5000 --keep apa.txt --remove-filtered-all --max-missing 0 --out apa --remove-indels --maf 0.05 --minDP 3
+
+After filtering, kept 36,352 out of a possible 9,335,131 Sites
+
+Run Time = 117.00 seconds
+
+vcftools --vcf all_fish_version_6-1.filtered.all_variants.GQ20.vcf --chr "Scaffold0" --geno-r2 --ld-window-bp 5000 --keep apa.txt --maf 0.05 --remove-indels --minDP 3 --max-missing 0 --out apa
+
+After filtering, kept 37,597 out of a possible 9,335,131 Sites
+
+---
+
+http://doc.goldenhelix.com/SVS/latest/svsmanual/genotype_association_tests.html
+
+
+
+look to shared work dir to try to categorise EODs – definite absent/present... what to do about (possibly two categories of) intermediates
+starts with 6 == 2009 (newest freshest)
+3 == older
+
+
+Week of 28th Aug - 1st Sept.
+
+  - JG & I put our heads together and decided on our strategy for re-re-sequencing, we want to:
+      1. break up the pop/EOD confounding as far as possible while
+      2. maintain approximate balance in phenotype for max power...
+  - problems! JG found that not all of the samples in the freezer have aged sufficiently well to be reused...
+    - we'll have to make a slight adjustment to the picking-list
+  - full-blown pipeline hands-off run-through a qualified success...
+    - problem only appear at the `HaplotypeCaller` stage, but this matched up with some weird HPCC behaviour so locating bug proving tricksy...
+
+
+Week of 4-8th Sept.
+
+  - Labor Day.
+  - some of the slices where `HaplotypeCaller` jobs failed seem to have overun, which is a little odd, but as we are about to push a lot more data through the pipeline I opted to decrease the size of the 'slices' that get fed in...
+  - Started variant-calling anew... 2 runs of the `07_vcf_disco_chunk_6-1_array.qsub` script seems to have produced a complete set of output slices this time...
+  - merging the slices took just under an hour – this should mean that it has time to finish ~2x the data in <4hrs.
+  - a fresh-start run of `07_vcf_disco_chunk_6-1_array` resulted in only 5 'problem slices'... *however* there was an unannounced node reboot during the run...
+  - slice 1295 is weird!
+
+
+Week of 11th-15th Sept.
+
+  - `HaplotypeCaller` encountered a weird error message (new one to me!!) : `/opt/software/Java/jre1.8.0_31/bin/java: Permission denied` ...900 slices failed this way!
+    - running a few of these jobs interactively encounters no problems ***sigh***
+    - re-re-running... seems to be working... nope. Still 36 jobs dropped!
+      - *all* failed jerbs have same error – all were running on `intel16` – submitted a ticket to iCER
+        - iCER recommend using a different java version... testing now...
+        - the permissions problem still occurs in ~20% of jobs – waiting on iCER response.
+      - meanwhile, working on the assumption that iCER may not come through for me, working on a revised array script that will check for broken jobs and re-submit them selectively... just in case I have to resort to brute-force approach...
+      - Progress! X, C & P at iCER seem to have fixed the permissions issue! ...sadly not 100% error-free though:
+        - 135 slices fail with 'insufficient memory' - 1 failed with 'malformed bam' - 1 failed with a 'GATK runtime error'
+        - running GATK interactively seems to avoid these errors
+      - brute-force might be the way to go anyway...?
+
+
+
+https://github.com/JustinChu/JupiterPlot
+
+https://www.biomedcentral.com/collections/evolutionarygenomics
+
+
+
+
+Week of 18th-22nd Sept.
+
+  - Mostly working on how-to GWAS MS, but...
+  - emails back & forth with Chun-Min, and Patrick, *and* Xiaoge
+    - tried `Java/jdk1.8.0`
+    - tried `Java/1.7.0_51`
+    - tried `Java/1.8.0_31_trail`
+
+
+Week of 25-29th Sept.
+
+  - early indications are the variant calling pipeline ran *without issue* <engage happy mode>
+  - I SPOKE TOO SOON <sadface>
+    - 100's of jobs failed to start because java failed to load **using the version they said was fixed**
+      - OFFS `Java/1.8.0_31_trail` is now no longer present in `module spider`!?!
+    - switching from `Java/1.8.0_31_trail` to `Java/1.8.0_31` and re-re-re-running <sigh>
+  - vcf file lengths are inconsistent:
+      - 9339834	/mnt/research/efish/2015_genomic_data/P_kings_VCFs/all_fish_version_6-1.filtered.all_variants.vcf
+      - 10137913	JulyAssoc/all_fish_version_6-1.vcf
+      - 10225321	Assoc/all_fish_version_6-1.vcf
+      - 10229992	SeptAssoc/all_fish_version_6-1.vcf
+      - 10238363	AugAssoc/all_fish_version_6-1.vcf
+      - 10239061	/mnt/research/efish/2015_genomic_data/P_kings_VCFs/all_fish_version_6-1.vcf
+      - 10239191	LateSeptAssoc/all_fish_version_6-1.vcf
+      - 10239271	LaterSeptAssoc/all_fish_version_6-1.vcf
+  - looking into the lengths of vcf *slices*...
+    - 70, 484, 1716 are only the header, 2280 overran walltime
+    - 2201, 2238, 2283, 1003, 2116, 1633, 2355  think they completed successfully...?
+    - these numbers aren't making sense to me...
+      - `bash crapsearch`
+      - `cat crap | cut -d '-' -f 3 > crapnums`
+      - `uniq crapnums > unicrap`
+      - `wc -l *crap*`
+
+
+Week of 2nd-6th Oct.
+
+    - I have tried shortening the length of the slices to avoid the (rare) over-runs, and adding an `if` statement to check that the output slice continues past the header... deletes output if not.
+    - This ^ wasn't sufficient – adding another check to the `slice_check.qsub` script to search the stdout file for the string "Done." which (with the capitalisation and the fullstop) is indicative of GATK having finished the job.
+      - 10137913 JulyAssoc/all_fish_version_6-1.vcf
+      - 10225321 OctAssoc/all_fish_version_6-1.vcf
+      - 10229992 SeptAssoc/all_fish_version_6-1.vcf
+      - 10239191 LateSeptAssoc/all_fish_version_6-1.vcf
+      - 10239271 LaterSeptAssoc/all_fish_version_6-1.vcf
+      - 10238048 Oct2Assoc/all_fish_version_6-1.vcf
+      - 10238172 Assoc/all_fish_version_6-1.vcf
+      - 10238363 AugAssoc/all_fish_version_6-1.vcf
+    - there is no pattern that I can detect in which nodes are running when jobs mystery-fail...
+      - 10238239 04/10/2017 version !?!?!
+      - How many rows *aren't* header?
+        - 04/10/2017 10233544, July  10133218, August 10233668, late Sept. 10234496, early Sept.  10234576, October #1 10220626, October #2 10233353, October #3  10233477
+        - All headers are 4695 lines long, so we're definitely losing lines from the end...
+  - **NEW DATA** has arrived (1st lump of 136 `..fastq.gz` – 2nd run data expected on 10/10/2017)
+    - `scp`-ed to the research-space-scratch – all `md5sum` checks passed
+      - quality checks running... added a little Rscript to use the `fastqcr::qc_aggregate` function to create a summary output
+        -
+      - trimmomatic array running...
+        -
+      - alignment array running...
+
+
+Week of 9th-13th Oct.
+
+  - **NEW DATA**
+    - deduplicaiton array running
+      -
+    -
+  - ** *NEW* NEW DATA** has dropped - 72 new `..fastq.gz` archives
+    - `sftp`-ing from `titan`... all `md5sum` checks passed!
+    - trimming – run without error msg
+    - aligning... a few over-runs

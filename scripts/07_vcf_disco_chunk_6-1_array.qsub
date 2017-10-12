@@ -22,7 +22,7 @@ mkdir -p V6-1_chunks
 
 # we need the `indices.list` file...
 if [ ! -f indices.list ]
-    then cp /mnt/research/efish/2015_genomic_data/scripts/indices.list
+    then cp /mnt/research/efish/2015_genomic_data/scripts/indices.list ./
 fi
 
 #Set manximum number of jobs for this run

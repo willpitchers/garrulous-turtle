@@ -23,9 +23,7 @@ module load Java/1.8.0_31
 sample_list=(all_fish_*_slice_*.vcf)
 samples=`for i in "${sample_list[@]}" ; do echo --variant ${i} ; done | xargs`
 
-java -Xmx60g -Djava.io.tmpdir=${TMPDIR} -cp /mnt/home/pitchers/GenomeAnalysisTK.jar \
-							org.broadinstitute.gatk.tools.CatVariants \
-							-R ${ref} ${samples} -out ../Assoc/all_fish_version_6-1.vcf
+java -Xmx60g -Djava.io.tmpdir=${TMPDIR} -cp /mnt/home/pitchers/GenomeAnalysisTK.jar org.broadinstitute.gatk.tools.CatVariants -R ${ref} ${samples} -out ../Assoc/all_fish_version_6-1.vcf
 
 mv all_fish_version_6-1.vcf  ../Assoc/
 
