@@ -1,6 +1,6 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=8,walltime=00:30:00,mem=32gb
-#PBS -N Trimm_${n}
+#PBS -l nodes=1:ppn=8,walltime=02:00:00,mem=32gb
+#PBS -N Trimm_
 #PBS -j oe
 #PBS -M pitchers@msu.edu
 #PBS -m abe
@@ -11,14 +11,15 @@
 #### confirmed that the myfiles glob globs correctly, confirmed that gunzip step gives fasta-looking fastas, confirmed that software version are current, confirmed that trimmomatic name substitution seems to work correctly
 
 #Set manximum number of jobs for this run
-MAXJOBID=256
+MAXJOBID=359
 
 #The JOBSCRIPT variable should be the name of _this_ script
-JOBSCRIPT=trimmomatic_array.qsub
+JOBSCRIPT=01_trimmomatic_array.qsub
 
 ## Set up some variables
 # where do the files live
-dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6/
+# dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6/
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline7/
 
 # Current job number
 n=${PBS_ARRAYID}
@@ -41,7 +42,12 @@ module load Java/1.8.0_31
 # Trimmomatic command
 #java -jar $TRIM/trimmomatic PE -threads 7 -phred33 ${thisname}_R1_001.fastq ${thisname}_R2_001.fastq ${thisname}_R1_pe.trimmed.fq ${thisname}_R1_se.trimmed.fq ${thisname}_R2_pe.trimmed.fq ${thisname}_R2_se.trimmed.fq ILLUMINACLIP:/mnt/home/pitchers/Illumina_adapters.fa:2:30:10 HEADCROP:10 MAXINFO:50:0.5
 
-java -jar $TRIM/trimmomatic PE -threads 7 -phred33 ${thisname}_R1_001.fastq ${thisname}_R2_001.fastq ${thisname}_R1_pe.trimmed.fq ${thisname}_R1_se.trimmed.fq ${thisname}_R2_pe.trimmed.fq ${thisname}_R2_se.trimmed.fq ILLUMINACLIP:/mnt/home/pitchers/Illumina_adapters.fa:2:30:10 LEADING:20 TRAILING:20 MAXINFO:50:0.5
+if [ ! -f ${thisname}_R1_se.trimmed.fq ]
+	then
+	java -jar $TRIM/trimmomatic PE -threads 7 -phred33 ${thisname}_R1_001.fastq ${thisname}_R2_001.fastq \
+	${thisname}_R1_pe.trimmed.fq ${thisname}_R1_se.trimmed.fq ${thisname}_R2_pe.trimmed.fq ${thisname}_R2_se.trimmed.fq \
+	ILLUMINACLIP:/mnt/home/pitchers/Illumina_adapters.fa:2:30:10 LEADING:20 TRAILING:20 MAXINFO:50:0.5
+fi
 
 # Calculate next job to run
 NEXT=$(( ${n} + 200 ))
@@ -58,7 +64,7 @@ if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The Trimmomatic JOB ARRAY is finishing" ${USER}@msu.edu
     cd ${PBS_O_WORKDIR}
-    qsub 02_alignment_array.qsub
+#    qsub 02_alignment_array.qsub
 fi
 
 #Print out the statistics for this job

@@ -28,6 +28,7 @@ fi
 #Set manximum number of jobs for this run
 MAXJOBID=`wc -l indices.list | cut -d' ' -f 1`
 
+module load Java/1.8.0_31
 module load GATK/3.7.0
 
 # select a chunk
@@ -50,6 +51,14 @@ if [ ! -f V6-1_chunks/all_fish_vcf_slice_${n}.vcf ]
                   -o V6-1_chunks/${outputfilename} \
                   --output_mode EMIT_ALL_CONFIDENT_SITES \
                   --num_threads 1 --num_cpu_threads_per_data_thread 4
+fi
+
+# remove output where GATK fails after writing the header only
+slice_out_length=`wc -l V6-1_chunks/all_fish_vcf_slice_70.vcf | cut -d' ' -f 1`
+
+if [ ! ${slice_out_length} -gt 4696 ]
+	then
+	rm V6-1_chunks/${outputfilename}
 fi
 
 # Calculate next job to run
