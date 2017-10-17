@@ -11,7 +11,7 @@
 ## Set up some variables
 # where do the files live
 #dir=/mnt/scratch/pitchers/eFISH/Analysis/
-dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6/V6-1_chunks
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline7/V7_chunks
 ref=/mnt/ls15/scratch/groups/efish/P_kings_genome/supercontigs.fasta
 
 cd ${dir}
@@ -26,7 +26,7 @@ samples=`for i in "${sample_list[@]}" ; do echo --variant ${i} ; done | xargs`
 
 java -Xmx60g -Djava.io.tmpdir=${TMPDIR} -cp /mnt/home/pitchers/GenomeAnalysisTK.jar \
 							org.broadinstitute.gatk.tools.CatVariants \
-							-R ${ref} ${samples} -out ../Assoc/all_fish_version_6-1.vcf
+							-R ${ref} ${samples} -out ../Assoc/all_fish_version_7.vcf
 
 mv all_fish_version_6-1.vcf  ../Assoc/
 

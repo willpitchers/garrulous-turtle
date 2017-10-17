@@ -5,14 +5,10 @@
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
-#PBS -t 0-200
+#PBS -t 0-100
 
 #### Edited Wednesday, 22 March 2017
 #### moved reference files to research scratch, confirm that globbing seems to work correctly, details scraped from readgroup tags seem to be correct, checked PE vs. SE detection code working,
-
-
-#Set manximum number of jobs for this run
-MAXJOBID=1079
 
 #The JOBSCRIPT variable should be the name of this script
 JOBSCRIPT=02_alignment_array.qsub
@@ -32,6 +28,9 @@ paired=(*R1_pe.trimmed.fq)
 unpaired=(*_se.trimmed.fq)
 filelist=(`for file in ${paired[@]} ${unpaired[@]}; do echo ${file} ; done`)
 thisfile=${filelist[${n}]}
+
+# Set maximum number of jobs for this run
+MAXJOBID=`echo ${#filelist[@]}`
 
 # pull out info to build new readgroup labels
 thisfastq=`basename ${thisfile}`
@@ -53,13 +52,13 @@ else
   bwa mem -t 4 -M -T 40 -R ${thisTAG} ${ref} ${thisfile} > `basename ${thisfile} .trimmed.fq`.aligned.sam
 fi
 
-NEXT=$(( ${n} + 200 ))
+NEXT=$(( ${n} + 100 ))
 
 #Check to see if next job is past the maximum job id
 if [ ${NEXT} -le ${MAXJOBID} ]
 then
     cd ${PBS_O_WORKDIR}
-    qsub -t ${NEXT} ${JOBSCRIPT}
+#    qsub -t ${NEXT} ${JOBSCRIPT}
 fi
 
 #Check to see if this is the last job and email user
@@ -67,7 +66,7 @@ if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The BWA alignment JOB ARRAY is finishing" ${USER}@msu.edu
     cd ${PBS_O_WORKDIR}
-#    qsub 03_deduplication_array.qsub
+    qsub 03_deduplication_array.qsub
 fi
 
 #Print out sfastq=`basename ${thisfile}`the statistics for this job

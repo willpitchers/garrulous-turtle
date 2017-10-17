@@ -5,13 +5,10 @@
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
-#PBS -t 0-200
+#PBS -t 0-100
 
 #### Edited Wednesday, 22 March 2017
 #### confirmed that the myfiles glob globs correctly, confirmed that gunzip step gives fasta-looking fastas, confirmed that software version are current, confirmed that trimmomatic name substitution seems to work correctly
-
-#Set manximum number of jobs for this run
-MAXJOBID=359
 
 #The JOBSCRIPT variable should be the name of _this_ script
 JOBSCRIPT=01_trimmomatic_array.qsub
@@ -27,6 +24,9 @@ n=${PBS_ARRAYID}
 # build a list of file names
 cd ${dir}
 myfiles=(*_R1_001.fastq.gz)
+
+# Set maximum number of jobs for this run
+MAXJOBID=`echo ${#myfiles[@]}`
 
 # unzip the focal gzip archive and its mate-pair
 gunzip -c ${myfiles[${n}]} > `basename ${myfiles[${n}]} .gz`
@@ -50,7 +50,7 @@ if [ ! -f ${thisname}_R1_se.trimmed.fq ]
 fi
 
 # Calculate next job to run
-NEXT=$(( ${n} + 200 ))
+NEXT=$(( ${n} + 100 ))
 
 #Check to see if next job is past the maximum job id, if so then submit the next unqueued job
 if [ ${NEXT} -le ${MAXJOBID} ]
@@ -64,7 +64,7 @@ if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The Trimmomatic JOB ARRAY is finishing" ${USER}@msu.edu
     cd ${PBS_O_WORKDIR}
-#    qsub 02_alignment_array.qsub
+    qsub 02_alignment_array.qsub
 fi
 
 #Print out the statistics for this job

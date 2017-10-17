@@ -14,11 +14,11 @@ n=${PBS_ARRAYID}
 JOBSCRIPT=07_vcf_disco_chunk_6-1_array.qsub
 
 # where do the files live
-dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline7
 ref=/mnt/ls15/scratch/groups/efish/P_kings_genome/supercontigs.fasta
 
 cd ${dir}
-mkdir -p V6-1_chunks
+mkdir -p V7_chunks
 
 # we need the `indices.list` file...
 if [ ! -f indices.list ]
@@ -41,14 +41,14 @@ samples=`for i in "${bamfiles[@]}" ; do echo -I ${i} ; done | xargs`
 
 outputfilename=all_fish_vcf_slice_${n}.vcf
 
-if [ ! -f V6-1_chunks/all_fish_vcf_slice_${n}.vcf ]
+if [ ! -f V7_chunks/all_fish_vcf_slice_${n}.vcf ]
     then
     # # the call to the GATK HaplotypeCaller
     java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T HaplotypeCaller \
                   -R ${ref} ${samples} ${thisindex} \
                   --genotyping_mode DISCOVERY \
                   -stand_call_conf 30  -mbq 20 \
-                  -o V6-1_chunks/${outputfilename} \
+                  -o V7_chunks/${outputfilename} \
                   --output_mode EMIT_ALL_CONFIDENT_SITES \
                   --num_threads 1 --num_cpu_threads_per_data_thread 4
 fi
