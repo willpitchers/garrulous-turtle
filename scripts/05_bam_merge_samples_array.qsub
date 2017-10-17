@@ -1,12 +1,12 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=2,walltime=02:00:00,mem=32gb,feature='intel16'
+#PBS -l nodes=1:ppn=2,walltime=04:00:00,mem=32gb,feature='intel16'
 #PBS -o /mnt/research/efish/2015_genomic_data/scripts
 #PBS -N BAM_sample_merge
 #PBS -j oe
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
-#PBS -t 1-63
+#PBS -t 1-167
 
 ## Set up some variables
 # where do the files live
@@ -15,7 +15,7 @@ dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline7/
 
 # Current job number
 n=${PBS_ARRAYID}
-MAXJOBID=63
+MAXJOBID=`wc -l samples.list | cut -f 1 -d' '`
 
 # load modules
 cd ${dir}
@@ -51,3 +51,6 @@ fi
 
 #Print out the statistics for this job
 qstat -f ${PBS_JOBID}
+
+
+

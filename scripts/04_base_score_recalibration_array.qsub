@@ -7,10 +7,7 @@
 #PBS -r n
 #PBS -t 0-200
 
-#Set maximum number of jobs for this run
-MAXJOBID=767
-
-#The JOBSCRIPT variable should be the name of this script
+# The JOBSCRIPT variable should be the name of this script
 JOBSCRIPT=04_base_score_recalibration_array.qsub
 
 ## Set up some variables
@@ -27,21 +24,43 @@ cd ${dir}
 filelist=(*.aligned.dedup.bam) 
 thisfile=${filelist[${n}]}
 
+# Set maximum number of jobs for this run
+MAXJOBID=`echo ${#filelist[@]}`
+
 module load GATK/3.7.0
 
-if [ ! -f `basename ${thisfile} .bam`.recalibrated.bam ]
+if [ ! -f `basename ${thisfile} .bam`.recal_data.table ]
 then
 	## Analysze patterns of covariation in the dataset (~10 mins)
-	java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T BaseRecalibrator -R ${ref} -I ${thisfile} -o `basename ${thisfile} .bam`.recal_data.table --run_without_dbsnp_potentially_ruining_quality
+	java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T BaseRecalibrator \
+			-R ${ref} -I ${thisfile} -o `basename ${thisfile} .bam`.recal_data.table \
+			--run_without_dbsnp_potentially_ruining_quality  -nct 8
+fi
 
+if [ ! -f `basename ${thisfile} .bam`.post_recal_data.table ]
+	then
 	## Do a second pass to analyze covariation remaining after recalibration (~10 mins)
-	java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T BaseRecalibrator -R ${ref} -I ${thisfile}  -BQSR `basename ${thisfile} .bam`.recal_data.table -o `basename ${thisfile} .bam`.post_recal_data.table --run_without_dbsnp_potentially_ruining_quality
+	java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T BaseRecalibrator \
+			-R ${ref} -I ${thisfile}  -BQSR `basename ${thisfile} .bam`.recal_data.table \
+			-o `basename ${thisfile} .bam`.post_recal_data.table \
+			--run_without_dbsnp_potentially_ruining_quality  -nct 8
+fi
 
+if [ ! -f `basename ${thisfile} .bam`.recal_plots.pdf ]
+	then
 	## Generate before-after plots (~5 mins)
-	java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T AnalyzeCovariates -R ${ref}  -before `basename ${thisfile} .bam`.recal_data.table -after `basename ${thisfile} .bam`.post_recal_data.table -plots `basename ${thisfile} .bam`.recal_plots.pdf
+	java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T AnalyzeCovariates \
+			-R ${ref}  -before `basename ${thisfile} .bam`.recal_data.table \
+			-after `basename ${thisfile} .bam`.post_recal_data.table \
+			-plots `basename ${thisfile} .bam`.recal_plots.pdf
+fi
 
+if [ ! -f `basename ${thisfile} .bam`.recalibrated.bam ]
+	then
 	## Apply the recalibration to the sequence data (~5 mins)
-	java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T PrintReads -R ${ref} -I ${thisfile}  -BQSR `basename ${thisfile} .bam`.recal_data.table -o `basename ${thisfile} .bam`.recalibrated.bam
+	java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T PrintReads -R ${ref} \
+			-I ${thisfile}  -BQSR `basename ${thisfile} .bam`.recal_data.table \
+			-o `basename ${thisfile} .bam`.recalibrated.bam  -nct 8
 fi
 
 # Calculate next job to run

@@ -1512,10 +1512,30 @@ Week of 2nd-6th Oct.
 Week of 9th-13th Oct.
 
   - **NEW DATA**
-    - deduplicaiton array running
+    - deduplication array running...
       -
     -
   - ** *NEW* NEW DATA** has dropped - 72 new `..fastq.gz` archives
     - `sftp`-ing from `titan`... all `md5sum` checks passed!
     - trimming – run without error msg
     - aligning... a few over-runs
+    BAM_6558_Extract_S17_L007_R2_se.aligned.dedup.bai missing pe files
+    - trying just to let pipeline run on new data in hopes of getting a semi-cromulent new VCF for JG so that hew can add to his talk for 14/10/17
+      - output ("big") VCF ends up at 506M in size... <sigh> Obviously more than just the `BAM_6558_Extract_S17...` data didn't make it through... So much for fast and dirty.
+
+
+Week of 16th-22nd Oct.
+
+  -
+    - OK, follow the workflow through:
+      - `..fastq.gz` - 432 archives
+      - `..fastq` - 432 files
+      - `..trimmed.fq` - 864 files (432 SE & 432 PE)
+      - `..aligned.sam` - 648 files (432 SE & 216 PE; `..R1_pe..` & `..R2_pe..` are co-aligned)
+      - `..dedup.bam` - 646 files =( `BAM_6559_S60_L007_R1_pe.aligned.sam` & `BAM_6501_ATTACTCG-CAGGACGT_L001_R1_se.aligned.sam` failed. Looks like an error in the alignment step caused `Picard` to fail out...
+        - seems to be a node glitching, as both run fine interactively...?
+        - re-running the entire array seem to work fine (?)
+      - `..dedup.bam` - 648 files now
+      - `..recalibrated.bam` – 636 files now. Should be 648... problem seems to be resource over-run.
+        - `..recal_data.table` - 637 then `..post_recal_data.table` - 636 , so the problem happens *early*
+          - problems at 404, 544, 571, 574, 583, 598, 604, 607, 610, 616, 622, 647
