@@ -37,7 +37,7 @@ if [ ! -f ../individual.list ]
 fi
 
 # call my python script to write the phenotype codes into the .ped file
-python $PBS_O_WORKDIR/pheno_lookup.py ../individual.list ${input_data}.ped ${input_data}.ped.out
+python ${PBS_O_WORKDIR}/pheno_lookup.py ../individual.list ${input_data}.ped ${input_data}.ped.out
 
 mv ${input_data}.ped.out ${input_data}.ped
 
