@@ -5,7 +5,7 @@
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
-#PBS -t 0-100
+#PBS -t 0-99
 
 #### Edited Wednesday, 22 March 2017
 #### moved reference files to research scratch, confirm that globbing seems to work correctly, details scraped from readgroup tags seem to be correct, checked PE vs. SE detection code working,
@@ -42,7 +42,11 @@ barcode=`head -1 $thisfastq | cut -d' ' -f 2 | cut -d':' -f 4`					   # which ba
 
 thisTAG=@RG\\tID:${flowcell}.${lane}\\tSM:${sample}\\tPL:illumina\\tLB:${flowcell}\\tPU:${flowcell}.${lane}.${barcode} # newhotness
 
+
+# load required modules
 module load bwa/0.7.12.r1044
+module load picardTools/1.89
+
 
 # the BWA command -- the 'if' statement decides whether the alignment should be single or paired-end
 if [ `grep -Eo 'pe' <<< $(echo ${thisfile})` ]
@@ -52,13 +56,18 @@ else
   bwa mem -t 4 -M -T 40 -R ${thisTAG} ${ref} ${thisfile} > `basename ${thisfile} .trimmed.fq`.aligned.sam
 fi
 
+
+# check that the output sam files are well-formed
+java -XX:ParallelGCThreads=4 -jar ${PICARD}/ValidateSamFile.jar  I=`basename ${thisfile}.trimmed.fq`.aligned.sam  MODE=SUMMARY
+
+
 NEXT=$(( ${n} + 100 ))
 
 #Check to see if next job is past the maximum job id
 if [ ${NEXT} -le ${MAXJOBID} ]
 then
     cd ${PBS_O_WORKDIR}
-#    qsub -t ${NEXT} ${JOBSCRIPT}
+    qsub -t ${NEXT} ${JOBSCRIPT}
 fi
 
 #Check to see if this is the last job and email user
