@@ -5,7 +5,7 @@
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
-#PBS -t 0-100
+#PBS -t 0-99
 
 #### Edited Wednesday, 22 March 2017
 #### confirmed that the myfiles glob globs correctly, confirmed that gunzip step gives fasta-looking fastas, confirmed that software version are current, confirmed that trimmomatic name substitution seems to work correctly
@@ -26,7 +26,7 @@ cd ${dir}
 myfiles=(*_R1_001.fastq.gz)
 
 # Set maximum number of jobs for this run
-MAXJOBID=`echo ${#myfiles[@]}`
+MAXJOBID=$( expr `echo ${#myfiles[@]}` - 1 )
 
 # unzip the focal gzip archive and its mate-pair
 gunzip -c ${myfiles[${n}]} > `basename ${myfiles[${n}]} .gz`
@@ -40,8 +40,6 @@ module load Trimmomatic/0.33
 module load Java/1.8.0_31
 
 # Trimmomatic command
-#java -jar $TRIM/trimmomatic PE -threads 7 -phred33 ${thisname}_R1_001.fastq ${thisname}_R2_001.fastq ${thisname}_R1_pe.trimmed.fq ${thisname}_R1_se.trimmed.fq ${thisname}_R2_pe.trimmed.fq ${thisname}_R2_se.trimmed.fq ILLUMINACLIP:/mnt/home/pitchers/Illumina_adapters.fa:2:30:10 HEADCROP:10 MAXINFO:50:0.5
-
 if [ ! -f ${thisname}_R1_se.trimmed.fq ]
 	then
 	java -jar $TRIM/trimmomatic PE -threads 7 -phred33 ${thisname}_R1_001.fastq ${thisname}_R2_001.fastq \
