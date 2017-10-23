@@ -30,7 +30,7 @@ filelist=(`for file in ${paired[@]} ${unpaired[@]}; do echo ${file} ; done`)
 thisfile=${filelist[${n}]}
 
 # Set maximum number of jobs for this run
-MAXJOBID=`echo ${#filelist[@]}`
+MAXJOBID=$( expr `echo ${#filelist[@]}` - 1 )
 
 # pull out info to build new readgroup labels
 thisfastq=`basename ${thisfile}`

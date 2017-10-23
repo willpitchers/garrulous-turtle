@@ -1574,5 +1574,5 @@ Week of 16th-22nd Oct.
 
 Week of 23rd-27th Oct.
 
-    - `APA_6737_ATTCAGAA-AGGCGAAG_L002_R1_pe..`, `BAM_6865_S25_L007_R2_se..`, `BAM_6840_S11_L007_R2_se..`, `BAM_6867_S54_L006_R1_se..`, `BAM_6561_Extract_S65_L008_R2_se..` completed successfully on re-submission
-    - `APA_6676_GAGATTCC-ATAGAGGC_L002_R1_se..`
+    - `APA_6737_ATTCAGAA-AGGCGAAG_L002_R1_pe..`, `BAM_6865_S25_L007_R2_se..`, `BAM_6840_S11_L007_R2_se..`, `BAM_6867_S54_L006_R1_se..`, and `BAM_6561_Extract_S65_L008_R2_se..` all completed successfully on re-submission
+    - `APA_6676_GAGATTCC-ATAGAGGC_L002_R1_se..` job **still** didn't make an output file on re-re-run... but running interactively gives "No errors found"

@@ -25,7 +25,7 @@ filelist=(*.aligned.sam)
 thisfile=${filelist[${n}]}
 
 #Set manximum number of jobs for this run
-MAXJOBID=`echo ${#filelist[@]}`
+MAXJOBID=$( expr `echo ${#filelist[@]}` - 1 )
 
 # Load PICARDtools
 module load picardTools/1.89
