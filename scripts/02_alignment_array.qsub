@@ -35,10 +35,10 @@ MAXJOBID=`echo ${#filelist[@]}`
 # pull out info to build new readgroup labels
 thisfastq=`basename ${thisfile}`
 
-flowcell=`head -1 $thisfastq | cut -d' ' -f 1 | cut -d':' -f 3`					   # which flowcell
-lane=`head -1 $thisfastq | cut -d' ' -f 1 | cut -d':' -f 4`						   # which lane
+flowcell=`head -1 ${thisfastq} | cut -d' ' -f 1 | cut -d':' -f 3`					   # which flowcell
+lane=`head -1 ${thisfastq} | cut -d' ' -f 1 | cut -d':' -f 4`						   # which lane
 sample=`grep --color='never' -Eo '^[A-Z]{3,4}_[0-9]{4}' <<< $(echo ${thisfile})`   # which fish
-barcode=`head -1 $thisfastq | cut -d' ' -f 2 | cut -d':' -f 4`					   # which barcode
+barcode=`head -1 ${thisfastq} | cut -d' ' -f 2 | cut -d':' -f 4`					   # which barcode
 
 thisTAG=@RG\\tID:${flowcell}.${lane}\\tSM:${sample}\\tPL:illumina\\tLB:${flowcell}\\tPU:${flowcell}.${lane}.${barcode} # newhotness
 
