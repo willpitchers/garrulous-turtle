@@ -1,5 +1,5 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=8,walltime=02:00:00,mem=32gb
+#PBS -l nodes=1:ppn=8,walltime=02:00:00,mem=32gb,feature='intel16'
 #PBS -N Trimm_
 #PBS -j oe
 #PBS -M pitchers@msu.edu
@@ -60,7 +60,7 @@ fi
 #Check to see if this is the last job, if so email me and submit the script for the next stage of the pipeline
 if [ ${n} -eq ${MAXJOBID} ]
 then
-    echo "." | mail -s "The Trimmomatic JOB ARRAY is finishing" ${USER}@msu.edu
+    echo "." | mail -s "The Trimmomatic array is finishing" ${USER}@msu.edu
     cd ${PBS_O_WORKDIR}
     qsub 02_alignment_array.qsub
 fi
