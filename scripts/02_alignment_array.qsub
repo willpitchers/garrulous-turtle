@@ -58,7 +58,7 @@ fi
 
 
 # check that the output sam files are well-formed
-java -XX:ParallelGCThreads=4 -jar ${PICARD}/ValidateSamFile.jar  I=`basename ${thisfile}.trimmed.fq`.aligned.sam  MODE=SUMMARY
+java -XX:ParallelGCThreads=4 -jar ${PICARD}/ValidateSamFile.jar  I=`basename ${thisfile} .trimmed.fq`.aligned.sam  MODE=SUMMARY
 
 
 NEXT=$(( ${n} + 100 ))

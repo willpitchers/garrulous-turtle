@@ -1574,5 +1574,19 @@ Week of 16th-22nd Oct.
 
 Week of 23rd-27th Oct.
 
+  - continuing to smack face against wall:
     - `APA_6737_ATTCAGAA-AGGCGAAG_L002_R1_pe..`, `BAM_6865_S25_L007_R2_se..`, `BAM_6840_S11_L007_R2_se..`, `BAM_6867_S54_L006_R1_se..`, and `BAM_6561_Extract_S65_L008_R2_se..` all completed successfully on re-submission
-    - `APA_6676_GAGATTCC-ATAGAGGC_L002_R1_se..` job **still** didn't make an output file on re-re-run... but running interactively gives "No errors found"
+      - these jobs failed on `ifi` (intel14) nodes, which is suggestive, although not all jobs on `ifi` failed – precautionarily limiting future jobs to `lac` (intel16) nodes
+    - `APA_6676_GAGATTCC-ATAGAGGC_L002_R1_se..` job **still** didn't make an output file on re-re-run... but running interactively (on intel16) gives "No errors found"...
+      - I'm not really sure where to go with this without logfiles to look at because I can't reproduce the error!?
+    - I'm submitting `04_base_score_recal..` now that I have the full set of checked-out bam files
+      - the reference folder has been emptied – I'm presuming by a timed scratch-cleaning script – so repopulating from the research space... also need to regenerate `..fai` & `..dict` index files...
+    - `04_base_score_recal..` has written 636/648 logfiles, but all contain "no errors" messages
+      - missing are 227,394,427,458,545,572,575,584,599,608,617,620,623,627,648 (why too many!? re-subbed just in case)
+      - only 630 output bams exist (!?)
+      - missing bams: `APA_6675_GAGATTCC-TATAGCC_L001_R1_pe..`,`APA_6675_GAGATTCC-TATAGCC_L002_R1_pe.. `, `APA_6675_GAGATTCC-TATAGCCT_L001_R1_pe..`, `BAM_6865_S25_L007_R1_se..`, `BAM_6865_S25_L007_R2_se..`, `BAM_6865_S62_L008_R2_se..`, `BAM_6867_S35_L007_R2_se..`, `BAM_6867_S54_L006_R2_se..`, `BAM_6868_S36_L007_R2_se..`, `BAM_6869_S68_L008_R1_pe..`
+      -
+    - testing write-outs to both temp scratch and the ffs17 filesystem...
+      - both of these options work well when run interactively – the temp-scratch would be the better option if all else is equal as there are *tight* limits on space on the ffs17 filesystem...
+      - subbed full-arrays... queue seems pretty full so might have a delayed start...
+        - pleasingly, these arrays produce bam files with no `diff`
