@@ -1,11 +1,11 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=2,walltime=04:00:00,mem=32gb
+#PBS -l nodes=1:ppn=4,walltime=04:00:00,mem=128gb,feature='intel16'
 #PBS -N Dedup_${PBS_ARRAYID}
 #PBS -j oe
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
-#PBS -t 0-200
+#PBS -t 0-199
 
 
 #The JOBSCRIPT variable should be the name of this script
@@ -30,14 +30,20 @@ MAXJOBID=$( expr `echo ${#filelist[@]}` - 1 )
 # Load PICARDtools
 module load picardTools/1.89
 
+
 # the PICARD commands – I could probably pipe then together, but this way less is lost if we crash
 if [ ! -f `basename ${thisfile} .sam`.dedup.bam ]
-	then java -XX:ParallelGCThreads=2 -jar ${PICARD}/SortSam.jar INPUT=${thisfile} OUTPUT=`basename ${thisfile} .sam`.sorted.sam \
+	then java -XX:ParallelGCThreads=4 -jar ${PICARD}/SortSam.jar INPUT=${thisfile} OUTPUT=`basename ${thisfile} .sam`.sorted.sam \
 			SORT_ORDER=coordinate
-		 java -XX:ParallelGCThreads=2 -jar ${PICARD}/MarkDuplicates.jar INPUT=`basename ${thisfile} .sam`.sorted.sam \
+		 java -XX:ParallelGCThreads=4 -jar ${PICARD}/MarkDuplicates.jar INPUT=`basename ${thisfile} .sam`.sorted.sam \
 			OUTPUT=`basename ${thisfile} .sam`.dedup.bam M=`basename ${thisfile} .sam`.metrics.txt
- 		 java -XX:ParallelGCThreads=2 -jar ${PICARD}/BuildBamIndex.jar INPUT=`basename ${thisfile} .sam`.dedup.bam
+ 		 java -XX:ParallelGCThreads=4 -jar ${PICARD}/BuildBamIndex.jar INPUT=`basename ${thisfile} .sam`.dedup.bam
 fi
+
+
+# and now an extra check that the bam files are well-formed
+java -XX:ParallelGCThreads=4 -jar ${PICARD}/ValidateSamFile.jar  I=`basename ${thisfile} .sam`.dedup.bam  MODE=SUMMARY
+
 
 # Calculate next job to run
 NEXT=$(( ${n} + 200 ))
@@ -52,9 +58,9 @@ fi
 #Check to see if this is the last job and email user
 if [ ${n} -eq ${MAXJOBID} ]
 then
-    echo "." | mail -s "The PICARDTools JOB ARRAY is finishing" ${USER}@msu.edu
+    echo "." | mail -s "The DEDUP. ARRAY is finishing" ${USER}@msu.edu
     cd ${PBS_O_WORKDIR}
-    qsub 04_base_score_recalibration_array.qsub
+#    qsub 04_base_score_recalibration_array.qsub
 fi
 
 #Print out the statistics for this job

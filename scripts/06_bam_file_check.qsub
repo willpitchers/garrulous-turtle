@@ -1,5 +1,5 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=2,walltime=02:00:00,mem=32gb
+#PBS -l nodes=1:ppn=2,walltime=04:00:00,mem=128gb
 #PBS -o /mnt/research/efish/2015_genomic_data/scripts
 #PBS -N BAM_check
 #PBS -j oe
@@ -53,7 +53,7 @@ if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The BAM individual merging array is finishing" ${USER}@msu.edu
     cd $PBS_O_WORKDIR
-#    qsub 07_vcf_disco_chunk_6-1_array.qsub
+#    qsub 07_vcf_disco_chunk_7_array.qsub
 fi
 
 #Print out the statistics for this job

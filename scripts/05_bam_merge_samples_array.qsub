@@ -1,5 +1,5 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=2,walltime=04:00:00,mem=32gb,feature='intel16'
+#PBS -l nodes=1:ppn=4,walltime=04:00:00,mem=128gb,feature='intel16'
 #PBS -o /mnt/research/efish/2015_genomic_data/scripts
 #PBS -N BAM_sample_merge
 #PBS -j oe
@@ -34,12 +34,12 @@ samples=`for i in "${sample[@]}" ; do echo I=${i} ; done | xargs`
 
 # the call to Picard
 if [ ! -f ${individual}_all_libraries.bam ]
-then
- java -jar $PICARD/MergeSamFiles.jar ${samples} O=${individual}_all_libraries.bam
+  then
+	java -XX:ParallelGCThreads=4 -jar $PICARD/MergeSamFiles.jar ${samples} O=${individual}_all_libraries.bam
 fi
 
 # and now index our new bam
-java -jar $PICARD/BuildBamIndex.jar I=${individual}_all_libraries.bam
+java -XX:ParallelGCThreads=4 -jar $PICARD/BuildBamIndex.jar I=${individual}_all_libraries.bam
 
 #Check to see if this is the last job and email user
 if [ ${n} -eq ${MAXJOBID} ]
@@ -51,6 +51,7 @@ fi
 
 #Print out the statistics for this job
 qstat -f ${PBS_JOBID}
+
 
 
 
