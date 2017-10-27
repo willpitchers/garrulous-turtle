@@ -99,7 +99,34 @@ Once data reaches the **Statistical Analysis** stage it may become necessary for
 
 ---
 
-## Version 7...
+
+### File Flow
+  1. 512 `..fastq.gz` files
+  2. 1024 `..trimmed.fq` files
+  3. 768 `..aligned.sam` files
+  4. 768 `..aligned.sorted.sam` files
+  5. 768 `..aligned.dedup.bam` files
+  6. 768 `..dedup.realigned.recalibrated.bam` files
+  7. 63 `..all_libraries.bam` files
+
+
+### Tools & Version
+  - [Trimmomatic/0.33]( http://www.usadellab.org/cms/?page=trimmomatic )
+  - Java/1.8.0_31
+  - [bwa/0.7.12.r1044]( http://bio-bwa.sourceforge.net/bwa.shtml )
+  - picardTools/1.89
+  - SAMTools/1.3.1
+  - [GATK/3.7.0]( https://software.broadinstitute.org/gatk/ )
+  - R/3.2.0
+  - tabix/0.2.6
+  - [vcftools/0.1.14]( https://vcftools.github.io/man_latest.html )
+  - [plink/1.9]( https://www.cog-genomics.org/plink/1.9/ )
+
+
+---
+
+
+## Version 7 –– with **NEW**, deeper data, and including only Apassa & Bambomo fish
 
 |  Stage   |   Script    |   Tool(s)   |   Options   |   Input   |   Output    |   Description
 ---|----------|-------------|-------------|-------------|-----------|-------------|---------------
@@ -114,17 +141,15 @@ Once data reaches the **Statistical Analysis** stage it may become necessary for
 <!-- 8. | | `07_vcf_disco_chunk_6-2_array.qsub` | GATK/3.7.0 `-T HaplotypeCaller` | `--genotyping_mode DISCOVERY -stand_call_conf 30  -mbq 20 --output_mode EMIT_ALL_CONFIDENT_SITES --emitRefConfidence GVCF` | 63 x`POP_ID##_all_libraries.bam` & `indices.list` | ```all_fish_`date '+%d_%m_%Y'`_slice_${n}.g.vcf``` | builds *n* 'slices' of `..g.vcf` file, where slice size is set by the file `indices.list` (itself build by `write_scaf_indices.sh`) -->
 
 
-
-
-
 ### File Flow
-  1. 512 `..fastq.gz` files
-  2. 1024 `..trimmed.fq` files
-  3. 768 `..aligned.sam` files
-  4. 768 `..aligned.sorted.sam` files
-  5. 768 `..aligned.dedup.bam` files
-  6. 768 `..dedup.realigned.recalibrated.bam` files
-  7. 63 `..all_libraries.bam` files
+  1. 432 `..fastq.gz` files
+    -
+  2. 864 `..trimmed.fq` files
+  3. 648 `..aligned.sam` files
+  4. 648 `..aligned.sorted.sam` files
+  5. 648 `..aligned.dedup.bam` files
+  6. 648 `..dedup.realigned.recalibrated.bam` files
+  7. 76 `..all_libraries.bam` files for 76 fish
 
 
 ### Tools & Version

@@ -1526,16 +1526,53 @@ Week of 9th-13th Oct.
 
 Week of 16th-22nd Oct.
 
-  -
-    - OK, follow the workflow through:
-      - `..fastq.gz` - 432 archives
-      - `..fastq` - 432 files
-      - `..trimmed.fq` - 864 files (432 SE & 432 PE)
-      - `..aligned.sam` - 648 files (432 SE & 216 PE; `..R1_pe..` & `..R2_pe..` are co-aligned)
-      - `..dedup.bam` - 646 files =( `BAM_6559_S60_L007_R1_pe.aligned.sam` & `BAM_6501_ATTACTCG-CAGGACGT_L001_R1_se.aligned.sam` failed. Looks like an error in the alignment step caused `Picard` to fail out...
-        - seems to be a node glitching, as both run fine interactively...?
-        - re-running the entire array seem to work fine (?)
-      - `..dedup.bam` - 648 files now
-      - `..recalibrated.bam` – 636 files now. Should be 648... problem seems to be resource over-run.
-        - `..recal_data.table` - 637 then `..post_recal_data.table` - 636 , so the problem happens *early*
-          - problems at 404, 544, 571, 574, 583, 598, 604, 607, 610, 616, 622, 647
+  - OK, follow the workflow through:
+    - `..fastq.gz` - 432 archives
+    - `..fastq` - 432 files
+    - `..trimmed.fq` - 864 files (432 SE & 432 PE)
+    - `..aligned.sam` - 648 files (432 SE & 216 PE; `..R1_pe..` & `..R2_pe..` are co-aligned)
+    - `..dedup.bam` - 646 files =( `BAM_6559_S60_L007_R1_pe.aligned.sam` & `BAM_6501_ATTACTCG-CAGGACGT_L001_R1_se.aligned.sam` failed. Looks like an error in the alignment step caused `Picard` to fail out...
+      - seems to be a node glitching, as both run fine interactively...?
+      - re-running the entire array seem to work fine (?)
+    - `..dedup.bam` - 648 files now
+    - `..recalibrated.bam` – 636 files now. Should be 648... problem seems to be resource over-run.
+      - `..recal_data.table` - 637 then `..post_recal_data.table` - 636 , so the problem happens *early*
+        - problems at 355, 379, 404, 544, 571, 574, 583, 598, 604, 607, 610, 616, 622, 647... going for a full-array re-run
+    - `..recalibrated.bam` - 647 files now... #headdesk
+    - GODSDAMMIT THE HPC WILL NOT STOP DROPPING NODES!!?!
+  - OK. <deep breath> Back to the start because I'm confused...
+    - `01_trimmomatic...` 432 archives in (216 pairs)
+      - 864 `..trimmed.fq` out - (432 SE & 432 PE)
+    - `02_alignment...` 864 fastq's in
+      - 648 `..aligned.sam` out - files (432 SE & 216 PE)
+      - checking formatting with `ValidateSamFile`...
+      - I have also added this check to the alignment script so that errors will be recorded in the logfiles
+    - `03_deduplication...` 648 sam files in
+      - running full array...
+      - 603 of 648 jobs report completing with no errors.
+      - `BAM_6568_S22_L007_R1_se.aligned.sam` didn't write a logfile, but ran without error interactively (!)
+      - 44 failed jobs resubmitted – failed again...
+        - different error messages this time – suggests that there's error in the sam format
+          - trying to re-run the alignment interactively... no errors before they get killed.
+          - `BAM_6604_TCCGGAGA-TAATCTT_L006_R2_se..` & `BAM_6871_S27_L007_R1_pe..` as test cases:
+            - sam files both pass interactive `ValidateSamFile` - "No errors found"
+
+    - The problems seem to start with bwa-mem, but don't occur when I run interactively on intel16... so:
+      - restricting the array to intel16 nodes
+      - these all have 128GB available, so may as well use all of it (testing suggests that this is 10X overkill for most cases)
+      - keeping to a 4hr time-slot to reduce queue-time, but multi-threading at 4X for speed
+      - `02_alignment...` - 648 files *with no errors* at last!
+      - `03_deduplication...` <sigh>
+        - only 643 logfiles!
+          - 639 report "No errors" - but 642 dedup-ed bam files exist (!?)
+          - 2 report "killed" - 348,408
+          - 2 with PICARD error messages - 384,607
+          - 9 jobs disappeared without trace - missing array values are 219,419,584,608,619,648
+          - bam files missing for: `APA_6676_GAGATTCC-ATAGAGGC_L002_R1_se..`, `APA_6737_ATTCAGAA-AGGCGAAG_L002_R1_pe..`, `BAM_6561_Extract_S65_L008_R2_se..`, `BAM_6840_S11_L007_R2_se..`, `BAM_6865_S25_L007_R2_se..`, `BAM_6867_S54_L006_R1_se..`
+        - killed job re-submitted with +1hr walltime...
+
+
+Week of 23rd-27th Oct.
+
+    - `APA_6737_ATTCAGAA-AGGCGAAG_L002_R1_pe..`, `BAM_6865_S25_L007_R2_se..`, `BAM_6840_S11_L007_R2_se..`, `BAM_6867_S54_L006_R1_se..`, and `BAM_6561_Extract_S65_L008_R2_se..` all completed successfully on re-submission
+    - `APA_6676_GAGATTCC-ATAGAGGC_L002_R1_se..` job **still** didn't make an output file on re-re-run... but running interactively gives "No errors found"
