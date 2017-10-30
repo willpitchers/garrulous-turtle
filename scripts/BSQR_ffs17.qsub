@@ -5,7 +5,7 @@
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
-#PBS -t 0-99
+#PBS -t 0-49
 
 # The JOBSCRIPT variable should be the name of this script
 JOBSCRIPT=BSQR_ffs17.qsub
@@ -73,21 +73,21 @@ if [ ! -f ffs17bams/`basename ${thisfile} .bam`.recalibrated.bam ]
 fi
 
 # copy output back to scratch
-mv ${OUTDIR}/`basename ${thisfile} .bam`* ffs17bams
-
+cp ${OUTDIR}/`basename ${thisfile} .bam`* ffs17bams
+rm ${OUTDIR}/`basename ${thisfile} .bam`*
 
 # paranoid check for a well-formed bam-file
 java -XX:ParallelGCThreads=8 -jar ${PICARD}/ValidateSamFile.jar  I=ffs17bams/`basename ${thisfile} .bam`.recalibrated.bam  MODE=SUMMARY
 
 
 # Calculate next job to run
-NEXT=$(( ${n} + 100 ))
+NEXT=$(( ${n} + 50 ))
 
 #Check to see if next job is past the maximum job id
 if [ ${NEXT} -le ${MAXJOBID} ]
 then
     cd ${PBS_O_WORKDIR}
-#    qsub -t ${NEXT} ${JOBSCRIPT}
+    qsub -t ${NEXT} ${JOBSCRIPT}
 fi
 
 #Check to see if this is the last job and email user

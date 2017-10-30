@@ -5,7 +5,7 @@
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
-#PBS -t 0-99
+#PBS -t 0-199
 
 # The JOBSCRIPT variable should be the name of this script
 JOBSCRIPT=BSQR_temp.qsub
@@ -33,59 +33,59 @@ module load picardTools/1.89
 ## SPECIAL SAUCE - make temp scratch space for jerb
 export OUTDIR=${TMPDIR}/BaseR
 mkdir -p ${OUTDIR}
+mkdir -p ${dir}/tempbams
 
 
-#if [ ! -f `basename ${thisfile} .bam`.recal_data.table ]
-#then
+if [ ! -f tempbams/`basename ${thisfile} .bam`.recal_data.table ]
+then
 	## Analysze patterns of covariation in the dataset (~10 mins)
-	java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T BaseRecalibrator \
+	java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T BaseRecalibrator \
 			-R ${ref} -I ${thisfile} -o ${OUTDIR}/`basename ${thisfile} .bam`.recal_data.table \
-			--run_without_dbsnp_potentially_ruining_quality  -nct 8
-#fi
+			--run_without_dbsnp_potentially_ruining_quality  -nct 8  -rf BadCigar
+fi
 
 
-#if [ ! -f `basename ${thisfile} .bam`.post_recal_data.table ]
-#	then
+if [ ! -f tempbams/`basename ${thisfile} .bam`.post_recal_data.table ]
+	then
 	## Do a second pass to analyze covariation remaining after recalibration (~10 mins)
-	java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T BaseRecalibrator \
+	java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T BaseRecalibrator \
 			-R ${ref} -I ${thisfile}  -BQSR ${OUTDIR}/`basename ${thisfile} .bam`.recal_data.table \
 			-o ${OUTDIR}/`basename ${thisfile} .bam`.post_recal_data.table \
-			--run_without_dbsnp_potentially_ruining_quality  -nct 8
-#fi
+			--run_without_dbsnp_potentially_ruining_quality  -nct 8 -rf BadCigar
+fi
 
 
-#if [ ! -f `basename ${thisfile} .bam`.recal_plots.pdf ]
-#	then
+if [ ! -f tempbams/`basename ${thisfile} .bam`.recal_plots.pdf ]
+	then
 	## Generate before-after plots (~5 mins)
-	java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T AnalyzeCovariates \
+	java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T AnalyzeCovariates \
 			-R ${ref}  -before ${OUTDIR}/`basename ${thisfile} .bam`.recal_data.table \
 			-after ${OUTDIR}/`basename ${thisfile} .bam`.post_recal_data.table \
-			-plots ${OUTDIR}/`basename ${thisfile} .bam`.recal_plots.pdf
-#fi
+			-plots ${OUTDIR}/`basename ${thisfile} .bam`.recal_plots.pdf -rf BadCigar
+fi
 
 
-#if [ ! -f `basename ${thisfile} .bam`.recalibrated.bam ]
-#	then
+if [ ! -f tempbams/`basename ${thisfile} .bam`.recalibrated.bam ]
+	then
 	## Apply the recalibration to the sequence data (~5 mins)
-	java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T PrintReads -R ${ref} \
+	java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T PrintReads -R ${ref} \
 			-I ${thisfile}  -BQSR ${OUTDIR}/`basename ${thisfile} .bam`.recal_data.table \
-			-o ${OUTDIR}/`basename ${thisfile} .bam`.recalibrated.bam  -nct 8
-#fi
+			-o ${OUTDIR}/`basename ${thisfile} .bam`.recalibrated.bam  -nct 8 -rf BadCigar
+fi
+
 
 # copy output back to scratch
-cp ${OUTDIR}/`basename ${thisfile} .bam`.recalibrated.bam ./
-cp ${OUTDIR}/`basename ${thisfile} .bam`.recalibrated.bai ./
-cp ${OUTDIR}/`basename ${thisfile} .bam`.recal_data.table ./
-cp ${OUTDIR}/`basename ${thisfile} .bam`.post_recal_data.table ./
-cp ${OUTDIR}/`basename ${thisfile} .bam`.recal_plots.pdf ./
+cp ${OUTDIR}/`basename ${thisfile} .bam`.*  ${dir}/tempbams/
+rm ${OUTDIR}/`basename ${thisfile} .bam`.*
 
 
 # paranoid check for a well-formed bam-file
-java -XX:ParallelGCThreads=8 -jar ${PICARD}/ValidateSamFile.jar  I=`basename ${thisfile} .bam`.recalibrated.bam  MODE=SUMMARY
+java -XX:ParallelGCThreads=8 -jar ${PICARD}/ValidateSamFile.jar  I=tempbams/`basename ${thisfile} .bam`.recalibrated.bam \
+			 MODE=SUMMARY IGNORE=INVALID_VERSION_NUMBER
 
 
 # Calculate next job to run
-NEXT=$(( ${n} + 100 ))
+NEXT=$(( ${n} + 200 ))
 
 #Check to see if next job is past the maximum job id
 if [ ${NEXT} -le ${MAXJOBID} ]
@@ -98,7 +98,7 @@ fi
 if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The base_score_recalibration JOB ARRAY is finishing" ${USER}@msu.edu
-	zip base_recal_plots.zip *recal_plots.pdf
+#	zip base_recal_plots.zip *recal_plots.pdf
     cd ${PBS_O_WORKDIR}
 #	qsub 05_bam_merge_samples_array.qsub
 fi
