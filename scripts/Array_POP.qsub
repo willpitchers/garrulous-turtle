@@ -8,7 +8,7 @@
 #PBS -t 0-199
 
 # The JOBSCRIPT variable should be the name of this script
-JOBSCRIPT=BSQR_temp.qsub
+JOBSCRIPT=Array_POP.qsub
 
 ## Set up some variables
 # where do the files live
@@ -42,7 +42,7 @@ then
 	# java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T BaseRecalibrator \
 	# 		-R ${ref} -I ${thisfile} -o ${OUTDIR}/`basename ${thisfile} .bam`.recal_data.table \
 	# 		--run_without_dbsnp_potentially_ruining_quality  -nct 8  -rf BadCigar
-	echo data_table >> `basename ${thisfile} .bam`.TXT
+	echo data_table >> tokens/`basename ${thisfile} .bam`.TXT
 fi
 
 
@@ -53,7 +53,7 @@ if [ ! -f tokens/`basename ${thisfile} .bam`.post_recal_data.table ]
 	# 		-R ${ref} -I ${thisfile}  -BQSR ${OUTDIR}/`basename ${thisfile} .bam`.recal_data.table \
 	# 		-o ${OUTDIR}/`basename ${thisfile} .bam`.post_recal_data.table \
 	# 		--run_without_dbsnp_potentially_ruining_quality  -nct 8 -rf BadCigar
-	echo recal_data_table >> `basename ${thisfile} .bam`.TXT
+	echo recal_data_table >> tokens/`basename ${thisfile} .bam`.TXT
 fi
 
 
@@ -64,7 +64,7 @@ if [ ! -f tokens/`basename ${thisfile} .bam`.recal_plots.pdf ]
 	# 		-R ${ref}  -before ${OUTDIR}/`basename ${thisfile} .bam`.recal_data.table \
 	# 		-after ${OUTDIR}/`basename ${thisfile} .bam`.post_recal_data.table \
 	# 		-plots ${OUTDIR}/`basename ${thisfile} .bam`.recal_plots.pdf -rf BadCigar
-	echo reacl_plots >> `basename ${thisfile} .bam`.TXT
+	echo reacl_plots >> tokens/`basename ${thisfile} .bam`.TXT
 fi
 
 
@@ -74,7 +74,7 @@ if [ ! -f tokens/`basename ${thisfile} .bam`.recalibrated.bam ]
 	# java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T PrintReads -R ${ref} \
 	# 		-I ${thisfile}  -BQSR ${OUTDIR}/`basename ${thisfile} .bam`.recal_data.table \
 	# 		-o ${OUTDIR}/`basename ${thisfile} .bam`.recalibrated.bam  -nct 8 -rf BadCigar
-	echo recalibrated_bam >> `basename ${thisfile} .bam`.TXT
+	echo recalibrated_bam >> tokens/`basename ${thisfile} .bam`.TXT
 fi
 
 
