@@ -1609,4 +1609,6 @@ Week of 30th Oct.-3rd Nov.
       - as these jobs start to complete, I've tested 3 (haphazardly chosen) against interactively built versions – no `diff` (woo!)
       - 31 jobs have over-run (on first submission)...
     - another good suggestion from JG: now that I'm restricting array jobs to reun on the Laconia (intel16) nodes, it makes sense to optimise the use of memory and multi-threading such that each job uses a whole node: i.e. `nodes=1:ppn=28,walltime=04:00:00,mem=128gb`... making this the new standard should give me a small speed boost
-    - 
+      - OK. Somehow there are *still* some files missing...
+        - e.g. `BAM_6867_S54_L006_R2_se.aligned.dedup.bam` didn't get a `..recalibrated.bam`... but all 4 commands run interactively with "no warn messages" and validates with "No errors found" !
+        - e.g. ``
