@@ -22,7 +22,7 @@ n=${PBS_ARRAYID}
 
 # build a list of file names
 cd ${dir}
-filelist=(*.aligned.dedup.bam) 
+filelist=(*.aligned.dedup.bam)
 thisfile=${filelist[${n}]}
 
 # Set maximum number of jobs for this run
