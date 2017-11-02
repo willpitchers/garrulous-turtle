@@ -1,0 +1,136 @@
+#!/bin/bash -login
+#PBS -l nodes=1:ppn=1,walltime=01:00:00,mem=8gb,feature='intel16'
+#PBS -N arraycheck
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+
+# set up
+cd /mnt/ls15/scratch/groups/efish/WILL/Pipeline7/
+
+# array_num=( `seq 0 8` )
+
+### 00_fastQC_array.qsub
+if [ ${array_num} -eq 0 ]
+  then
+    infilelist=( *_001.fastq.gz )
+    outfilelist=( *_001.fastq )
+    if [ ! `echo ${#outfilelist[@]}` -eq `echo ${#infilelist[@]}` ]
+      then
+        echo "." | mail -s "The FastQC array has finished incompletely: resubmitting" ${USER}@msu.edu
+        cd ${PBS_O_WORKDIR}
+        echo "qsub 00_fastQC_array.qsub"
+      else
+        echo "qsub 01_trimmomatic_array.qsub"
+    fi
+fi
+
+### 01_trimmomatic_array.qsub
+if [ ${array_num} -eq 1 ]
+  then
+    infilelist=( *_001.fastq )
+    outfilelist=( *trimmed.fq )
+    if [ ! `echo ${#outfilelist[@]}` -eq $( expr `echo ${#infilelist[@]}` \* 2 ) ]
+      then
+        echo "." | mail -s "The Trimmomatic array has finished incompletely: resubmitting" ${USER}@msu.edu
+        cd ${PBS_O_WORKDIR}
+        echo "qsub 01_trimmomatic_array.qsub"
+      else
+        echo "qsub 02_alignment_array.qsub"
+    fi
+fi
+
+### 02_alignment_array.qsub
+if [ ${array_num} -eq 2 ]
+  then
+    infilelist=( *trimmed.fq )
+    outfilelist=( *.aligned.sam )
+    if [ ! `echo ${#outfilelist[@]}` -eq `expr $( expr `echo ${#infilelist[@]}` \/ 4 ) \* 3` ]
+      then
+        echo "." | mail -s "The BWA array has finished incompletely: resubmitting" ${USER}@msu.edu
+        cd ${PBS_O_WORKDIR}
+        echo "qsub 02_alignment_array.qsub"
+      else
+        echo "qsub 03_deduplication_array.qsub"
+    fi
+fi
+
+### 03_deduplication_array.qsub
+if [ ${array_num} -eq 3 ]
+  then
+    infilelist=( *.aligned.sam )
+    outfilelist=( *dedup.bam )
+    if [ ! `echo ${#outfilelist[@]}` -eq `echo ${#infilelist[@]}` ]
+      then
+        echo "." | mail -s "The deduplication array has finished incompletely: resubmitting" ${USER}@msu.edu
+        cd ${PBS_O_WORKDIR}
+        echo "qsub 03_deduplication_array.qsub"
+      else
+        echo "qsub 04_base_score_recalibration_array.qsub"
+    fi
+fi
+
+### 04_base_score_recalibration_array.qsub
+if [ ${array_num} -eq 4 ]
+  then
+    infilelist=( *dedup.bam )
+    outfilelist=( *recalibrated.bam )
+    if [ ! `echo ${#outfilelist[@]}` -eq `echo ${#infilelist[@]}` ]
+      then
+        echo "." | mail -s "The BSQR array has finished incompletely: resubmitting" ${USER}@msu.edu
+        cd ${PBS_O_WORKDIR}
+        echo "qsub 04_base_score_recalibration_array.qsub"
+      else
+        echo "qsub 05_bam_merge_samples_array.qsub"
+    fi
+fi
+
+### 05_bam_merge_samples_array.qsub
+if [ ${array_num} -eq 5 ]
+  then
+#    infilelist=( *recalibrated.bam )
+    outfilelist=( *all_libraries.bam )
+    fishcount=( `wc -l samples.list | cut -f 1 -d' '` )
+    if [ ! `echo ${#outfilelist[@]}` -eq ${fishcount} ]
+      then
+        echo "." | mail -s "The sample merging array has finished incompletely: resubmitting" ${USER}@msu.edu
+        cd ${PBS_O_WORKDIR}
+        echo "qsub 05_bam_merge_samples_array.qsub"
+      else
+        echo "qsub 06_bam_file_check.qsub"
+    fi
+fi
+
+### 06_bam_file_check.qsub
+# This job is pretty much self-checking so I'm going to skip it
+
+### 07_vcf_disco_chunk_7_array.qsub
+if [ ${array_num} -eq 7 ]
+  then
+    # infilelist=( *.aligned.sam )
+    outfilelist=( vcf_chunks/*vcf )
+    chunkcount=( `wc -l indices.list | cut -d' ' -f 1` )
+    if [ ! `echo ${#outfilelist[@]}` -eq $(chunkcount) ]
+      then
+        echo "." | mail -s "The variant discovery array has finished incompletely: resubmitting" ${USER}@msu.edu
+        cd ${PBS_O_WORKDIR}
+        echo "qsub 07_vcf_disco_chunk_7_array.qsub"
+      else
+        echo "qsub 08_merge_all_vcfs.qsub"
+    fi
+fi
+
+### 08_merge_all_vcfs.qsub
+# if [ ${array_num} -eq 8 ]
+#   then
+#     outfile=( /Assoc/all_fish_version_6-1.vcf )
+#     if [ ! ${outfile} ]
+#       then
+#         echo "." | mail -s "The vcf_merging jobs has finished incompletely: resubmitting" ${USER}@msu.edu
+#         cd ${PBS_O_WORKDIR}
+#         echo "qsub 08_merge_all_vcfs.qsub"
+#       else
+#         echo "qsub 04_base_score_recalibration_array.qsub"
+#     fi
+# fi
