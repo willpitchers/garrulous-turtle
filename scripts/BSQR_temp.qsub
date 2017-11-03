@@ -1,7 +1,12 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=28,walltime=04:00:00,mem=128gb
+<<<<<<< HEAD
+#PBS -l nodes=1:ppn=8,walltime=04:00:00,mem=128gb,feature='intel16',files=20gb
+#PBS -N BaseR_test
+=======
+#PBS -l nodes=1:ppn=8,walltime=04:00:00,mem=128gb,feature='intel16',files=20gb
 #PBS -l file=20gb,feature='intel16'
 #PBS -N BaseR_temp
+>>>>>>> ef25b0471ac700cd71179d8f83493f18865b15f1
 #PBS -j oe
 #PBS -M pitchers@msu.edu
 #PBS -m abe
