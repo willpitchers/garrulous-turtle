@@ -1,19 +1,21 @@
 #!/bin/bash -login
 #PBS -l nodes=1:ppn=1,walltime=01:00:00,mem=8gb
+#PBS -l feature='intel16',file=2gb
 #PBS -N fastqc_init
 #PBS -j oe
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
-#PBS -t 0-135
-## #PBS -t 0-511
+#PBS -t 0-431
 
+### 00_fastQC_array.qsub
+#  – this script globs in file that look like `XXX_NNNN_library_Lane_RX_001.fastq.gz`
+#  - this script writes out `XXX_NNNN_library_Lane_RX_001_fastqc.zip` & `XXX_NNNN_library_Lane_RX_001_fastqc.html`
 
 # prepare working environment
-module load FastQC/0.11.2 
+module load FastQC/0.11.2
 module load R/3.2.0
 
-MAXJOBID=135
 n=${PBS_ARRAYID}
 
 dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline7/
@@ -21,22 +23,22 @@ ref=/mnt/ls15/scratch/groups/efish/P_kings_genome/supercontigs.fasta
 
 cd ${dir}
 mkdir -p FastQC
-#mkdir -p FastQC2
 
-myfiles=(../20170929_DNASeq_PE/*_001.fastq.gz)
-#myfiles=(*_001.fastq.gz)
-#myfiles=(*trimmed.fq)
+myfiles=(*.fastq.gz)
+MAXJOBID=`expr ${#myfiles[@]} - 1`
 
 # pull out one element of the array at a time based on PBS_ARRAYID
-#thisfile=`basename ${myfiles[${n}]} _001.fastq.gz`
 thisfile=${myfiles[${n}]}
 
-#fastqc ${thisfile}_001.fastq.gz --outdir=FastQC
+# run fastQC on this file
 fastqc ${thisfile} --outdir=FastQC
 
-
 if [ ${n} -eq ${MAXJOBID} ]
+	# if this is the final job, run the R script that builds a summary doc
+	cd FastQC
 	then Rscript --vanilla ${PBS_O_WORKDIR}/fastqc.R
+	cd ${PBS_O_WORKDIR}
+	qsub 01_trimmomatic_array.qsub
 fi
 
 cd ${PBS_O_WORKDIR}

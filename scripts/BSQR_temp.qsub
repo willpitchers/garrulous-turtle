@@ -1,12 +1,7 @@
 #!/bin/bash -login
-<<<<<<< HEAD
-#PBS -l nodes=1:ppn=8,walltime=04:00:00,mem=128gb,feature='intel16',files=20gb
-#PBS -N BaseR_test
-=======
-#PBS -l nodes=1:ppn=8,walltime=04:00:00,mem=128gb,feature='intel16',files=20gb
+#PBS -l nodes=1:ppn=8,walltime=04:00:00,mem=128gb,feature='intel16'
 #PBS -l file=20gb,feature='intel16'
 #PBS -N BaseR_temp
->>>>>>> ef25b0471ac700cd71179d8f83493f18865b15f1
 #PBS -j oe
 #PBS -M pitchers@msu.edu
 #PBS -m abe
@@ -46,7 +41,7 @@ mkdir -p ${OUTDIR}
 mkdir -p ${dir}/tempbams
 
 cd ${OUTDIR}
-df -h
+df -h ${OUTDIR}
 
 if [ ! -f tempbams/`basename ${thisfile} .bam`.recal_data.table ]
 then

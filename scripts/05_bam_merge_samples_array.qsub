@@ -1,5 +1,6 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=4,walltime=04:00:00,mem=128gb,feature='intel16'
+#PBS -l nodes=1:ppn=8,walltime=04:00:00,mem=128gb
+#PBS -l feature='intel16'
 #PBS -o /mnt/research/efish/2015_genomic_data/scripts
 #PBS -N BAM_sample_merge
 #PBS -j oe
@@ -7,6 +8,10 @@
 #PBS -m abe
 #PBS -r n
 #PBS -t 1-167
+
+#### 05_bam_merge_samples_array.qsub
+#  – this script globs in files that look like `XXX_NNNN_library_Lane_RX_Ye.aligned.dedup.recalibrated.bam`
+#  - this script writes out files that look like `XXX_NNNN_all_libraries.bam`
 
 ## Set up some variables
 # where do the files live
@@ -35,24 +40,19 @@ samples=`for i in "${sample[@]}" ; do echo I=${i} ; done | xargs`
 # the call to Picard
 if [ ! -f ${individual}_all_libraries.bam ]
   then
-	java -XX:ParallelGCThreads=4 -jar $PICARD/MergeSamFiles.jar ${samples} O=${individual}_all_libraries.bam
+	java -XX:ParallelGCThreads=8 -jar $PICARD/MergeSamFiles.jar ${samples} O=${individual}_all_libraries.bam
 fi
 
 # and now index our new bam
-java -XX:ParallelGCThreads=4 -jar $PICARD/BuildBamIndex.jar I=${individual}_all_libraries.bam
+java -XX:ParallelGCThreads=8 -jar $PICARD/BuildBamIndex.jar I=${individual}_all_libraries.bam
 
 #Check to see if this is the last job and email user
 if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The BAM individual merging array is finishing" ${USER}@msu.edu
     cd $PBS_O_WORKDIR
-#    qsub 06_bam_file_check.qsub
+    qsub 06_bam_file_check.qsub
 fi
 
 #Print out the statistics for this job
 qstat -f ${PBS_JOBID}
-
-
-
-
-

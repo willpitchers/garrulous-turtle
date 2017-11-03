@@ -6,7 +6,10 @@
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
-#PBS -t 1-63
+#PBS -t 1-167
+
+#### 06_bam_file_check.qsub
+#  – this script globs in files that look like `XXX_NNNN_all_libraries.bam` and does a validation check
 
 ## Set up some variables
 # where do the files live
@@ -53,7 +56,7 @@ if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The BAM individual merging array is finishing" ${USER}@msu.edu
     cd $PBS_O_WORKDIR
-#    qsub 07_vcf_disco_chunk_7_array.qsub
+    qsub 07_vcf_disco_chunk_7_array.qsub
 fi
 
 #Print out the statistics for this job

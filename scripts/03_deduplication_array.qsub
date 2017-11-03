@@ -1,5 +1,6 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=4,walltime=04:00:00,mem=128gb,feature='intel16'
+#PBS -l nodes=1:ppn=4,walltime=04:00:00,mem=128gb
+#PBS -l feature='intel16'
 #PBS -N Dedup_${PBS_ARRAYID}
 #PBS -j oe
 #PBS -M pitchers@msu.edu
@@ -7,6 +8,9 @@
 #PBS -r n
 #PBS -t 0-199
 
+#### 03_deduplication_array.qsub
+#  – this script globs in files that look like `XXX_NNNN_library_Lane_RX_Ye.aligned.sam`
+#  - this script writes out files that look like `XXX_NNNN_library_Lane_RX_Ye.aligned.sorted.sam` & `XXX_NNNN_library_Lane_RX_Ye.aligned.dedup.bam`
 
 #The JOBSCRIPT variable should be the name of this script
 JOBSCRIPT=03_deduplication_array.qsub
@@ -60,7 +64,7 @@ if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The DEDUP. ARRAY is finishing" ${USER}@msu.edu
     cd ${PBS_O_WORKDIR}
-#    qsub 04_base_score_recalibration_array.qsub
+    qsub 04_base_score_recalibration_array.qsub
 fi
 
 #Print out the statistics for this job

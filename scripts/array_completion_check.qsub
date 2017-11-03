@@ -6,10 +6,10 @@
 #PBS -m abe
 #PBS -r n
 
+#### array_completion_check.qsub
+
 # set up
 cd /mnt/ls15/scratch/groups/efish/WILL/Pipeline7/
-
-# array_num=( `seq 0 8` )
 
 ### 00_fastQC_array.qsub
 if [ ${array_num} -eq 0 ]

@@ -1,14 +1,16 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=4,walltime=04:00:00,mem=128gb,feature='intel16'
+#PBS -l nodes=1:ppn=4,walltime=04:00:00,mem=128gb
+#PBS -l feature='intel16',file=
 #PBS -N Align_${PBS_ARRAYID}
 #PBS -j oe
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
-#PBS -t 0-99
+#PBS -t 000-199
 
-#### Edited Wednesday, 22 March 2017
-#### moved reference files to research scratch, confirm that globbing seems to work correctly, details scraped from readgroup tags seem to be correct, checked PE vs. SE detection code working,
+#### 02_alignment_array.qsub
+#  – this script globs in files that look like `XXX_NNNN_library_Lane_RX_Ye.trimmed.fq`
+#  - this script writes out files that look like `XXX_NNNN_library_Lane_RX_Ye.aligned.sam`
 
 #The JOBSCRIPT variable should be the name of this script
 JOBSCRIPT=02_alignment_array.qsub
@@ -35,22 +37,22 @@ MAXJOBID=$( expr `echo ${#filelist[@]}` - 1 )
 # pull out info to build new readgroup labels
 thisfastq=`basename ${thisfile}`
 
-flowcell=`head -1 ${thisfastq} | cut -d' ' -f 1 | cut -d':' -f 3`					   # which flowcell
-lane=`head -1 ${thisfastq} | cut -d' ' -f 1 | cut -d':' -f 4`						   # which lane
-sample=`grep --color='never' -Eo '^[A-Z]{3,4}_[0-9]{4}' <<< $(echo ${thisfile})`   # which fish
-barcode=`head -1 ${thisfastq} | cut -d' ' -f 2 | cut -d':' -f 4`					   # which barcode
+flowcell=$( head -1 ${thisfastq} | cut -d' ' -f 1 | cut -d':' -f 3 )           # which flowcell
+lane=$( head -1 ${thisfastq} | cut -d' ' -f 1 | cut -d':' -f 4 )               # which lane
+barcode=$( head -1 ${thisfastq} | cut -d' ' -f 2 | cut -d':' -f 4 )            # which barcode
+sample=$( echo ${thisfile} | grep --color='never' -Eo "^[A-Z]{3,4}_[0-9]{4}" ) # which fish
 
-thisTAG=@RG\\tID:${flowcell}.${lane}\\tSM:${sample}\\tPL:illumina\\tLB:${flowcell}\\tPU:${flowcell}.${lane}.${barcode} # newhotness
-
+# this generates the read tag label appropriate fro the reads from this file
+thisTAG=@RG\\tID:${flowcell}.${lane}\\tSM:${sample}\\tPL:illumina\\tLB:${flowcell}\\tPU:${flowcell}.${lane}.${barcode}
 
 # load required modules
-# module load bwa/0.7.12.r1044
-BWA=/mnt/home/pitchers/bwa
+# module load bwa/0.7.12.r1044      # problems were had with the module version of BWA
+BWA=/mnt/home/pitchers/bwa          # my home dir has newest BWA version...
 module load picardTools/1.89
 
 
 # the BWA command -- the 'if' statement decides whether the alignment should be single or paired-end
-if [ `grep -Eo 'pe' <<< $(echo ${thisfile})` ]
+if [ `$(echo ${thisfile}) | grep -Eo 'pe'` ]
 then
   ${BWA}/bwa mem -v 3 -t 4 -M -T 40 -R ${thisTAG} ${ref} ${thisfile} \
 	`basename ${thisfile} R1_pe.trimmed.fq`R2_pe.trimmed.fq > `basename ${thisfile} .trimmed.fq`.aligned.sam
@@ -63,7 +65,7 @@ fi
 java -XX:ParallelGCThreads=4 -jar ${PICARD}/ValidateSamFile.jar  I=`basename ${thisfile} .trimmed.fq`.aligned.sam  MODE=SUMMARY
 
 
-NEXT=$(( ${n} + 100 ))
+NEXT=$(( ${n} + 200 ))
 
 #Check to see if next job is past the maximum job id
 if [ ${NEXT} -le ${MAXJOBID} ]

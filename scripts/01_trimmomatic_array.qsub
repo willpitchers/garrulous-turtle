@@ -1,14 +1,16 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=8,walltime=02:00:00,mem=32gb,feature='intel16'
+#PBS -l nodes=1:ppn=8,walltime=02:00:00,mem=32gb
+#PBS -l feature='intel16',file=30gb
 #PBS -N Trimm_
 #PBS -j oe
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
-#PBS -t 0-99
+#PBS -t 000-199
 
-#### Edited Wednesday, 22 March 2017
-#### confirmed that the myfiles glob globs correctly, confirmed that gunzip step gives fasta-looking fastas, confirmed that software version are current, confirmed that trimmomatic name substitution seems to work correctly
+### 01_trimmomatic_array.qsub
+#  – this script globs in file that look like `XXX_NNNN_library_Lane_RX_001.fastq.gz`
+#  - this script writes out `XXX_NNNN_library_Lane_RX_001_fastq` & `XXX_NNNN_library_Lane_RX_Ye.trimmed.fq`
 
 #The JOBSCRIPT variable should be the name of _this_ script
 JOBSCRIPT=01_trimmomatic_array.qsub
@@ -42,13 +44,13 @@ module load Java/1.8.0_31
 # Trimmomatic command
 if [ ! -f ${thisname}_R1_se.trimmed.fq ]
 	then
-	java -jar $TRIM/trimmomatic PE -threads 7 -phred33 ${thisname}_R1_001.fastq ${thisname}_R2_001.fastq \
-	${thisname}_R1_pe.trimmed.fq ${thisname}_R1_se.trimmed.fq ${thisname}_R2_pe.trimmed.fq ${thisname}_R2_se.trimmed.fq \
-	ILLUMINACLIP:/mnt/home/pitchers/Illumina_adapters.fa:2:30:10 LEADING:20 TRAILING:20 MAXINFO:50:0.5
+	java -XX:ParallelGCThreads=8 -jar $TRIM/trimmomatic PE -threads 7 -phred33 ${thisname}_R1_001.fastq ${thisname}_R2_001.fastq \
+			${thisname}_R1_pe.trimmed.fq ${thisname}_R1_se.trimmed.fq ${thisname}_R2_pe.trimmed.fq ${thisname}_R2_se.trimmed.fq \
+			ILLUMINACLIP:/mnt/home/pitchers/Illumina_adapters.fa:2:30:10 LEADING:20 TRAILING:20 MAXINFO:50:0.5
 fi
 
 # Calculate next job to run
-NEXT=$(( ${n} + 100 ))
+NEXT=$(( ${n} + 200 ))
 
 #Check to see if next job is past the maximum job id, if so then submit the next unqueued job
 if [ ${NEXT} -le ${MAXJOBID} ]
