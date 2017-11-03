@@ -6,7 +6,10 @@
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
-#PBS -t 0-199
+#PBS -t 000-199
+
+echo this is job ${PBS_JOBID}
+echo `date`
 
 # The JOBSCRIPT variable should be the name of this script
 JOBSCRIPT=BSQR_temp.qsub
@@ -38,6 +41,7 @@ mkdir -p ${OUTDIR}
 mkdir -p ${dir}/tempbams
 
 cd ${OUTDIR}
+df -h
 
 if [ ! -f tempbams/`basename ${thisfile} .bam`.recal_data.table ]
 then
@@ -91,7 +95,6 @@ cd ${dir}
 java -XX:ParallelGCThreads=28 -jar ${PICARD}/ValidateSamFile.jar  I=tempbams/`basename ${thisfile} .bam`.recalibrated.bam \
 			 MODE=SUMMARY IGNORE=INVALID_VERSION_NUMBER
 
-#numcomplete=`ls tempbams/*recalibrated.bam | wc -l`
 
 # Calculate next job to run
 NEXT=$(( ${n} + 200 ))
@@ -100,7 +103,9 @@ NEXT=$(( ${n} + 200 ))
 if [ ${NEXT} -le ${MAXJOBID} ]
 then
     cd ${PBS_O_WORKDIR}
-    qsub -t ${NEXT} ${JOBSCRIPT}
+    NEXTJOB=`qsub -t ${NEXT} ${JOBSCRIPT}`
+	echo this is job ${PBS_JOBID} ${n} submitting ${NEXT} ${NEXTJOB}
+	echo `date`
 fi
 
 #Check to see if this is the last job and email user
