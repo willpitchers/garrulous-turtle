@@ -1,0 +1,43 @@
+#!/bin/bash -login
+#PBS -l nodes=1:ppn=1,walltime=01:00:00,mem=8gb
+#PBS -N fastqc_init
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+#PBS -t 0-135
+## #PBS -t 0-511
+
+
+# prepare working environment
+module load FastQC/0.11.2 
+module load R/3.2.0
+
+MAXJOBID=135
+n=${PBS_ARRAYID}
+
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline7/
+ref=/mnt/ls15/scratch/groups/efish/P_kings_genome/supercontigs.fasta
+
+cd ${dir}
+mkdir -p FastQC
+#mkdir -p FastQC2
+
+myfiles=(../20170929_DNASeq_PE/*_001.fastq.gz)
+#myfiles=(*_001.fastq.gz)
+#myfiles=(*trimmed.fq)
+
+# pull out one element of the array at a time based on PBS_ARRAYID
+#thisfile=`basename ${myfiles[${n}]} _001.fastq.gz`
+thisfile=${myfiles[${n}]}
+
+#fastqc ${thisfile}_001.fastq.gz --outdir=FastQC
+fastqc ${thisfile} --outdir=FastQC
+
+
+if [ ${n} -eq ${MAXJOBID} ]
+	then Rscript --vanilla ${PBS_O_WORKDIR}/fastqc.R
+fi
+
+cd ${PBS_O_WORKDIR}
+qstat -f $PBS_JOBID
