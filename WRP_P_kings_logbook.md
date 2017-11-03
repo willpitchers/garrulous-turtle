@@ -1611,4 +1611,4 @@ Week of 30th Oct.-3rd Nov.
     - another good suggestion from JG: now that I'm restricting array jobs to reun on the Laconia (intel16) nodes, it makes sense to optimise the use of memory and multi-threading such that each job uses a whole node: i.e. `nodes=1:ppn=28,walltime=04:00:00,mem=128gb`... making this the new standard should give me a small speed boost
       - OK. Somehow there are *still* some files missing...
         - e.g. `BAM_6867_S54_L006_R2_se.aligned.dedup.bam` didn't get a `..recalibrated.bam`... but all 4 commands run interactively with "no warn messages" and validates with "No errors found" !
-        - e.g. ``
+  - Met with Pat Bills from iCER – 
