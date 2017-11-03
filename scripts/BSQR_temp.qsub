@@ -1,11 +1,20 @@
 #!/bin/bash -login
+<<<<<<< HEAD
 #PBS -l nodes=1:ppn=8,walltime=04:00:00,mem=128gb,feature='intel16',files=20gb
 #PBS -N BaseR_test
+=======
+#PBS -l nodes=1:ppn=8,walltime=04:00:00,mem=128gb,feature='intel16',files=20gb
+#PBS -l file=20gb,feature='intel16'
+#PBS -N BaseR_temp
+>>>>>>> ef25b0471ac700cd71179d8f83493f18865b15f1
 #PBS -j oe
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
-#PBS -t 0-199
+#PBS -t 000-199
+
+echo this is job ${PBS_JOBID}
+echo `date`
 
 # The JOBSCRIPT variable should be the name of this script
 JOBSCRIPT=BSQR_temp.qsub
@@ -17,6 +26,7 @@ ref=/mnt/ls15/scratch/groups/efish/P_kings_genome/supercontigs.fasta
 
 # Current job number
 n=${PBS_ARRAYID}
+#n=545
 
 # build a list of file names
 cd ${dir}
@@ -31,56 +41,63 @@ module load GATK/3.7.0
 module load picardTools/1.89
 
 ## SPECIAL SAUCE - make temp scratch space for jerb
-export OUTDIR=${TMPDIR}/BaseR
+OUTDIR=${TMPDIR}/BaseR
 mkdir -p ${OUTDIR}
 mkdir -p ${dir}/tempbams
 
+cd ${OUTDIR}
+df -h
 
 if [ ! -f tempbams/`basename ${thisfile} .bam`.recal_data.table ]
 then
 	## Analysze patterns of covariation in the dataset (~10 mins)
 	java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T BaseRecalibrator \
-			-R ${ref} -I ${thisfile} -o ${OUTDIR}/`basename ${thisfile} .bam`.recal_data.table \
-			--run_without_dbsnp_potentially_ruining_quality  -nct 8  -rf BadCigar
+			-R ${ref} -I ${dir}/${thisfile} -o `basename ${thisfile} .bam`.recal_data.table \
+			--run_without_dbsnp_potentially_ruining_quality  -nct 28  -rf BadCigar
 fi
 
+# copy output back to scratch
+cp `basename ${thisfile} .bam`.recal_data.table ${dir}/tempbams/
 
 if [ ! -f tempbams/`basename ${thisfile} .bam`.post_recal_data.table ]
 	then
 	## Do a second pass to analyze covariation remaining after recalibration (~10 mins)
 	java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T BaseRecalibrator \
-			-R ${ref} -I ${thisfile}  -BQSR ${OUTDIR}/`basename ${thisfile} .bam`.recal_data.table \
-			-o ${OUTDIR}/`basename ${thisfile} .bam`.post_recal_data.table \
-			--run_without_dbsnp_potentially_ruining_quality  -nct 8 -rf BadCigar
+			-R ${ref} -I ${dir}/${thisfile}  -BQSR `basename ${thisfile} .bam`.recal_data.table \
+			-o `basename ${thisfile} .bam`.post_recal_data.table \
+			--run_without_dbsnp_potentially_ruining_quality  -nct 28 -rf BadCigar
 fi
 
+# copy output back to scratch
+cp `basename ${thisfile} .bam`.post_recal_data.table ${dir}/tempbams/
 
 if [ ! -f tempbams/`basename ${thisfile} .bam`.recal_plots.pdf ]
 	then
 	## Generate before-after plots (~5 mins)
 	java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T AnalyzeCovariates \
-			-R ${ref}  -before ${OUTDIR}/`basename ${thisfile} .bam`.recal_data.table \
-			-after ${OUTDIR}/`basename ${thisfile} .bam`.post_recal_data.table \
-			-plots ${OUTDIR}/`basename ${thisfile} .bam`.recal_plots.pdf -rf BadCigar
+			-R ${ref}  -before `basename ${thisfile} .bam`.recal_data.table \
+			-after `basename ${thisfile} .bam`.post_recal_data.table \
+			-plots `basename ${thisfile} .bam`.recal_plots.pdf -rf BadCigar
 fi
 
+# copy output back to scratch
+cp `basename ${thisfile} .bam`.recal_plots.pdf ${dir}/tempbams/
 
 if [ ! -f tempbams/`basename ${thisfile} .bam`.recalibrated.bam ]
 	then
 	## Apply the recalibration to the sequence data (~5 mins)
 	java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T PrintReads -R ${ref} \
-			-I ${thisfile}  -BQSR ${OUTDIR}/`basename ${thisfile} .bam`.recal_data.table \
-			-o ${OUTDIR}/`basename ${thisfile} .bam`.recalibrated.bam  -nct 8 -rf BadCigar
+			-I ${dir}/${thisfile}  -BQSR `basename ${thisfile} .bam`.recal_data.table \
+			-o `basename ${thisfile} .bam`.recalibrated.bam  -nct 28 -rf BadCigar
 fi
 
-
 # copy output back to scratch
-cp ${OUTDIR}/`basename ${thisfile} .bam`.*  ${dir}/tempbams/
-rm ${OUTDIR}/`basename ${thisfile} .bam`.*
+cp  `basename ${thisfile} .bam`.recalibrated.bam  ${dir}/tempbams/
 
+cd ${dir}
 
 # paranoid check for a well-formed bam-file
-java -XX:ParallelGCThreads=8 -jar ${PICARD}/ValidateSamFile.jar  I=tempbams/`basename ${thisfile} .bam`.recalibrated.bam \
+java -XX:ParallelGCThreads=28 -jar ${PICARD}/ValidateSamFile.jar  I=tempbams/`basename ${thisfile} .bam`.recalibrated.bam \
 			 MODE=SUMMARY IGNORE=INVALID_VERSION_NUMBER
 
 
@@ -91,7 +108,9 @@ NEXT=$(( ${n} + 200 ))
 if [ ${NEXT} -le ${MAXJOBID} ]
 then
     cd ${PBS_O_WORKDIR}
-    qsub -t ${NEXT} ${JOBSCRIPT}
+    NEXTJOB=`qsub -t ${NEXT} ${JOBSCRIPT}`
+	echo this is job ${PBS_JOBID} ${n} submitting ${NEXT} ${NEXTJOB}
+	echo `date`
 fi
 
 #Check to see if this is the last job and email user
