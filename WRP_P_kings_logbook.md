@@ -1611,4 +1611,31 @@ Week of 30th Oct.-3rd Nov.
     - another good suggestion from JG: now that I'm restricting array jobs to reun on the Laconia (intel16) nodes, it makes sense to optimise the use of memory and multi-threading such that each job uses a whole node: i.e. `nodes=1:ppn=28,walltime=04:00:00,mem=128gb`... making this the new standard should give me a small speed boost
       - OK. Somehow there are *still* some files missing...
         - e.g. `BAM_6867_S54_L006_R2_se.aligned.dedup.bam` didn't get a `..recalibrated.bam`... but all 4 commands run interactively with "no warn messages" and validates with "No errors found" !
-  - Met with Pat Bills from iCER – 
+  - Met with Pat Bills from iCER – we have decided on a 2-pronged approach:
+    - I am going to make a clean run of the array with some added reporting statements added in order that we can build a more complete picture of any cascading errors...
+    - meanwhile Pat Bills is going to attempt to reproduce our errors/outputs independently – I've made copies of the input files on scratch for him to use...
+
+
+Week of 6-10th November
+
+  - starting by building a job-tracking spreadsheet as discussed with JG & PB
+    - took this info. to iCER office hours; met with Michelle Szidik, who was able to **actual** diagnose the problem!
+    - the scheduler (PBS) was running the array from a version of the script that contained git merge annotations that the shell was trying and failing to interpret as commands...
+    - base recal. is done after a rerun and selected re-re-run for walltime over-runs
+      - to avoid this in future I've split the 4 GATK commands in the `04_base_score_recalibration_array` script over 2 scripts, effectively doubling the max. runtime. This needs to be tested, but I shall get back to that once I have a VCF from the new fish and can put tests in the queue without slowing down anything mission-critial
+      - the remaining mystery error – seems to be a down-stream consequence of partial re-run. See: https://gatkforums.broadinstitute.org/gatk/discussion/7057/baserecalibrator-stops-before-finishing-and-does-not-throw-an-error
+  - running vcf discovery...
+    - some errors popping up...
+      - problem #1 - `07_vcf_disco_chunk_7_array.qsub` resubmits each version of itself if it sees "warn" messages from GATK `ValidateVariants`. This is a problem where there are many (>15) potential alleles at a locus GATK warns us, and the script gets trapped in an infinite looped
+      - problem #2 - `BAM_6559_all_libraries.bai` is reported as truncated. My suspicion is that multiple infinite-looping I/O has broken this file. I shall re-index manually with `samtools index -b BAM_6559_all_libraries.bam`.
+      - problem #3 – a few jobs complained that the file they were trying to write could not be written because the output directory wasn't writeable... this stems from a typo in the `if` statement that re-submits failing jobs – I fix.
+  - additionally, new sequencing data archives copied to the backup-backup NAS drive because I'm paranoid
+
+
+Week 13-17th November
+
+  -
+  - maybe pre-make the bam slices?
+    - 2min, 1.5min, 1.5min, 1.2min, 1min per slice for the first 5 slices tested...
+    - wrote `make_bam_slices.qsub` to spawn an array, each job to write out 100 slices – testing n=1 as an interactive job...
+      - 100 single-slice BAMs built in 168mins 

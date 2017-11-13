@@ -1,7 +1,7 @@
 #!/bin/bash -login
 #PBS -l nodes=1:ppn=8,walltime=04:00:00,mem=128gb
 #PBS -l file=20gb,feature='intel16'
-#PBS -N BaseR_temp
+#PBS -N BaseR1_temp
 #PBS -j oe
 #PBS -M pitchers@msu.edu
 #PBS -m abe
@@ -17,7 +17,7 @@ JOBSCRIPT=04_base_score_recalibration_array.qsub
 
 ## Set up some variables
 # where do the files live
-dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline7/
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline7
 ref=/mnt/ls15/scratch/groups/efish/P_kings_genome/supercontigs.fasta
 
 # Current job number
@@ -67,56 +67,58 @@ fi
 # copy output back to scratch
 cp `basename ${thisfile} .bam`.post_recal_data.table ${dir}/tempbams/
 
-if [ ! -f tempbams/`basename ${thisfile} .bam`.recal_plots.pdf ]
-	then
-	## Generate before-after plots (~5 mins)
-	java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T AnalyzeCovariates \
-			-R ${ref}  -before `basename ${thisfile} .bam`.recal_data.table \
-			-after `basename ${thisfile} .bam`.post_recal_data.table \
-			-plots `basename ${thisfile} .bam`.recal_plots.pdf -rf BadCigar
-fi
+# if [ ! -f tempbams/`basename ${thisfile} .bam`.recal_plots.pdf ]
+# 	then
+# 	## Generate before-after plots (~5 mins)
+# 	java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T AnalyzeCovariates \
+# 			-R ${ref}  -before `basename ${thisfile} .bam`.recal_data.table \
+# 			-after `basename ${thisfile} .bam`.post_recal_data.table \
+# 			-plots `basename ${thisfile} .bam`.recal_plots.pdf -rf BadCigar
+# fi
+#
+# # copy output back to scratch
+# cp `basename ${thisfile} .bam`.recal_plots.pdf ${dir}/tempbams/
+#
+# if [ ! -f tempbams/`basename ${thisfile} .bam`.recalibrated.bam ]
+# 	then
+# 	## Apply the recalibration to the sequence data (~5 mins)
+# 	java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T PrintReads -R ${ref} \
+# 			-I ${dir}/${thisfile}  -BQSR `basename ${thisfile} .bam`.recal_data.table \
+# 			-o `basename ${thisfile} .bam`.recalibrated.bam  -nct 28 -rf BadCigar
+# fi
+#
+# # copy output back to scratch
+# cp  `basename ${thisfile} .bam`.recalibrated.bam  ${dir}/tempbams/
 
-# copy output back to scratch
-cp `basename ${thisfile} .bam`.recal_plots.pdf ${dir}/tempbams/
+# cd ${dir}
 
-if [ ! -f tempbams/`basename ${thisfile} .bam`.recalibrated.bam ]
-	then
-	## Apply the recalibration to the sequence data (~5 mins)
-	java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T PrintReads -R ${ref} \
-			-I ${dir}/${thisfile}  -BQSR `basename ${thisfile} .bam`.recal_data.table \
-			-o `basename ${thisfile} .bam`.recalibrated.bam  -nct 28 -rf BadCigar
-fi
-
-# copy output back to scratch
-cp  `basename ${thisfile} .bam`.recalibrated.bam  ${dir}/tempbams/
-
-cd ${dir}
-
-# paranoid check for a well-formed bam-file
-java -XX:ParallelGCThreads=28 -jar ${PICARD}/ValidateSamFile.jar  I=tempbams/`basename ${thisfile} .bam`.recalibrated.bam \
-			 MODE=SUMMARY IGNORE=INVALID_VERSION_NUMBER
+# # paranoid check for a well-formed bam-file
+# java -XX:ParallelGCThreads=28 -jar ${PICARD}/ValidateSamFile.jar  I=tempbams/`basename ${thisfile} .bam`.recalibrated.bam \
+# 			 MODE=SUMMARY IGNORE=INVALID_VERSION_NUMBER
 
 
 # Calculate next job to run
-NEXT=$(( ${n} + 200 ))
+# NEXT=$(( ${n} + 200 ))
 
 #Check to see if next job is past the maximum job id
-if [ ${NEXT} -le ${MAXJOBID} ]
-then
-    cd ${PBS_O_WORKDIR}
-    NEXTJOB=`qsub -t ${NEXT} ${JOBSCRIPT}`
-	echo this is job ${PBS_JOBID} ${n} submitting ${NEXT} ${NEXTJOB}
+# if [ ${NEXT} -le ${MAXJOBID} ]
+# then
+  cd ${PBS_O_WORKDIR}
+  # NEXTJOB=`qsub -t ${NEXT} ${JOBSCRIPT}`
+	# echo this is job ${PBS_JOBID} ${n} submitting ${NEXT} ${NEXTJOB}
+	NEXTJOB=`qsub -t ${n} 05_base_score_recalibration_array.qsub`
+	echo this is job ${PBS_JOBID} ${n} submitting ${n} ${NEXTJOB}
 	echo `date`
-fi
+# fi
 
 #Check to see if this is the last job and email user
-if [ ${n} -eq ${MAXJOBID} ]
-then
-    cd tempbams  &&  zip base_recal_plots.zip  *recal_plots.pdf
-    echo "." | mail -s "The base_score_recalibration JOB ARRAY is finishing" ${USER}@msu.edu
-    cd ${PBS_O_WORKDIR}
-    qsub 05_bam_merge_samples_array.qsub
-fi
+# if [ ${n} -eq ${MAXJOBID} ]
+# then
+#     cd tempbams  &&  zip base_recal_plots.zip  *recal_plots.pdf
+#     echo "." | mail -s "The base_score_recalibration JOB ARRAY is finishing" ${USER}@msu.edu
+#     cd ${PBS_O_WORKDIR}
+#     qsub 05_bam_merge_samples_array.qsub
+# fi
 
 #Print out the statistics for this job
 qstat -f ${PBS_JOBID}
