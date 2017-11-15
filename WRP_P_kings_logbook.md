@@ -1650,4 +1650,7 @@ Week 13-17th November
         - `make_bam_chunks.o49416415-42` failed 70/100 times
         - `make_bam_chunks.o49416415-43` failed 100/100 times, as did `make_bam_chunks.o49416415-44`, and 45-50
       - for now I'm going to remake `BAM_6562` and try again, but I'll need to come up with a way to avoid this in future
-      - 
+        - aaaaand `BAM_6562` is now the problem again... re-re-making `BAM_6562_all_libraries`
+        - 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+          - testing a version of `make_bam_slices` that writes to the ${TMPDIR} to see if this streamlines the `..bai` corruption issue...
+        - 
