@@ -1638,4 +1638,16 @@ Week 13-17th November
   - maybe pre-make the bam slices?
     - 2min, 1.5min, 1.5min, 1.2min, 1min per slice for the first 5 slices tested...
     - wrote `make_bam_slices.qsub` to spawn an array, each job to write out 100 slices – testing n=1 as an interactive job...
-      - 100 single-slice BAMs built in 168mins 
+      - 100 single-slice BAMs built in 168mins
+    - array completed, but the `BAM_6559_all_libraries.bam` file is again a problem...
+      - reindexed and resubmitted – problem repeats
+      - testing the individual-library BAMs for malformation etc....
+      - `BAM_6599_all_libraries` *still* the problem... regenerating it from the single-library bams...
+    - re-running `make_bam_slices`
+      - New problem fish: `BAM_6562` is now causing the same errors
+      - this may indicate just how much simultaneous I/O scratch can take:
+        - `make_bam_chunks.o49416415-51` failed 62/100 times
+        - `make_bam_chunks.o49416415-42` failed 70/100 times
+        - `make_bam_chunks.o49416415-43` failed 100/100 times, as did `make_bam_chunks.o49416415-44`, and 45-50
+      - for now I'm going to remake `BAM_6562` and try again, but I'll need to come up with a way to avoid this in future
+      - 

@@ -21,11 +21,11 @@ module load GATK/3.7.0
 	### SNPs ###
 	java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants -R ${ref} -V ${input_data}.vcf \
 						-selectType SNP  -nt 4  -o ${input_data}.snps.vcf
-	
+
 	java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantFiltration -R ${ref} -V ${input_data}.snps.vcf \
 						--filterExpression "QD < 2.0 || FS > 60.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0" \
 						-filterName "suggested_hard_filter" --setFilteredGtToNocall \
-#						--genotypeFilterExpression "GQ < ${GQ}" --genotypeFilterName "GQ${GQ}" \
+						--genotypeFilterExpression "GQ < ${GQ}" --genotypeFilterName "GQ${GQ}" \
 						-o ${input_data}.filtered.snps.GQ${GQ}.vcf
 	### INDELS ###
 	java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants -R ${ref} -V ${input_data}.vcf \
@@ -34,7 +34,7 @@ module load GATK/3.7.0
 	java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantFiltration -R ${ref} -V ${input_data}.indels.vcf \
 						--filterExpression "QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0" \
 						-filterName "suggested_indel_filter" --setFilteredGtToNocall \
-#						--genotypeFilterExpression "GQ < ${GQ}" --genotypeFilterName "GQ${GQ}" \
+						--genotypeFilterExpression "GQ < ${GQ}" --genotypeFilterName "GQ${GQ}" \
 						-o ${input_data}.filtered.indels.GQ${GQ}.vcf
 
     rm ${input_data}.snps.vcf  ${input_data}.indels.vcf
@@ -55,4 +55,3 @@ qsub next job here...
 
 #Print out the statistics for this job
 qstat -f ${PBS_JOBID}
-
