@@ -1,6 +1,7 @@
 #!/bin/bash -login
 #PBS -o /mnt/research/efish/2015_genomic_data/scripts
-#PBS -l nodes=1:ppn=1,walltime=04:00:00,mem=32gb
+#PBS -l nodes=1:ppn=4,walltime=04:00:00,mem=128gb
+#PBS -l feature='intel16'
 #PBS -N PLINK_ALPCP
 #PBS -j oe
 #PBS -M pitchers@msu.edu
@@ -8,10 +9,9 @@
 #PBS -r n
 
 #dir=/mnt/scratch/pitchers/eFISH/Analysis/
-dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6/Assoc
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline7/Assoc
 
 cd $dir
-
 module load plink/1.9
 
 

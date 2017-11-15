@@ -9,8 +9,7 @@
 
 # this script gets submitted as e.g. ` qsub -v input_data=all_fish_version_5-1_HPC.filtered.snps.GQ15  plink_fisher.qsub `
 
-#dir=/mnt/scratch/pitchers/eFISH/Analysis/
-dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6/V6-1_chunks/
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline7/Assoc/
 
 cd $dir
 

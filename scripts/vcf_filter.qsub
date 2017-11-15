@@ -9,7 +9,7 @@
 # This script gets submitted thusly, e.g.: ` qsub -v input_data=all_fish_version_6-1,GQ=20 vcf_filter.qsub `
 
 ## Set up some variables – where do the files live
-dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6/Assoc/
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline7/Assoc/
 ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
 
 cd ${dir}

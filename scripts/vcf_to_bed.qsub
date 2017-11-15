@@ -11,7 +11,7 @@
 ### `qsub -v input_data=all_fish_version_5-1_HPC,GQthreshold=20 vcf_to_bed.qsub`
 
 # set up working environment
-dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6/Assoc/
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline7/Assoc/
 ref=/mnt/ls15/scratch/groups/efish/P_kings_genome/supercontigs.fasta
 
 cd $dir
@@ -20,7 +20,7 @@ module load GATK/3.7.0
 
 if [ ! -f ../phenotype_metadata.fam ]
   # this file has no header, but the columns are: FamilyID IndividualID DadID MomID Sex Phenotype
-  then tail -63 /mnt/research/efish/2015_genomic_data/ultimate_phenotype.txt | awk '{ if ($2 == "P0-Absent") PHENO=1; else PHENO=2;  print $1 "\t" $1 "\t0\t0\t0\t" PHENO }' > ../phenotype_metadata.fam
+  then tail -158 /mnt/research/efish/2015_genomic_data/canonical_pheno_2017.txt | awk '{ if ($2 == "P0-Absent") PHENO=1; else PHENO=2;  print $1 "\t" $1 "\t0\t0\t0\t" PHENO }' > ../phenotype_metadata.fam
   ### seq. data filenames contain a typo; IVI_3923 should have been IVI_4923 (discovered 23/02/2016)
   ### this line alters the phenotype lookup table so that the mis-named reads get the correct phenotype.
   sed -i s/4923/3923/g ../phenotype_metadata.fam
