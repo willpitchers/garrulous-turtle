@@ -15,7 +15,6 @@
 
 ## Set up some variables
 # where do the files live
-# dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline6/
 dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline7/
 
 # Current job number

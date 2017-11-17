@@ -1,0 +1,87 @@
+#!/bin/bash -login
+#PBS -l nodes=1:ppn=2,walltime=04:00:00,mem=60gb
+#PBS -l feature='intel16'
+#PBS -N make_bam_chunks
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+#PBS -t 0-20
+
+#### make_bam_slices.qsub
+#  – this script globs in files that look like `XXX_NNNN_all_libraries.bam`
+#  - this script writes out *lots* of files that look like `all_fish_slice_N.bam`
+
+
+# Current job number
+n=${PBS_ARRAYID}
+MAXJOBID=51
+
+# where do the files live
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline7
+ref=/mnt/ls15/scratch/groups/efish/P_kings_genome/supercontigs.fasta
+
+cd ${dir}
+mkdir -p bam_chunks
+
+# we need the `indices.list` file...
+if [ ! -f indices.list ]
+    then cp /mnt/research/efish/2015_genomic_data/scripts/indices.list ./
+fi
+
+# load GATK
+module load Java/jdk1.8.0_31
+module load GATK/3.7.0
+module load picardTools/1.89
+
+# build a list of file names
+bamfiles=(*_all_libraries.bam)
+samples=`for j in "${bamfiles[@]}" ; do echo -I ${j} ; done | xargs`
+
+# set up first & last numbers
+startnums=( `seq 1 100 5162` )
+endnums=( `seq 100 100 5162` )
+
+# select which slices are being made
+if [ ${n} -eq 51 ]
+	then
+	ThisSeq=( `seq 5101 5162` )
+else
+	ThisSeq=( `seq ${startnums[ ${n} ]} ${endnums[ ${n} ]}` )
+fi
+
+# loop over selected set of indices
+for i in ${ThisSeq[@]}
+	do
+	# select a chunk
+	thisindex=`head -${i} indices.list | tail -1`
+	outputfilename=all_fish_slice_${i}.bam
+	if [ ! -f bam_chunks/${outputfilename} ]
+		then
+		# # the call to the GATK PrintReads
+		java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T PrintReads -R ${ref} \
+				${samples} ${thisindex} -o bam_chunks/${outputfilename} -nct 28 \
+				--disable_bam_indexing
+
+		 java -XX:ParallelGCThreads=8 -jar $PICARD/BuildBamIndex.jar I=${outputfilename}
+	fi
+done
+
+# submit next job in order
+if [ ${n} -le ${MAXJOBID} ]
+	then
+	cd ${PBS_O_WORKDIR}
+	next=` expr ${n} + 1 `
+	qsub -t ${next} make_bam_slices.qsub
+fi
+
+# Check to see if this is the last job and email user
+if [ ${n} -eq ${MAXJOBID} ]
+	then
+    echo "." | mail -s "The BAM slicing array is finishing" ${USER}@msu.edu
+    cd ${PBS_O_WORKDIR}
+#    qsub 08_merge_all_vcfs.qsub
+fi
+
+#Print out the statistics for this job
+qstat -f ${PBS_JOBID}
