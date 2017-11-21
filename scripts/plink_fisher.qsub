@@ -15,12 +15,18 @@ cd $dir
 
 module load plink/1.9
 
+# make exclusions file
+if [ ! -f wave2.fam ]
+	then
+	cat /mnt/research/efish/2015_genomic_data/canonical_pheno_2017.txt | grep --color='never' "2017" | tr '\t' ' ' | cut -d' ' -f 1 > wave2.fam
+fi
+
 # Straighforward 'basic' PLINK run...
-plink --bfile ${input_data} --allow-no-sex --geno 0.50 --allow-extra-chr --assoc fisher --ci 0.95 --pfilter 1 --test-missing --out ${input_data}_geno50 --a2-allele ${input_data}.vcf 4 3 '#'
+plink --bfile ${input_data} --allow-no-sex --geno 0.50 --allow-extra-chr --assoc fisher --ci 0.95 --pfilter 1 --test-missing --out ${input_data}_geno50 --a2-allele ${input_data}.vcf 4 3 '#'  --keep-fam wave2.fam --vcf-filter
 
-plink --bfile ${input_data} --allow-no-sex --geno 0.25 --allow-extra-chr --assoc fisher --ci 0.95 --pfilter 1 --test-missing --out ${input_data}_geno75 --a2-allele ${input_data}.vcf 4 3 '#'
+plink --bfile ${input_data} --allow-no-sex --geno 0.25 --allow-extra-chr --assoc fisher --ci 0.95 --pfilter 1 --test-missing --out ${input_data}_geno75 --a2-allele ${input_data}.vcf 4 3 '#'  --keep-fam wave2.fam
 
-plink --bfile ${input_data} --allow-no-sex --geno 0.00 --allow-extra-chr --assoc fisher --ci 0.95 --pfilter 1 --test-missing --out ${input_data}_geno100 --a2-allele ${input_data}.vcf 4 3 '#'
+plink --bfile ${input_data} --allow-no-sex --geno 0.00 --allow-extra-chr --assoc fisher --ci 0.95 --pfilter 1 --test-missing --out ${input_data}_geno100 --a2-allele ${input_data}.vcf 4 3 '#'  --keep-fam wave2.fam
 
 # PLINK command with:
 #  `--allow-no-sex` because our fishes' weren't sexed
@@ -31,11 +37,11 @@ plink --bfile ${input_data} --allow-no-sex --geno 0.00 --allow-extra-chr --assoc
 #  `--pfilter 1` cuts out rows with p-vals >1 (i.e. strips 'NA's)
 #  `--test-missing` Fisher's exact test for non-random missingness across cases/controls (separate output)
 #  `--real-ref-alleles` "Specifies that A2 alleles are based on a real reference genome"...
-plink --bfile ${input_data} --allow-no-sex --geno 0.50 --allow-extra-chr --model fisher --ci 0.95 --pfilter 1 --test-missing --out ${input_data}_geno50 --a2-allele ${input_data}.vcf 4 3 '#'
+plink --bfile ${input_data} --allow-no-sex --geno 0.50 --allow-extra-chr --model fisher --ci 0.95 --pfilter 1 --test-missing --out ${input_data}_geno50 --a2-allele ${input_data}.vcf 4 3 '#'  --keep-fam wave2.fam
 
-plink --bfile ${input_data} --allow-no-sex --geno 0.25 --allow-extra-chr --model fisher --ci 0.95 --pfilter 1 --test-missing --out ${input_data}_geno75 --a2-allele ${input_data}.vcf 4 3 '#'
+plink --bfile ${input_data} --allow-no-sex --geno 0.25 --allow-extra-chr --model fisher --ci 0.95 --pfilter 1 --test-missing --out ${input_data}_geno75 --a2-allele ${input_data}.vcf 4 3 '#'  --keep-fam wave2.fam
 
-plink --bfile ${input_data} --allow-no-sex --geno 0.00 --allow-extra-chr --model fisher --ci 0.95 --pfilter 1 --test-missing --out ${input_data}_geno100 --a2-allele ${input_data}.vcf 4 3 '#'
+plink --bfile ${input_data} --allow-no-sex --geno 0.00 --allow-extra-chr --model fisher --ci 0.95 --pfilter 1 --test-missing --out ${input_data}_geno100 --a2-allele ${input_data}.vcf 4 3 '#'  --keep-fam wave2.fam
 
 # separate out the hypothesis-wise output
 hypoth=( GENO ALLELIC DOM REC TREND )
@@ -81,7 +87,7 @@ done
 echo "." | mail -s "The PLINK assoc job is finishing" ${USER}@msu.edu
 
 cd ${PBS_O_WORKDIR}
-qsub -v input_data=${input_data}  GetTopSNPs.qsub
+#qsub -v input_data=${input_data}  GetTopSNPs.qsub
 
 #Print out the statistics for this job
 qstat -f ${PBS_JOBID}
