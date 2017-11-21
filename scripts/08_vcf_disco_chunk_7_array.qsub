@@ -38,7 +38,7 @@ module load Java/jdk1.8.0_31
 module load GATK/3.7.0
 
 # select a chunk
-#thisindex=`head -${n} indices.list | tail -1`
+thisindex=`head -${n} indices.list | tail -1`
 
 # build a list of file names
 #bamfiles=(*_all_libraries.bam)
@@ -51,12 +51,12 @@ if [ ! -f vcf_chunks/all_fish_vcf_slice_${n}.vcf ]
     then
     # # the call to the GATK HaplotypeCaller
     java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T HaplotypeCaller \
-                  -R ${ref} -I bam_chunks/all_fish_slice_${n}.bam  \
-                  --genotyping_mode DISCOVERY \
-                  -stand_call_conf 30  -mbq 20 \
-                  -o vcf_chunks/${outputfilename} \
-                  --output_mode EMIT_ALL_CONFIDENT_SITES \
-                  --num_threads 1 --num_cpu_threads_per_data_thread 14
+                -R ${ref} -I bam_chunks/all_fish_slice_${n}.bam  \
+                --genotyping_mode DISCOVERY ${thisindex} \
+                -stand_call_conf 30  -mbq 20 \
+                -o vcf_chunks/${outputfilename} \
+                --output_mode EMIT_ALL_CONFIDENT_SITES \
+                --num_threads 1 --num_cpu_threads_per_data_thread 14
 fi
 
 
