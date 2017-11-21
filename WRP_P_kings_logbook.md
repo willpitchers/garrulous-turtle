@@ -1668,3 +1668,7 @@ Week 20-24th November
 
   - merging new WG VCF file...
     - GATK reports slices 3859 & 4097 are empty...?
+      - re-running the calling fixes those slices
+    - GATK now complaining about 2 variants that have gotten themselves in the wrong order on scaffold 17...
+      - sorting the VCF fixes this problem
+    - 
