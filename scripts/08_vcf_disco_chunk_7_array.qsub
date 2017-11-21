@@ -1,5 +1,5 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=14,walltime=02:00:00,mem=62gb
+#PBS -l nodes=1:ppn=14,walltime=03:00:00,mem=62gb
 #PBS -l feature='intel16'
 #PBS -N VCFdisc_V7
 #PBS -j oe

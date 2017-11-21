@@ -1653,4 +1653,18 @@ Week 13-17th November
         - aaaaand `BAM_6562` is now the problem again... re-re-making `BAM_6562_all_libraries`
         - 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
           - testing a version of `make_bam_slices` that writes to the ${TMPDIR} to see if this streamlines the `..bai` corruption issue...
-        - 
+      - problem solved! (hopefully) by invoking the `--disable_bam_indexing` option in GATK
+        - all 5162 bam slices are written!
+        - edited `08_vcf_disco_chunk_7_array.qsub` to point each array instance at a single BAM slice rather than the list of `FISH_XXX_all_libraries.bam` files
+        - new VCFs generated
+          - slices 1500 & 2500 failed to index, and 3799,3989,4102 & 4152 couldn't *open* the index
+          - explicitly indexing bam slices right after creation from now on!
+          - 4102 timed out, but that explanation doesn't fit for 3989, 3799
+
+          - 4 jobs errored out – they claim that the files are incomplete - re-made and re-indexed BAM slices
+
+
+Week 20-24th November
+
+  - merging new WG VCF file...
+    - GATK reports slices 3859 & 4097 are empty...?
