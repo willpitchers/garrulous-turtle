@@ -40,12 +40,17 @@ module load GATK/3.7.0
     rm ${input_data}.snps.vcf  ${input_data}.indels.vcf
 
 	### merge ###
-	java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T CombineVariants -R ${ref} \
-						--variant ${input_data}.filtered.snps.GQ${GQ}.vcf \
-						--variant ${input_data}.filtered.indels.GQ${GQ}.vcf \
-						-o ${input_data}.filtered.all_variants.GQ${GQ}.vcf \
+#	java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T CombineVariants -R ${ref} \
+#						--variant ${input_data}.filtered.snps.GQ${GQ}.vcf \
+#						--variant ${input_data}.filtered.indels.GQ${GQ}.vcf \
+#						-o ${input_data}.filtered.all_vars.GQ${GQ}.vcf \
 #						-genotypeMergeOptions UNIQIFY
 
+#	java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants -R ${ref} \
+#						-V ${input_data}.filtered.all_vars.GQ${GQ}.vcf \
+#						--setFilteredGtToNocall -o ${input_data}.filtered.all_variants.GQ${GQ}.vcf
+
+#	rm ${input_data}.filtered.all_vars.GQ${GQ}.vcf
 #	rm ${input_data}.filtered.snps.GQ${GQ}.vcf  ${input_data}.filtered.indels.GQ${GQ}.vcf
 #fi
 
