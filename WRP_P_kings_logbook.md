@@ -1664,11 +1664,46 @@ Week 13-17th November
           - 4 jobs errored out – they claim that the files are incomplete - re-made and re-indexed BAM slices
 
 
-Week 20-24th November
+Weeks 20-24th November & 27th Nov. - 1st December
 
   - merging new WG VCF file...
     - GATK reports slices 3859 & 4097 are empty...?
       - re-running the calling fixes those slices
     - GATK now complaining about 2 variants that have gotten themselves in the wrong order on scaffold 17...
       - sorting the VCF fixes this problem
+    -
+  - moving forward; a wishlist of items...
+    - re-ran vcf_filter with GQ filter turned up to 30 – remade bed/bim/fam – reran plink_fisher
+    - biallelic script from JG -> this should *fixed* differences between phenotypes
+      - `biallelic.pl` needs a group assignment file – building one with:
+        - `awk -F "[\t ]+" '{ P=$6 - 1 ; if ( P=="0" )  N="absent" ; else  N="present" ; print $1, " ", P, " ", N }' all_fish_version_7.fam > fish_pheno_for_biallele.txt`
+      - run with `perl /mnt/research/efish/2015_genomic_data/biallelic.pl all_fish_version_7.sorted.filtered.snps.GQ30.filt_pass.vcf.gz fish_pheno_for_biallele.txt`... problems.
+        - perl script is looking for a command called `vcf-subset`... is this from VCFtools?
+          - it *does* seem to want VCFtools... but is running for a good while. Might need to qsub it?
+
+<--- THANKSGIVING --->
+
+    - look into rerunning pipeline with 2015 fish? (use v.6.1 VCF)
+      - combined the vcfs with `java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T CombineVariants -R ${ref} --variant all_fish_version_6-1.vcf --variant all_fish_version_7.sorted.filtered.snps.GQ20.vcf  -o all_fish_versions_6-1_plus_7-filtered.vcf --genotypemergeoption UNIQUIFY`
+      - submitted `vcf_to_bed` X problems!! old vcf has individuals labeled differently than new one (APA_6675.variant vs. APA_6675)
+        - using sed to fix this... then retrying `vcf_to_bed`... nope.
+      - instead trying `java -Xmx120g -Djava.io.tmpdir=${TMPDIR} -cp /mnt/home/pitchers/GenomeAnalysisTK.jar org.broadinstitute.gatk.tools.CatVariants -R ${ref} --variant all_fish_version_7.sorted.filtered.snps.GQ20.filter_pass.vcf --variant all_fish_version_6-1.vcf -out all_fish_versions_6-1_plus_7-filtered.vcf`
+        - initial failure because GATK won't combine filtered with unfiltered VCFs...
+        - used `all_fish_version_7.sorted.vcf`
+        - vcf_filter doesn't work on all_fish_versions_6-1_plus_7.vcf because it's not sorted...  sorting with `java -jar ~/picard.jar SortVcf I=all_fish_versions_6-1_plus_7.vcf O=all_fish_versions_6-1_plus_7.sorted.vcf`
+        - trying `vcf_filter` and `vcf_to_bed` with `all_fish_versions_6-1_plus_7.sorted.vcf`...
+        - also problems. GATK finds the VCF malformed because the header specifies 76 genotypes but some positions contain only 63 genotypes... do I need to merge at the BAM file stage to get this to work...?
+      - OK. attempt the third: `java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T CombineVariants -R ${ref} --variant all_fish_version_6-1.vcf --variant  all_fish_version_7.sorted.vcf -o all_fish_versions_6-1_plus_7.vcf --genotypemergeoption UNIQUIFY`
+        - no warn messages. trying to make a set of plink files... success! Making second set from filtered output
+        -
+      - It would be helpful to me to clarify the group memberships of suspect-EOD fish...
+        -
+    - set threshold WRT highest *possible* pvals given nfish
+      - looking into adjusting threshold based on missingness – ran `plink --missing --bfile all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass --allow-extra-chr --out all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass.bed --keep-fam wave2.fam`
+        - output (`all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass.bed.lmiss`) can be joined to the assoc output...
+        - re-used chi-square simulation from `PowerNotebook.Rmd` to build a tbale of min. pvals by missingness (I made the assumption that missingness does not alter balance, which is probably not true at every locus, but will make comparison against empirical pvals inherently conservative, so I'm OK with it)
     - 
+
+    - plot alternate hypotheses!!
+    - fix black-grey deal
+    - candidate list == loci where association is perfect given number of genotypes we have at that locus
