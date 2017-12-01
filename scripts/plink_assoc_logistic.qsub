@@ -38,7 +38,7 @@ plink --bfile ${input_data}_pruned --pca header --out ${input_data}_pruned_pca -
 plink --bfile ${input_data} --model fisher --covar ${input_data}_pruned_pca.eigenvec --covar-name PC1,PC2,PC3 --out ${input_data}  --pfilter 1 --allow-no-sex --geno 0.50 --allow-extra-chr --test-missing --real-ref-alleles
 
 # logistic with permutation and PCs
-plink --bfile ${input_data} --covar ${input_data}_pruned_pca.eigenvec --covar-name PC1,PC2,PC3 --allow-extra-chr --allow-no-sex --geno 0.50 --logistic hide-covar mperm=10000 --mperm-save --out ${input_data}_mperm_PCs --pfilter 1 
+plink --bfile ${input_data} --covar ${input_data}_pruned_pca.eigenvec --covar-name PC1,PC2,PC3 --allow-extra-chr --allow-no-sex --geno 0.50 --logistic hide-covar mperm=10000 --mperm-save --out ${input_data}_mperm_PCs --pfilter 1
 
 # logistic with permutation without PCs
 plink --bfile ${input_data} --allow-extra-chr --allow-no-sex --geno0.50 --logistic mperm=10000 --mperm-save --out ${input_data}_mperm_noPC --pfilter 1
@@ -87,5 +87,3 @@ cd ${PBS_O_WORKDIR}
 
 #Print out the statistics for this job
 qstat -f ${PBS_JOBID}
-
-
