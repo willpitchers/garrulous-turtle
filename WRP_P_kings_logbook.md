@@ -1671,39 +1671,56 @@ Weeks 20-24th November & 27th Nov. - 1st December
       - re-running the calling fixes those slices
     - GATK now complaining about 2 variants that have gotten themselves in the wrong order on scaffold 17...
       - sorting the VCF fixes this problem
-    -
-  - moving forward; a wishlist of items...
-    - re-ran vcf_filter with GQ filter turned up to 30 – remade bed/bim/fam – reran plink_fisher
+
+  moving forward; a wishlist of items...
+  - re-ran vcf_filter with GQ filter turned up to 30 – remade bed/bim/fam – reran plink_fisher
+
+  <--- THANKSGIVING --->
+
+  - candidate list == loci where association is perfect given number of genotypes we have at that locus...
     - biallelic script from JG -> this should *fixed* differences between phenotypes
       - `biallelic.pl` needs a group assignment file – building one with:
         - `awk -F "[\t ]+" '{ P=$6 - 1 ; if ( P=="0" )  N="absent" ; else  N="present" ; print $1, " ", P, " ", N }' all_fish_version_7.fam > fish_pheno_for_biallele.txt`
       - run with `perl /mnt/research/efish/2015_genomic_data/biallelic.pl all_fish_version_7.sorted.filtered.snps.GQ30.filt_pass.vcf.gz fish_pheno_for_biallele.txt`... problems.
         - perl script is looking for a command called `vcf-subset`... is this from VCFtools?
           - it *does* seem to want VCFtools... but is running for a good while. Might need to qsub it?
+    - knock this nonsense on the head <- using PLINK instead
+      - PLINK with: `plink --bfile ../all_fish_version_7.sorted.filtered.snps.GQ20 --allow-no-sex --geno 0.25 --allow-extra-chr --freq case-control --out scaffold137_geno75_jrg_test --chr Scaffold137 --a2-allele ../all_fish_version_7.sorted.filtered.snps.GQ20.vcf 4 3 '#'  --keep-fam ../wave2.fam`
+      - then munge with `awk '{print $2, $5 * $7,(1-$5)*$7, $6 * $8,(1-$6)*$8}' scaffold137_geno75_jrg_test.frq.cc > counts_and_freqs.txt` and `paste scaffold137_geno75_jrg_test.frq.cc counts_and_freqs.txt >  analyze_this.txt`
 
-<--- THANKSGIVING --->
+  - look into rerunning pipeline with 2015 fish? (use v.6.1 VCF)
+    - combined the vcfs with `java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T CombineVariants -R ${ref} --variant all_fish_version_6-1.vcf --variant all_fish_version_7.sorted.filtered.snps.GQ20.vcf  -o all_fish_versions_6-1_plus_7-filtered.vcf --genotypemergeoption UNIQUIFY`
+    - submitted `vcf_to_bed` X problems!! old vcf has individuals labeled differently than new one (APA_6675.variant vs. APA_6675)
+      - using sed to fix this... then retrying `vcf_to_bed`... nope.
+    - instead trying `java -Xmx120g -Djava.io.tmpdir=${TMPDIR} -cp /mnt/home/pitchers/GenomeAnalysisTK.jar org.broadinstitute.gatk.tools.CatVariants -R ${ref} --variant all_fish_version_7.sorted.filtered.snps.GQ20.filter_pass.vcf --variant all_fish_version_6-1.vcf -out all_fish_versions_6-1_plus_7-filtered.vcf`
+      - initial failure because GATK won't combine filtered with unfiltered VCFs...
+      - used `all_fish_version_7.sorted.vcf`
+      - vcf_filter doesn't work on all_fish_versions_6-1_plus_7.vcf because it's not sorted...  sorting with `java -jar ~/picard.jar SortVcf I=all_fish_versions_6-1_plus_7.vcf O=all_fish_versions_6-1_plus_7.sorted.vcf`
+      - trying `vcf_filter` and `vcf_to_bed` with `all_fish_versions_6-1_plus_7.sorted.vcf`...
+      - also problems. GATK finds the VCF malformed because the header specifies 76 genotypes but some positions contain only 63 genotypes... do I need to merge at the BAM file stage to get this to work...?
+    - OK. attempt the third: `java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T CombineVariants -R ${ref} --variant all_fish_version_6-1.vcf --variant  all_fish_version_7.sorted.vcf -o all_fish_versions_6-1_plus_7.vcf --genotypemergeoption UNIQUIFY`
+      - no warn messages. trying to make a set of plink files... success! Making second set from filtered output
 
-    - look into rerunning pipeline with 2015 fish? (use v.6.1 VCF)
-      - combined the vcfs with `java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T CombineVariants -R ${ref} --variant all_fish_version_6-1.vcf --variant all_fish_version_7.sorted.filtered.snps.GQ20.vcf  -o all_fish_versions_6-1_plus_7-filtered.vcf --genotypemergeoption UNIQUIFY`
-      - submitted `vcf_to_bed` X problems!! old vcf has individuals labeled differently than new one (APA_6675.variant vs. APA_6675)
-        - using sed to fix this... then retrying `vcf_to_bed`... nope.
-      - instead trying `java -Xmx120g -Djava.io.tmpdir=${TMPDIR} -cp /mnt/home/pitchers/GenomeAnalysisTK.jar org.broadinstitute.gatk.tools.CatVariants -R ${ref} --variant all_fish_version_7.sorted.filtered.snps.GQ20.filter_pass.vcf --variant all_fish_version_6-1.vcf -out all_fish_versions_6-1_plus_7-filtered.vcf`
-        - initial failure because GATK won't combine filtered with unfiltered VCFs...
-        - used `all_fish_version_7.sorted.vcf`
-        - vcf_filter doesn't work on all_fish_versions_6-1_plus_7.vcf because it's not sorted...  sorting with `java -jar ~/picard.jar SortVcf I=all_fish_versions_6-1_plus_7.vcf O=all_fish_versions_6-1_plus_7.sorted.vcf`
-        - trying `vcf_filter` and `vcf_to_bed` with `all_fish_versions_6-1_plus_7.sorted.vcf`...
-        - also problems. GATK finds the VCF malformed because the header specifies 76 genotypes but some positions contain only 63 genotypes... do I need to merge at the BAM file stage to get this to work...?
-      - OK. attempt the third: `java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T CombineVariants -R ${ref} --variant all_fish_version_6-1.vcf --variant  all_fish_version_7.sorted.vcf -o all_fish_versions_6-1_plus_7.vcf --genotypemergeoption UNIQUIFY`
-        - no warn messages. trying to make a set of plink files... success! Making second set from filtered output
-        -
-      - It would be helpful to me to clarify the group memberships of suspect-EOD fish...
-        -
-    - set threshold WRT highest *possible* pvals given nfish
-      - looking into adjusting threshold based on missingness – ran `plink --missing --bfile all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass --allow-extra-chr --out all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass.bed --keep-fam wave2.fam`
-        - output (`all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass.bed.lmiss`) can be joined to the assoc output...
-        - re-used chi-square simulation from `PowerNotebook.Rmd` to build a tbale of min. pvals by missingness (I made the assumption that missingness does not alter balance, which is probably not true at every locus, but will make comparison against empirical pvals inherently conservative, so I'm OK with it)
-    - 
+  - It would be helpful to me to clarify the group memberships of suspect-EOD fish...
+
+  - set threshold WRT highest *possible* pvals given nfish
+    - looking into adjusting threshold based on missingness – ran `plink --missing --bfile all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass --allow-extra-chr --out all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass.bed --keep-fam wave2.fam`
+      - output (`all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass.bed.lmiss`) can be joined to the assoc output...
+      - re-used chi-square simulation from `PowerNotebook.Rmd` to build a tbale of min. pvals by missingness (I made the assumption that missingness does not alter balance, which is probably not true at every locus, but will make comparison against empirical pvals inherently conservative, so I'm OK with it)
+
+  - run a simple APA vs. BAM GWAS
+    - all this needs is an alternate `..fam` file to reclassify POP as PHENO...
+    - Ugh. I have  malformed VCF again... remaking with `java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants -R ${ref} -V all_fish_version_7.sorted.filtered.snps.GQ20.vcf --setFilteredGtToNocall -o all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass.vcf`
+    -
+
+
+    -
 
     - plot alternate hypotheses!!
     - fix black-grey deal
-    - candidate list == loci where association is perfect given number of genotypes we have at that locus
+  - LD and Fst calcs need to be rerun
+
+
+  - where are the pvals better for EOD than for pop?
+    - pass pop into plink as covariate
+    -
