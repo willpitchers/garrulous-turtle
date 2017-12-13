@@ -1724,3 +1724,45 @@ Weeks 20-24th November & 27th Nov. - 1st December
   - where are the pvals better for EOD than for pop?
     - pass pop into plink as covariate
     -
+
+
+Week of 4-8th December
+
+  - Is missingness still problematic?
+    - missingness report with `plink --bfile ${input_data} --allow-no-sex --geno 0.25 --allow-extra-chr --keep-fam wave2.fam --out ${input_data} --missing`
+      - freq. missingness per fish *not* predictable by phenotype (p-val=0.50)
+      - freq. missingness per fish *not* predictable by population (p-val=0.84)
+      - freq. missingness per scaffold gets larger with smaller scaffolds (p-val<0.001), but only slightly (coef=2.9e-5)
+      - var. missingness per scaffold also gets larger with smaller scaffolds (p-val<0.001), but only slightly (coef=2.5e-6)
+      - these results hold (qualitatively) true for input_data that's been filtered at GQ30 as well as GQ20.
+      - missingness per fish is >0.05 & <0.3 at GQ20 but jumps to >0.1 & <0.4 at GQ30
+    - is JG seeing very different results with `vcftools`-generated missing reports...?
+      - he used; `vcftools --vcf ${input_data}.vcf --max-missing 0.5 --minQ 20 --recode --recode-INFO-all --remove-filtered-all --keep ../wave2.fam --out ${input_data}.wave2_GQ20_hard_filt`, and then; `vcftools --vcf ${input_data}.wave2_GQ20_hard_filt.recode.vcf --missing-site`, and then; `vcftools --vcf ${input_data}.wave2_GQ20_hard_filt.recode.vcf --missing-indv`
+
+      - `vcftools --vcf ${input_data}.vcf --remove-filtered-geno-all --remove-filtered-all --keep wave2.fam --max-missing 0.5 --minQ 20 --recode --recode-INFO-all`
+
+      - plink vs. VCFtools
+        - first attempt finds that they *do not* agree...
+        - details in `Missingness2017.Rmd`
+        -
+
+
+      estimate pop missingness by alleles
+      where is the sweet spot for filtering?
+      big pops – plenty of scope for private alleles to exist *per fish*
+
+      explicit list of filters on way in to PLINK:
+
+    - `GQx` --
+    - filterExpression
+      - QD < 2.0
+      - FS > 60.0
+      - MQ < 40.0
+      - MQRankSum < -12.5
+      - ReadPosRankSum < -8.0
+    - geno 0.05
+
+
+Week of 11-15th December
+
+  - 

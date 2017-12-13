@@ -1,15 +1,13 @@
 #!/bin/bash -login
 #PBS -o /mnt/research/efish/2015_genomic_data/scripts
 #PBS -l nodes=1:ppn=1,walltime=04:00:00,mem=64gb
-#PBS -N PLINK_fisher
+#PBS -N gettopsnps
 #PBS -j oe
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
 
-#dir=/mnt/scratch/pitchers/eFISH/Analysis/
-dir=/mnt/ls15/scratch/groups/efish/WILL/V5-1_chunks/
-# dir=/mnt/ls15/scratch/groups/efish/WILL/V5-1_chunks/
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline7/Assoc/
 
 cd $dir
 
@@ -17,11 +15,30 @@ module load R/3.2.0
 module load plink/1.9
 module load vcftools/0.1.12a
 
-# mydata=`basename all_variants_merged_27_10_2015.vcf .vcf`
-# mydata=all_variants_merged_21_01_2016
-# output_name=${input_data}_g50_CI
 
-R --no-save < ${PBS_O_WORKDIR}/AssocComparison.R
+Rscript ${PBS_O_WORKDIR}/AssocComparison.R
+
+# fisher
+tail -n +2 all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass.filtered.snps.GQ20_geno90.assoc.fisher.topsnps.csv | cut -d',' -f 1-2 | tr ',' '\t' > temp
+
+vcftools --vcf all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass.vcf --keep wave2.fam --positions temp --extract-FORMAT-info GT -c > all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass.filtered.snps.GQ20_geno90.assoc.fisher.topsnps.list
+
+rm temp
+
+# alternate hypotheses
+
+hypoth=( GENO ALLELIC DOM REC TREND )
+for i in "${hypoth[@]}"
+  do tail -n +2 all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass.filtered.snps.GQ20_geno90.${i}.model.reformatted.csv.topsnps.csv | cut -d',' -f 2 | cut -d'-' -f 2,3 | tr '-' ' ' > temp
+
+  vcftools --vcf all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass.vcf --keep wave2.fam --positions temp --extract-FORMAT-info GT -c > all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass.filtered.snps.GQ20_geno90.${i}.model.reformatted.topsnps.list
+
+  rm temp
+done
+
+
+
+# getting top SNPs – VCFtools writes ref as '0', first alt. as '1', second alt. as '2' etc.
 
 
 

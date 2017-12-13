@@ -17,6 +17,7 @@ if ( grepl( "model", filename ) == TRUE ) {
 	}
 
 
+
 #if ( grepl( "assoc.logistic", filename ) == TRUE ) {
 #		perms <- tbl_df( fread( paste( filename, ".mperm", sep='', coll='' )))
 #		full_join( assoc, perms, by=c( "SNP", "SNP" )) %>% 
