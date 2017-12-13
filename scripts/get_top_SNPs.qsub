@@ -7,27 +7,28 @@
 #PBS -m abe
 #PBS -r n
 
+# this script now should be run thusly: `qsub -v input_data=all_fish_version_7 get_top_SNPs.qsub`
+
 dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline7/Assoc/
 
 cd $dir
 
 module load R/3.2.0
-module load plink/1.9
 module load vcftools/0.1.12a
 
+Rscript ${PBS_O_WORKDIR}/AssocComparison.R ${input_data}
 
-Rscript ${PBS_O_WORKDIR}/AssocComparison.R
-
-# fisher
+# FISHER – getting top SNPs – VCFtools writes ref as '0', first alt. as '1', second alt. as '2' etc.
 tail -n +2 all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass.filtered.snps.GQ20_geno90.assoc.fisher.topsnps.csv | cut -d',' -f 1-2 | tr ',' '\t' > temp
 
 vcftools --vcf all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass.vcf --keep wave2.fam --positions temp --extract-FORMAT-info GT -c > all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass.filtered.snps.GQ20_geno90.assoc.fisher.topsnps.list
 
 rm temp
 
-# alternate hypotheses
 
+# alternate hypotheses
 hypoth=( GENO ALLELIC DOM REC TREND )
+
 for i in "${hypoth[@]}"
   do tail -n +2 all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass.filtered.snps.GQ20_geno90.${i}.model.reformatted.csv.topsnps.csv | cut -d',' -f 2 | cut -d'-' -f 2,3 | tr '-' ' ' > temp
 
@@ -37,64 +38,31 @@ for i in "${hypoth[@]}"
 done
 
 
-
-# getting top SNPs – VCFtools writes ref as '0', first alt. as '1', second alt. as '2' etc.
-
-
-
 # grab scaffold & SNP ID
-
-cut -d',' -f 1-2 fisher_all_fish_version_5-1_HPC.filtered.snps_GQ20_geno50.assoc.csv | tr ',' '\t' > temp
-vcftools --vcf all_fish_version_5-1_HPC.vcf --positions temp --extract-FORMAT-info GT -c > fisher_top_SNPs
-rm temp
-
-
-# grab scaffold & SNP ID
-
+#
 # cut -d',' -f 1-2 fisher_all_fish_version_5-1_HPC_geno50.assoc.csv | tr ',' '\t' > temp
 # vcftools --vcf all_fish_version_5-1_HPC.vcf --positions temp --extract-FORMAT-info GT -c > fisher_top_SNPs
-
-
-# grab scaffold & SNP ID – 3 level pheno
-
-cut -d',' -f 1-2 3level_all_fish_version_5-1_HPC_3level.assoc.csv | tr ',' '\t' > temp
-vcftools --vcf all_fish_version_5-1_HPC.vcf --positions temp --extract-FORMAT-info GT -c > 3level_top_SNPs
-
-
-# grab scaffold & SNP ID – 3 level pheno with pop covariate
-
-cut -d',' -f 1-2 PopCov_P0_all_fish_version_5-1_HPC_3level_PopCov.assoc.logistic.csv | tr ',' '\t' > temp
-vcftools --vcf all_fish_version_5-1_HPC.vcf --positions temp --extract-FORMAT-info GT -c > PopCov_3level_top_SNPs
-
-
-# grab scaffold & SNP ID – 2 level case/control with pop stratification
-
-cut -d',' -f 1-2 all_fish_version_5-1_HPC_strata.assoc | tr ',' '\t' > temp
-vcftools --vcf all_fish_version_5-1_HPC.vcf --positions temp --extract-FORMAT-info GT -c > strata_top_SNPs
-
-
-# grab scaffold & SNP ID - 3 level with mid- and present levels collapsed
-
-cut -d',' -f 1-2 3levelsas2_all_fish_version_5-1_HPC_3levelasas2ssoc.csv | tr ',' '\t' > temp
-vcftools --vcf all_fish_version_5-1_HPC.vcf --positions temp --extract-FORMAT-info GT -c > 3levelsas2_top_SNPs
-
-###
-
-hypoth=( GENO ALLELIC DOM REC TREND )
-for i in ${hypoth[@]}
-  do cut -d',' -f 1-2 model_all_fish_version_5-1_HPC_g50_CI.${i}.model.reformatted.csv | tr ',' '\t' > temp
-	vcftools --vcf all_fish_version_5-1_HPC.vcf --positions temp --extract-FORMAT-info GT -c > ${i}_top_SNPs
-	rm temp
-done
-
-# grab scaffold & SNP ID for alternate analysis
-
-cut -d',' -f 1-2 fisher_without_COB_5-1_HPC.2017_geno50.assoc.csv | tr ',' '\t' > temp
-vcftools --vcf without_COB_5-1_HPC.2017.vcf --positions temp --extract-FORMAT-info GT -c > fisher_no_COB_top_SNPs
-
-
-for i in ${hypoth[@]}
-  do cut -d',' -f 1-2 model_without_COB_5-1_HPC.2017_g50_CI.${i}.model.reformatted.csv | tr ',' '\t' > temp
-	vcftools --vcf without_COB_5-1_HPC.2017.vcf --positions temp --extract-FORMAT-info GT -c > ${i}_no_COB_top_SNPs
-	rm temp
-done
+#
+#
+# # grab scaffold & SNP ID – 3 level pheno
+#
+# cut -d',' -f 1-2 3level_all_fish_version_5-1_HPC_3level.assoc.csv | tr ',' '\t' > temp
+# vcftools --vcf all_fish_version_5-1_HPC.vcf --positions temp --extract-FORMAT-info GT -c > 3level_top_SNPs
+#
+#
+# # grab scaffold & SNP ID – 3 level pheno with pop covariate
+#
+# cut -d',' -f 1-2 PopCov_P0_all_fish_version_5-1_HPC_3level_PopCov.assoc.logistic.csv | tr ',' '\t' > temp
+# vcftools --vcf all_fish_version_5-1_HPC.vcf --positions temp --extract-FORMAT-info GT -c > PopCov_3level_top_SNPs
+#
+#
+# # grab scaffold & SNP ID – 2 level case/control with pop stratification
+#
+# cut -d',' -f 1-2 all_fish_version_5-1_HPC_strata.assoc | tr ',' '\t' > temp
+# vcftools --vcf all_fish_version_5-1_HPC.vcf --positions temp --extract-FORMAT-info GT -c > strata_top_SNPs
+#
+#
+# # grab scaffold & SNP ID - 3 level with mid- and present levels collapsed
+#
+# cut -d',' -f 1-2 3levelsas2_all_fish_version_5-1_HPC_3levelasas2ssoc.csv | tr ',' '\t' > temp
+# vcftools --vcf all_fish_version_5-1_HPC.vcf --positions temp --extract-FORMAT-info GT -c > 3levelsas2_top_SNPs
