@@ -1753,19 +1753,39 @@ Week of 4-8th December
 
       explicit list of filters on way in to PLINK:
 
-    - `GQx` --
-    - filterExpression
-      - QD < 2.0
-      - FS > 60.0
-      - MQ < 40.0
-      - MQRankSum < -12.5
-      - ReadPosRankSum < -8.0
-    - geno 0.05
+    - `GQx` -- GATK option in `vcf_to_bed`
+      - 
+    - filterExpression -- GATK options in `vcf_filter`
+      - QD < 2.0  --  'QualByDepth' normalizes call confidence by depth of sample reads supporting a variant
+      - FS > 60.0  --  'FisherStrand' is the strand bias estimated using Fisher's Exact Test; the output is a Phred-scaled p-value.
+      - MQ < 40.0  --  'MappingQuality' is a threshold for the mapping qualities of the reads supporting the variant
+      - MQRankSum < -12.5  --  'MappingQualityRankSumTest' is a test for for mapping qualities of REF versus ALT reads. The ideal result is a value close to zero, which indicates there is little to no difference. A negative value indicates that the reads supporting the alternate allele have lower mapping quality scores than those supporting the reference allele, and vice versa.
+      - ReadPosRankSum < -8.0  --  'ReadPosRankSumTest' is a test for relative positioning of REF versus ALT alleles within reads, since sequencers make the most errors at the ends of reads.  A negative value indicates that the alternate allele is found at the ends of reads more often than the reference allele and vice versa.
+    - geno 0.05  --
 
 
 Week of 11-15th December
 
   -
+
   - rebuilding colour-coded genotype tables of 'top snps'
     - weirdness about allelic, dom, trend, geno topsnps lists... lists seem incomplete 5000ish when coded for 10000
-    - 
+    -
+
+
+
+best cases Fisher
+121	Scaffold704	64680
+205	Scaffold31	2433337
+216	Scaffold229	387059
+772	Scaffold40	1654521
+917	Scaffold162	1029026
+
+
+
+  - running associations with no missingness requirement:
+    - `plink --bfile ${input_data} --allow-no-sex --geno 0 --allow-extra-chr --assoc fisher --pfilter 1 --test-missing --out ${input_data}_geno00 --a2-allele ${input_data}.vcf 4 3 '#'  --keep-fam wave2.fam`
+  - running associations with pop. as covariate:
+    - `plink --bfile ${input_data} --allow-no-sex --geno 0.10 --allow-extra-chr --assoc fisher --pfilter 1 --test-missing --out ${input_data}_geno90_PopCV --a2-allele ${input_data}.vcf 4 3 '#'  --keep-fam wave2.fam --covar ../population_metadata.fam --covar-number 4`
+    - `plink --bfile ${input_data} --allow-no-sex --geno 0 --allow-extra-chr --assoc fisher --pfilter 1 --test-missing --out ${input_data}_geno00_PopCV --a2-allele ${input_data}.vcf 4 3 '#'  --keep-fam wave2.fam --covar ../population_metadata.fam --covar-number 4`
+    - both the above with `--model fisher`

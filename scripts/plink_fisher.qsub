@@ -46,42 +46,42 @@ plink --bfile ${input_data} --allow-no-sex --geno 0 --allow-extra-chr --model fi
 hypoth=( GENO ALLELIC DOM REC TREND )
 
 for i in "${hypoth[@]}"
-  do grep --color='never' ${i} ${input_data}_geno90.model > `basename ${input_data}{i}.model .model`.${i}.model
+  do grep --color='never' ${i} ${input_data}_geno90.model > `basename ${input_data}_geno90.model .model`.${i}.model
 	grep --color='never' ${i} ${input_data}_geno00.model > `basename ${input_data}_geno00.model .model`.${i}.model
 done
 
 
 # reformat hypothesis-wise output for downstream user
-miss_levels=( {i}  _geno00 )
+miss_levels=( _geno90  _geno00 )
 
 for i in "${miss_levels[@]}"
-	do 
+	do
 	# GENO
-	awk -F "[\t ]+" '{ split( $6, tri, "/") ; split( $7, bi, "/") ; print $0 "\t" tri[1] "\t" tri[2] "\t" tri[3] "\t" bi[1] "\t" bi[2] "\t" bi[3] }' ${input_data}{i}.GENO.model >> ${input_data}{i}.GENO.model.reformatted
-	echo -e "CHR SNP A1 A2 TEST AFF UNAFF P Aff_Hr Aff_Het Aff_Ha Unaff_Hr Unaff_Het Unaff_Ha" | cat - ${input_data}{i}.GENO.model.reformatted | sed s/'\/'/'_'/g | sponge ${input_data}{i}.GENO.model.reformatted
-	awk '{$1=$1}1' OFS="," ${input_data}{i}.GENO.model.reformatted > ${input_data}{i}.GENO.model.reformatted.csv
+	awk -F "[\t ]+" '{ split( $6, tri, "/") ; split( $7, bi, "/") ; print $0 "\t" tri[1] "\t" tri[2] "\t" tri[3] "\t" bi[1] "\t" bi[2] "\t" bi[3] }' ${input_data}${i}.GENO.model >> ${input_data}${i}.GENO.model.reformatted
+	echo -e "CHR SNP A1 A2 TEST AFF UNAFF P Aff_Hr Aff_Het Aff_Ha Unaff_Hr Unaff_Het Unaff_Ha" | cat - ${input_data}${i}.GENO.model.reformatted | sed s/'\/'/'_'/g | sponge ${input_data}${i}.GENO.model.reformatted
+	awk '{$1=$1}1' OFS="," ${input_data}${i}.GENO.model.reformatted > ${input_data}${i}.GENO.model.reformatted.csv
 
 	# ALLELIC
-	awk -F "[\t ]+" '{ split( $6, tri, "/") ; split( $7, bi, "/") ; print $0 "\t" tri[1] "\t" tri[2] "\t" bi[1] "\t" bi[2] }' ${input_data}{i}.ALLELIC.model >> ${input_data}{i}.ALLELIC.model.reformatted
-	echo -e "CHR SNP A1 A2 TEST AFF UNAFF P Aff_ref Aff_alt Unaff_ref Unaff_alt" | cat - ${input_data}{i}.ALLELIC.model.reformatted | sed s/'\/'/'_'/g | sponge ${input_data}{i}.ALLELIC.model.reformatted
-	awk '{$1=$1}1' OFS="," ${input_data}{i}.ALLELIC.model.reformatted > ${input_data}{i}.ALLELIC.model.reformatted.csv
+	awk -F "[\t ]+" '{ split( $6, tri, "/") ; split( $7, bi, "/") ; print $0 "\t" tri[1] "\t" tri[2] "\t" bi[1] "\t" bi[2] }' ${input_data}${i}.ALLELIC.model >> ${input_data}${i}.ALLELIC.model.reformatted
+	echo -e "CHR SNP A1 A2 TEST AFF UNAFF P Aff_ref Aff_alt Unaff_ref Unaff_alt" | cat - ${input_data}${i}.ALLELIC.model.reformatted | sed s/'\/'/'_'/g | sponge ${input_data}${i}.ALLELIC.model.reformatted
+	awk '{$1=$1}1' OFS="," ${input_data}${i}.ALLELIC.model.reformatted > ${input_data}${i}.ALLELIC.model.reformatted.csv
 
 	# DOM
-	awk -F "[\t ]+" '{ split( $6, tri, "/") ; split( $7, bi, "/") ; print $0 "\t" tri[1] "\t" tri[2] "\t" bi[1] "\t" bi[2] }' ${input_data}{i}.DOM.model >> ${input_data}{i}.DOM.model.reformatted
-	echo -e "CHR SNP A1 A2 TEST AFF UNAFF P Aff_ref_or_het Aff_alt Unaff_ref_or_het Unaff_alt" | cat - ${input_data}{i}.DOM.model.reformatted | sed s/'\/'/'_'/g | sponge ${input_data}{i}.DOM.model.reformatted
-	awk '{$1=$1}1' OFS="," ${input_data}{i}.DOM.model.reformatted > ${input_data}{i}.DOM.model.reformatted.csv
+	awk -F "[\t ]+" '{ split( $6, tri, "/") ; split( $7, bi, "/") ; print $0 "\t" tri[1] "\t" tri[2] "\t" bi[1] "\t" bi[2] }' ${input_data}${i}.DOM.model >> ${input_data}${i}.DOM.model.reformatted
+	echo -e "CHR SNP A1 A2 TEST AFF UNAFF P Aff_ref_or_het Aff_alt Unaff_ref_or_het Unaff_alt" | cat - ${input_data}${i}.DOM.model.reformatted | sed s/'\/'/'_'/g | sponge ${input_data}${i}.DOM.model.reformatted
+	awk '{$1=$1}1' OFS="," ${input_data}${i}.DOM.model.reformatted > ${input_data}${i}.DOM.model.reformatted.csv
 
 	# REC
-	awk -F "[\t ]+" '{ split( $6, tri, "/") ; split( $7, bi, "/") ; print $0 "\t" tri[1] "\t" tri[2] "\t" bi[1] "\t" bi[2] }' ${input_data}{i}.REC.model >> ${input_data}{i}.REC.model.reformatted
-	echo -e "CHR SNP A1 A2 TEST AFF UNAFF P Aff_ref Aff_het_or_alt Unaff_ref Unaff_het_or_alt" | cat - ${input_data}{i}.REC.model.reformatted | sed s/'\/'/'_'/g | sponge ${input_data}{i}.REC.model.reformatted
-	awk '{$1=$1}1' OFS="," ${input_data}{i}.REC.model.reformatted > ${input_data}{i}.REC.model.reformatted.csv
+	awk -F "[\t ]+" '{ split( $6, tri, "/") ; split( $7, bi, "/") ; print $0 "\t" tri[1] "\t" tri[2] "\t" bi[1] "\t" bi[2] }' ${input_data}${i}.REC.model >> ${input_data}${i}.REC.model.reformatted
+	echo -e "CHR SNP A1 A2 TEST AFF UNAFF P Aff_ref Aff_het_or_alt Unaff_ref Unaff_het_or_alt" | cat - ${input_data}${i}.REC.model.reformatted | sed s/'\/'/'_'/g | sponge ${input_data}${i}.REC.model.reformatted
+	awk '{$1=$1}1' OFS="," ${input_data}${i}.REC.model.reformatted > ${input_data}${i}.REC.model.reformatted.csv
 
 	# TREND
-	awk -F "[\t ]+" '{ split( $6, tri, "/") ; split( $7, bi, "/") ; print $0 "\t" tri[1] "\t" tri[2] "\t" bi[1] "\t" bi[2] }' ${input_data}{i}.TREND.model >> ${input_data}{i}.TREND.model.reformatted
-	echo -e "CHR SNP A1 A2 TEST AFF UNAFF P Aff_ref Aff_alt Unaff_ref Unaff_alt" | cat - ${input_data}{i}.TREND.model.reformatted | sed s/'\/'/'_'/g | sponge ${input_data}{i}.TREND.model.reformatted
-	awk '{$1=$1}1' OFS="," ${input_data}{i}.TREND.model.reformatted > ${input_data}{i}.TREND.model.reformatted.csv
+	awk -F "[\t ]+" '{ split( $6, tri, "/") ; split( $7, bi, "/") ; print $0 "\t" tri[1] "\t" tri[2] "\t" bi[1] "\t" bi[2] }' ${input_data}${i}.TREND.model >> ${input_data}${i}.TREND.model.reformatted
+	echo -e "CHR SNP A1 A2 TEST AFF UNAFF P Aff_ref Aff_alt Unaff_ref Unaff_alt" | cat - ${input_data}${i}.TREND.model.reformatted | sed s/'\/'/'_'/g | sponge ${input_data}${i}.TREND.model.reformatted
+	awk '{$1=$1}1' OFS="," ${input_data}${i}.TREND.model.reformatted > ${input_data}${i}.TREND.model.reformatted.csv
 
-	rm ${input_data}{i}*.model.reformatted
+	rm ${input_data}${i}*.model.reformatted
 done
 
 ####
