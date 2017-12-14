@@ -1765,4 +1765,7 @@ Week of 4-8th December
 
 Week of 11-15th December
 
-  - 
+  -
+  - rebuilding colour-coded genotype tables of 'top snps'
+    - weirdness about allelic, dom, trend, geno topsnps lists... lists seem incomplete 5000ish when coded for 10000
+    - 
