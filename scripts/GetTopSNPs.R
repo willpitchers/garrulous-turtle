@@ -17,7 +17,6 @@ if ( grepl( "model", filename ) == TRUE ) {
 	}
 
 
-
 #if ( grepl( "assoc.logistic", filename ) == TRUE ) {
 #		perms <- tbl_df( fread( paste( filename, ".mperm", sep='', coll='' )))
 #		full_join( assoc, perms, by=c( "SNP", "SNP" )) %>%
@@ -25,6 +24,12 @@ if ( grepl( "model", filename ) == TRUE ) {
 #		arrange( P ) %>%
 #				head( 5000 ) %>% write.csv( paste( filename, ".csv", coll='', sep='' ), quote=FALSE, row.names=FALSE )
 #	}
+
+if ( grepl( "assoc.logistic", filename ) == TRUE ) {
+		assoc %>% arrange( P ) %>%
+				head( 5000 ) %>% write.csv( paste( filename, ".csv", coll='', sep='' ), quote=FALSE, row.names=FALSE )
+	}
+
 
 
 if ( grepl( "fisher", filename ) == TRUE ) {

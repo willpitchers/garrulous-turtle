@@ -16,7 +16,8 @@ module load R/3.3.2
 module load GATK/3.7.0
 
 AssocFileList=( ${input_data}*.assoc.fisher )
-#AssocFileList=( ${input_data}*_mperm.assoc.logistic )
+# AssocFileList=( ${input_data}*_mperm.assoc.logistic )
+
 
 for thisfile in ${AssocFileList[@]}
 	do  Rscript ${PBS_O_WORKDIR}/GetTopSNPs.R ${thisfile} # this script needs to be adjusted
