@@ -1754,7 +1754,7 @@ Week of 4-8th December
       explicit list of filters on way in to PLINK:
 
     - `GQx` -- GATK option in `vcf_to_bed`
-      - 
+      -
     - filterExpression -- GATK options in `vcf_filter`
       - QD < 2.0  --  'QualByDepth' normalizes call confidence by depth of sample reads supporting a variant
       - FS > 60.0  --  'FisherStrand' is the strand bias estimated using Fisher's Exact Test; the output is a Phred-scaled p-value.
@@ -1785,7 +1785,21 @@ best cases Fisher
 
   - running associations with no missingness requirement:
     - `plink --bfile ${input_data} --allow-no-sex --geno 0 --allow-extra-chr --assoc fisher --pfilter 1 --test-missing --out ${input_data}_geno00 --a2-allele ${input_data}.vcf 4 3 '#'  --keep-fam wave2.fam`
-  - running associations with pop. as covariate:
-    - `plink --bfile ${input_data} --allow-no-sex --geno 0.10 --allow-extra-chr --assoc fisher --pfilter 1 --test-missing --out ${input_data}_geno90_PopCV --a2-allele ${input_data}.vcf 4 3 '#'  --keep-fam wave2.fam --covar ../population_metadata.fam --covar-number 4`
-    - `plink --bfile ${input_data} --allow-no-sex --geno 0 --allow-extra-chr --assoc fisher --pfilter 1 --test-missing --out ${input_data}_geno00_PopCV --a2-allele ${input_data}.vcf 4 3 '#'  --keep-fam wave2.fam --covar ../population_metadata.fam --covar-number 4`
-    - both the above with `--model fisher`
+  - running associations in logistic mode with pop. as covariate:
+    - `plink --bfile ${input_data} --allow-extra-chr --geno 0.10 --allow-no-sex --logistic mperm=10000 --mperm-save --out ${input_data}_geno90_mperm --pfilter 1 --a2-allele ${input_data}.vcf 4 3 '#'  --keep-fam wave2.fam`
+    - `plink --bfile ${input_data} --allow-extra-chr --geno 0.10 --allow-no-sex --logistic mperm=10000 --mperm-save --out ${input_data}_geno90_mperm --pfilter 1 --a2-allele ${input_data}.vcf 4 3 '#'  --keep-fam wave2.fam --covar ../population_metadata.fam --covar-number 4`
+
+
+  - what do the associations look like *within* Bambomo?
+    - make a Bambomo-only plink-file set: `java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants -R ${ref} -V ${input_data}.vcf --sample_expressions BAM -o ${input_data}_BAMonly.vcf`, then passing the vcf into `vcf_to_bed.qsub`
+
+
+remake both waves plink files
+
+for 15th
+  - outputs of:
+    - assoc 90% genotyping filtered GQ20 wave2 logistic
+    - assoc 90% genotyping filtered GQ20 wave2 logistic with pop covar
+    - assoc 90% genotyping filtered GQ20 wave1+2 logistic
+    - assoc 90% genotyping filtered GQ20 wave1+2 logistic with pop covar
+    - assoc 90% genotyping filtered GQ20 BAM logistic
