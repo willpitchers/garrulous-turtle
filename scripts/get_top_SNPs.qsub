@@ -16,7 +16,7 @@ cd $dir
 module load R/3.2.0
 module load vcftools/0.1.14
 
-myfiles=( ${input_data}*model ${input_data}.assoc.fisher )
+myfiles=( ${input_data}*model ${input_data}.assoc.fisher ${input_data}.assoc.logistic )
 
 for i in "${myfiles[@]}"
   do Rscript ${PBS_O_WORKDIR}/AssocComparison.R ${i}

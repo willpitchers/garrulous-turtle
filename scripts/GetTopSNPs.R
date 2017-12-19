@@ -27,7 +27,7 @@ if ( grepl( "model", filename ) == TRUE ) {
 
 if ( grepl( "assoc.logistic", filename ) == TRUE ) {
 		assoc %>% arrange( P ) %>%
-				head( 5000 ) %>% write.csv( paste( filename, ".csv", coll='', sep='' ), quote=FALSE, row.names=FALSE )
+				head( 10000 ) %>% write.csv( paste( filename, ".topsnps.csv", coll='', sep='' ), quote=FALSE, row.names=FALSE )
 	}
 
 

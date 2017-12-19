@@ -25,16 +25,15 @@ for thisfile in ${AssocFileList[@]}
 	cut -d',' -f 2 ${thisfile}.csv | tail -n +2 | sed s/Var-//g | tr '-' ':'  > ${thisfile}.intervals
 
 	# pull out relevant lines from vcf file
-	java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants \
-							-V ${input_data}.vcf \
-							-o ${thisfile}.topSNPs.vcf \
-							-R ${ref} -L ${thisfile}.intervals
+java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants \
+-V ${input_data}.vcf \
+-o ${thisfile}.topSNPs.vcf \
+-R ${ref} -L ${thisfile}.intervals
 
-	java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToTable \
-							-V ${thisfile}.topSNPs.vcf \
-							-F CHROM -F POS -F REF -F ALT -GF GT -R ${ref} \
-#							-o ${thisfile}.topSNPs_byP.table
-							-o ${thisfile}.topSNPs.table
+java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToTable \
+-V ${thisfile}.topSNPs.vcf \
+-F CHROM -F POS -F REF -F ALT -GF GT -R ${ref} \
+-o ${thisfile}.topSNPs.table
 
 	rm ${thisfile}.intervals  ${thisfile}.topSNPs.vcf  ${thisfile}.topSNPs.vcf.idx
 done

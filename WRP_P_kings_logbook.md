@@ -1799,7 +1799,12 @@ remake both waves plink files
 for 15th
   - outputs of:
     - assoc 90% genotyping filtered GQ20 wave2 logistic
+      - `all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass.filtered.snps.GQ20_geno90_logi.assoc.logistic`
     - assoc 90% genotyping filtered GQ20 wave2 logistic with pop covar
+      - `all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass.filtered.snps.GQ20_geno90_popCV.assoc.logistic`
     - assoc 90% genotyping filtered GQ20 wave1+2 logistic
+      - 
     - assoc 90% genotyping filtered GQ20 wave1+2 logistic with pop covar
+      -
     - assoc 90% genotyping filtered GQ20 BAM logistic
+      - `all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass.filtered.snps.GQ20_BAMonly_geno90.assoc.logistic`
