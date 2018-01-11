@@ -210,3 +210,42 @@ Once data reaches the **Statistical Analysis** stage it may become necessary for
   - Second-pass variant calls for all individuals – `all_variants_merged_27_10_2015.vcf`
     - PLINK association results from the above `all_variants_merged_27_10_2015.assoc.fisher`
   -
+
+
+
+  ===
+
+  ## Version 8 –– with **NEW** data, including only Apassa & Bambomo fish, with 2 forks, and with extra paranoid self-documentation
+
+|  Stage   |   Script    |   Tool(s)   |   Options   |   Input   |   Output    |   Description
+---|----------|-------------|-------------|-------------|-----------|-------------|---------------
+0. | **QC** | `00_fastQC_array.qsub`  | FastQC/0.11.2 | | `Sample_library_Lane_RX_Ye.fastq.gz` | ??? | read quality assessment...
+1. | **Trimming** | `01_trimmomatic_array.qsub ` | Trimmomatic/0.32 | `ILLUMINACLIP:Illumina_adapters.fa:2:30:10 HEADCROP:10 MAXINFO:50:0.5` | `Sample_library_Lane_RX_Ye.fastq.gz` | `Sample_library_Lane_RX_Ye.trimmed.fq` | gunzips ..fastq.gz files and runs trimmomatic
+2. | **Alignment** | `02_1_align_array_IL.qsub` | bwa/0.7.12.r1044 | `bwa mem -M -R ..` | `Sample_library_Lane_RX_Ye.trimmed.fq` & `supercontigs.fasta` | `Sample_library_Lane_RX_Ye.trimmed.aligned.sam` | pulls details from fastq files to build a GATK-compatible `@RG` tag, and then runs alignment against the P.kings genome
+  | | `02_2_align_array_BN.qsub` | bwa/0.7.12.r1044 | `bwa mem -M -R ..` | `Sample_library_Lane_RX_Ye.trimmed.fq` & `Para_king_2015_013_20_40_15_90_3_superscaffold.fasta` | `Sample_library_Lane_RX_Ye.trimmed.aligned.sam` | pulls details from fastq files to build a GATK-compatible `@RG` tag, and then runs alignment against the *bionano-scaffolded* version of the P.kings genome
+3. | **Sorting/Indexing** | `03_deduplication_array.qsub` | picardTools/1.89 | `SORT_ORDER=coordinate` | `Sample_library_Lane_RX_Ye.trimmed.aligned.sam` | `Sample_library_Lane_RX_Ye.trimmed.aligned.dedup.bam` | SortSam.jar sorts, MarkDuplicates.jar marks duplicates & BuildBamIndex.jar indexes
+  | 
+
+4. | **Base Score Recalibration** | `04_base_score_recal_array1.qsub` | GATK/3.5.0 | `--run_without_dbsnp_potentially_ruining_quality` | `Sample_library_Lane_RX_Ye.trimmed.aligned.dedup.realigned.bam` & `Reference.fa` | `Sample_library_Lane_RX_Ye.recal_data.table` | 2 passes with `BaseRecalibrator` (with the infamous no-dbsnp flag), this writes recal. tables
+5. | **Base Score Recalibration** | `05_base_score_recal_array2.qsub` | GATK/3.5.0 | `--run_without_dbsnp_potentially_ruining_quality` | `Sample_library_Lane_RX_Ye.trimmed.aligned.dedup.realigned.bam` & `Reference.fa` | `Sample_library_Lane_RX_Ye.recal_plots.pdf` & `Sample_library_Lane_RX_Ye.aligned.dedup.realigned.recalibrated.bam` | `AnalyzeCovariates` prints the plots/stats, then `PrintReads` writes the output bam based on the recal. table
+6. | **Sample Merging** | `05_bam_merge_samples_array.qsub` | picardTools/1.89 | `MergeSamFiles.jar` & `BuildBamIndex` | `XXX_NNNN_library_Lane_RX_Ye.aligned.dedup.realigned.recalibrated.bam` | `XXX_NNNN_all_libraries.bam` | I added this step so that we could use the GATK 'Joint Variant Calling' workflow; parallelizing over individuals. Merging files within individual, then re-index the resulting `..bam`
+7. | | `06_bam_file_check.qsub` | picardTools/1.89 | `ValidateSamFile` | `XXX_NNNN_all_libraries.bam` | `XXX_NNNN_samples`
+
+8. | **Variant Calling** | `07_vcf_disco_chunk_6-1_array.qsub` | GATK/3.7.0 `-T HaplotypeCaller` | `--genotyping_mode DISCOVERY -stand_call_conf 30  -mbq 20 --output_mode EMIT_ALL_CONFIDENT_SITES` | 63 x`POP_ID##_all_libraries.bam` & `indices.list` | ```all_fish_`date '+%d_%m_%Y'`_slice_${n}.vcf``` | builds *n* 'slices' of `..vcf` file, where slice size is set by the file `indices.list` (itself build by `write_scaf_indices.sh`)
+
+8. | **Variant Calling** | `08_vcf_disco_chunk_8_array.qsub` | GATK/3.7.0 `-T HaplotypeCaller` | `--genotyping_mode DISCOVERY -stand_call_conf 30  -mbq 20 --output_mode GVCF` | 63 x`POP_ID##_all_libraries.bam` & `indices.list` | 63 x`POP_ID##_all_libraries.g.vcf` |
+??? builds *n* 'slices' of `..vcf` file, where slice size is set by the file `indices.list` (itself build by `write_scaf_indices.sh`)
+
+
+  ### File Flow
+    0. 344  `..fastq.gz` files
+    1. 688  `..trimmed.fq` files
+    2. 516  `..aligned.sam` files
+    3. 516  `..aligned.sorted.sam` & `..aligned.dedup.sam` files
+    4. xxx  `..dedup.realigned.recal_data.table` & `..dedup.realigned.post_recal_data.table` files
+    5. xxx  `..dedup.realigned.recalibrated.bam` & `..dedup.realigned.recal_plots.pdf` files
+    6. 62   `..all_libraries.bam` files for 62 fish
+    7. xxx  
+    8. xxx  
+
+  ===

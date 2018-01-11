@@ -5,7 +5,7 @@
 Wednesday, 12 August 2015
 
  - all contents of `20150707_DNASeq_PE`, `20150721_DASeq_PE` & `BioNano` directories uploaded from the lab NAS drive.
- - md5sum checked on all ...fasta.tar.gz files
+ - md5sum checked on all `...fasta.tar.gz` files
  - git repo. initiated
  - added script for initial FastQC quality assessment: `step1_fastQC.qsub`
  - run with:
@@ -1766,45 +1766,115 @@ Week of 4-8th December
 
 Week of 11-15th December
 
-  -
-
   - rebuilding colour-coded genotype tables of 'top snps'
     - weirdness about allelic, dom, trend, geno topsnps lists... lists seem incomplete 5000ish when coded for 10000
-    -
-
-
-
-best cases Fisher
-121	Scaffold704	64680
-205	Scaffold31	2433337
-216	Scaffold229	387059
-772	Scaffold40	1654521
-917	Scaffold162	1029026
-
-
-
+    - best cases Fisher:
+      - 121	Scaffold704	64680
+      - 205	Scaffold31	2433337
+      - 216	Scaffold229	387059
+      - 772	Scaffold40	1654521
+      - 917	Scaffold162	1029026
   - running associations with no missingness requirement:
     - `plink --bfile ${input_data} --allow-no-sex --geno 0 --allow-extra-chr --assoc fisher --pfilter 1 --test-missing --out ${input_data}_geno00 --a2-allele ${input_data}.vcf 4 3 '#'  --keep-fam wave2.fam`
   - running associations in logistic mode with pop. as covariate:
     - `plink --bfile ${input_data} --allow-extra-chr --geno 0.10 --allow-no-sex --logistic mperm=10000 --mperm-save --out ${input_data}_geno90_mperm --pfilter 1 --a2-allele ${input_data}.vcf 4 3 '#'  --keep-fam wave2.fam`
     - `plink --bfile ${input_data} --allow-extra-chr --geno 0.10 --allow-no-sex --logistic mperm=10000 --mperm-save --out ${input_data}_geno90_mperm --pfilter 1 --a2-allele ${input_data}.vcf 4 3 '#'  --keep-fam wave2.fam --covar ../population_metadata.fam --covar-number 4`
-
-
   - what do the associations look like *within* Bambomo?
     - make a Bambomo-only plink-file set: `java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants -R ${ref} -V ${input_data}.vcf --sample_expressions BAM -o ${input_data}_BAMonly.vcf`, then passing the vcf into `vcf_to_bed.qsub`
 
-
-remake both waves plink files
-
-for 15th
+  - remake both waves plink files...
   - outputs of:
     - assoc 90% genotyping filtered GQ20 wave2 logistic
       - `all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass.filtered.snps.GQ20_geno90_logi.assoc.logistic`
     - assoc 90% genotyping filtered GQ20 wave2 logistic with pop covar
       - `all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass.filtered.snps.GQ20_geno90_popCV.assoc.logistic`
-    - assoc 90% genotyping filtered GQ20 wave1+2 logistic
-      - 
-    - assoc 90% genotyping filtered GQ20 wave1+2 logistic with pop covar
-      -
     - assoc 90% genotyping filtered GQ20 BAM logistic
       - `all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass.filtered.snps.GQ20_BAMonly_geno90.assoc.logistic`
+
+
+18th-31st December
+
+  # The File Lose-ening of 2017
+
+  ## Non-issues
+
+    - 13 files gone from the `FOR_PAT` directory - I'm just gonna nuke the folder
+    - 697 VCF/sam 'slices' from the `Pipeline6` directory... these are likely defunkt anyway
+    - 60 files from `Pipeline7/vcf_chunks_attempt1` - a testing folder that I probably ought to clear out anyway
+    - 7 FastQC files that are trivially easy to regenerate
+    - 46 process files spun off by GATK (`..table`, `..metrics.txt`, `..stats` & `..recal_plots.pdf`)
+    - 5 `..log` plink output files
+
+  ## Minor issues
+
+    - 211 version 7 bam 'slices' these will need to be regenerated if I want to re-do variant calling...
+    - 256 vcf chunks...
+    - 36 `..aligned.sam` files from current pipeline
+    - 17 `..trimmed.fq` files - trivially east to regenerate
+    - 630 various index files
+
+  ## Issues (sadface)
+
+    - files that need to be re-made:
+      - all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass.filtered.snps.GQ20_BAMonly_geno90.missing
+      - all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass.filtered.snps.GQ20_geno90_PopCV.assoc.fisher
+      - all_fish_version_7.filtered.snps.GQ20.vcf
+      - all_fish_versions_6-1_plus_7_geno00.REC.model.reformatted.csv
+      - all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass.filtered.snps.GQ20_BAMonly_geno00.assoc.logistic.topsnps.csv
+    - files that *may* need to be re-made:
+      - pop_gwas/all_fish_version_7.sorted.filtered.snps.GQ30.filt_pass_pop_geno100.TREND.model.reformatted.csv
+      - pop_gwas/all_fish_version_7.sorted.filtered.snps.GQ20.filt_pass_pop_geno100.REC.model
+    - samples.list2 – I shall have to check why I made this variant on the `samples` file
+
+  ## Raw sequence files lost from scratch
+
+    - BAM_6603_TCCGGAGA-AGGCGAAG_L001_R2_001.fastq.gz
+    - APA_6684_ATTCAGAA-CCTATCC_L004_R1_001.fastq.gz
+    - BAM_6598_TCCGGAGA-ATAGAGGC_L002_R1_001.fastq.gz
+    - BAM_6604_TCCGGAGA-TAATCTT_L005_R2_001.fastq.gz
+    - BAM_6499_ATTACTCG-AGGCGAA_L005_R2_001.fastq.gz
+    - BAM_6603_TCCGGAGA-AGGCGAA_L005_R2_001.fastq.gz
+    - 20170929_DNASeq_PE/BAM_6564_S17_L002_R2_001.fastq.gz
+      - this is the most critical; I've sftp-ed it from the backup drive
+
+  - Phew. After that...
+    - ` samtools view -b input.bam "Scaffold0:1-7257134" > output.bam ` to pull scaf0 reads out of bam files
+
+---
+
+## 2018
+
+1st-12th January
+
+- GATK forums on parallelism:
+  - found [this article](https://gatkforums.broadinstitute.org/gatk/discussion/4026/parallel-running-in-gatk) which ends "Hah, this thread was old! We've learned a lot since then..." and links to:
+  - [this article](https://gatkforums.broadinstitute.org/gatk/discussion/9659/what-are-the-smallest-units-i-can-break-whole-human-genomes-into-for-scatter-gather#latest) which says "If you can wait ... to use GATK4 it will be a massively better and less painful solution [than scatter-gather]"...
+    - scatter-gather with smaller-than-chromosome "isn't wrong in principle", but Geraldine warns that "It's not so much a question of size of region as it is a question of what you risk interrupting -- namely, any multi-nucleotide variant the spans a boundary between segments."
+    - this problem can be avoided by using intervals only "...bounded by stretches of Ns in the genome as well as by regions where we know we can never make confident calls." but of course they have this kind of high-resolution knowledge for just the human genome ATM.
+  - I posted [here](https://gatkforums.broadinstitute.org/gatk/discussion/9659/what-are-the-smallest-units-i-can-break-whole-human-genomes-into-for-scatter-gather) and will update these notes when one of the Broad team responds.
+
+  - replaced missing `..fastq.gz` files from `efishbackup`
+  - Re-running md5sum checks in case of corruption in the files that I *didn't* replace...
+    - `APA_6684_ATTCAGAA-CCTATCC_L004_R2_001.fastq.gz` & `APA_6684_ATTCAGAA-CCTATCC_L004_R2_001.fastq.gz` failed and were replaced
+      - ...then trimmed, aligned, recalibrated
+      - alignment issues seem to be happening with some of the single-end read files... The ancestor gzips are still good; the gunzipping seems to have glitched (shrug) -> re-extraction fixes errors
+    -
+
+  - aiming for a number of comparable analyses, all restricted to scaf0 for speed:
+    - Pipeline8 standard
+    - Pipeline8 gVCF
+    - Pipeline8 standard, aligned to BioNano-super-scaffolded ref.
+    - Pipeline8 gVCF, aligned to BioNano-super-scaffolded ref.
+
+
+  - aligning with super-scaffolded reference... using `/mnt/research/efish/lab_data/assemblies/genomes/Para_king_2015_013/super_scaffold`
+    - copied all files to `/mnt/ls15/scratch/groups/efish/P_kings_SuperScafGenome`, and ran `bwa index` on `Para_king_2015_013_20_40_15_90_3_superscaffold.fasta`
+    - added `alt_ref_alignment_array.qsub` script – modified only to point at alternate ref. and send output to a new folder
+
+
+samples=`for i in ${GVCFs[@]} ; do echo --variant $i ; done | xargs`
+
+`java -Xmx60g -cp $GATK -jar /opt/software/GATK/3.7.0/GenomeAnalysisTK.jar -T CombineGVCFs -R ${ref}  ${samples}  -L Scaffold0:1-7257134 > wave2_all_fish_scaf0.g.vcf`
+
+
+`time java -Xmx60g -cp $GATK -jar /opt/software/GATK/3.7.0/GenomeAnalysisTK.jar -T GenotypeGVCFs -R ${ref}  ${samples}  -L Scaffold0:1-7257134 > taco.vcf`
