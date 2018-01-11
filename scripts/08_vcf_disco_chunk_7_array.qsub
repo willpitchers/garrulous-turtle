@@ -1,12 +1,12 @@
 #!/bin/bash -login
-#PBS -l nodes=1:ppn=14,walltime=03:00:00,mem=62gb
+#PBS -l nodes=1:ppn=14,walltime=02:00:00,mem=62gb
 #PBS -l feature='intel16'
 #PBS -N VCFdisc_V7
 #PBS -j oe
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
-#PBS -t 1-199
+#PBS -t 1-
 
 #### 07_vcf_disco_chunk_7_array.qsub
 #  – this script globs in files that look like `XXX_NNNN_all_libraries.bam`
@@ -20,7 +20,7 @@ n=${PBS_ARRAYID}
 JOBSCRIPT=08_vcf_disco_chunk_7_array.qsub
 
 # where do the files live
-dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline7
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline8
 ref=/mnt/ls15/scratch/groups/efish/P_kings_genome/supercontigs.fasta
 
 cd ${dir}
@@ -32,13 +32,14 @@ if [ ! -f indices.list ]
 fi
 
 #Set manximum number of jobs for this run
-MAXJOBID=`wc -l indices.list | cut -d' ' -f 1`
+#MAXJOBID=`wc -l indices.list | cut -d' ' -f 1`
+MAXJOBID=` grep -c "Scaffold0" indices.list `
 
 module load Java/jdk1.8.0_31
 module load GATK/3.7.0
 
 # select a chunk
-thisindex=`head -${n} indices.list | tail -1`
+#thisindex=`head -${n} indices.list | tail -1`
 
 # build a list of file names
 #bamfiles=(*_all_libraries.bam)
@@ -51,12 +52,12 @@ if [ ! -f vcf_chunks/all_fish_vcf_slice_${n}.vcf ]
     then
     # # the call to the GATK HaplotypeCaller
     java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T HaplotypeCaller \
-                -R ${ref} -I bam_chunks/all_fish_slice_${n}.bam  \
-                --genotyping_mode DISCOVERY ${thisindex} \
-                -stand_call_conf 30  -mbq 20 \
-                -o vcf_chunks/${outputfilename} \
-                --output_mode EMIT_ALL_CONFIDENT_SITES \
-                --num_threads 1 --num_cpu_threads_per_data_thread 14
+                  -R ${ref} -I bam_chunks/all_fish_slice_${n}.bam  \
+                  --genotyping_mode DISCOVERY \
+                  -stand_call_conf 30  -mbq 20 \
+                  -o vcf_chunks/${outputfilename} \
+                  --output_mode EMIT_ALL_CONFIDENT_SITES \
+                  --num_threads 1 --num_cpu_threads_per_data_thread 14
 fi
 
 
