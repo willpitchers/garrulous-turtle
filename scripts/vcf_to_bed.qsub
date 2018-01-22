@@ -41,7 +41,7 @@ java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToBinaryPed \
                         -bed ${input_data}.bed \
                         -bim ${input_data}.bim \
                         -fam ${input_data}.fam \
-						--minGenotypeQuality ${GQthreshold} \
+                        --minGenotypeQuality ${GQthreshold} \
                         --majorAlleleFirst
 
 

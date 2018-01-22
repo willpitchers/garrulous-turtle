@@ -17,7 +17,7 @@ JOBSCRIPT=03_deduplication_array.qsub
 
 ## Set up some variables
 # where do the files live
-dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline8/bionano_ref/
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline8/bionano
 ref=/mnt/ls15/scratch/groups/efish/P_kings_SuperScafGenome/Para_king_2015_013_20_40_15_90_3_superscaffold.fasta
 #ref=/mnt/ls15/scratch/groups/efish/P_kings_genome/supercontigs.fasta
 

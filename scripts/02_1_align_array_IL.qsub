@@ -13,7 +13,7 @@
 #  - this script writes out files that look like `XXX_NNNN_library_Lane_RX_Ye.aligned.sam`
 
 #The JOBSCRIPT variable should be the name of this script
-JOBSCRIPT=02_alignment_array.qsub
+JOBSCRIPT=02_1_align_array_IL.qsub
 
 ## Set up some variables
 # where do the files live

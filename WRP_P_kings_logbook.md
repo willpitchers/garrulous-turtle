@@ -1839,6 +1839,7 @@ Week of 11-15th December
 
   - Phew. After that...
     - ` samtools view -b input.bam "Scaffold0:1-7257134" > output.bam ` to pull scaf0 reads out of bam files
+    - ` samtools view -b input.bam "Super_scaffold_147:1-7257134" > output.bam ` to pull scaf0 reads out of bam files
 
 ---
 
@@ -1878,3 +1879,38 @@ samples=`for i in ${GVCFs[@]} ; do echo --variant $i ; done | xargs`
 
 
 `time java -Xmx60g -cp $GATK -jar /opt/software/GATK/3.7.0/GenomeAnalysisTK.jar -T GenotypeGVCFs -R ${ref}  ${samples}  -L Scaffold0:1-7257134 > taco.vcf`
+
+Super_scaffold_145 is made up of scafs 0, 64, 385
+
+81073 wave2_all_fish_Sscaf147.G.vcf
+77453 wave2_all_fish_Sscaf147_V.vcf
+
+
+plink files with VCFtools & PLINK
+`vcftools --vcf ${input_data}.vcf --out ${input_data} --plink # && cp ../phenotype_metadata.fam ${input_data}.fam`
+
+`sort -k 1 ${input_data}.fam > F1 && sort -k 1 ${input_data}.ped > F2 && join -1 1 -2 1  F1 F2 | cut -d " " -f 1-6,13- | tr ' ' '\t' > ${input_data}.ped.new && rm F1 F2`
+
+`plink --file ${input_data} --allow-no-sex --geno 0.50 --allow-extra-chr --assoc fisher --pfilter 1 --test-missing --out ${input_data}_geno50 --a2-allele ${input_data}.vcf 4 3 '#'  --keep-fam wave2.fam`
+
+FIXED!
+`awk -F' ' '{ split($1, X, "_") ; print X[1], X[2], $3, $4, $5, $6 }' ../phenotype_metadata.fam > pheno.fam`
+
+
+make plink files `plink --vcf ${input_data}.vcf --out ${input_data} --allow-extra-chr`
+convert to ped `plink --bfile ${input_data} --recode --tab --out ${input_data} --allow-extra-chr`
+edit fam to fix IDs `awk -F' ' '{ X=$1"_"$2 ; print X, X, $3, $4, $5, $6 }' ${input_data}.fam > new.fam && mv new.fam ${input_data}.fam`
+edit ped to fix IDs `awk -F' ' '{ X=$1"_"$2 ; $1=$2="" ; print X, X, $0 }' ${input_data}.ped > new.ped && mv new.ped ${input_data}.ped`
+remake fam to add phenotypes `sort -k 1 ${input_data}.fam > F1 && sort -k 1 ../phenotype_metadata.fam > F2 && join -1 1 -2 1  F1 F2 | cut -d " " -f 1-5,11 > ${input_data}.fam.new && rm F1 F2 && mv ${input_data}.fam.new ${input_data}.fam `
+remake ped to add phenotypes `sort -k 1 ${input_data}.ped > F2 && sort -k 1 ../phenotype_metadata.fam > F1 && join -1 1 -2 1  F1 F2 | cut -d " " -f 1-6,12- > ${input_data}.ped.new && rm F1 F2 && mv ${input_data}.ped.new ${input_data}.ped`
+
+
+
+`plink --vcf ${input_data}.vcf --allow-extra-chr --pheno pheno.fam --mpheno 4  --make-bed --out ${input_data}`
+`plink --bfile ${input_data} --allow-no-sex --geno 0.5 --allow-extra-chr --assoc fisher --out ${input_data}_geno50`
+
+
+
+Week of 22-26th January
+
+  - 
