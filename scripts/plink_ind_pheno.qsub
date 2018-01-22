@@ -7,9 +7,9 @@
 #PBS -m abe
 #PBS -r n
 
-#dir=/mnt/scratch/pitchers/eFISH/Analysis/
-dir=/mnt/ls15/scratch/groups/efish/WILL/V5-1_chunks/
-# dir=/mnt/ls15/scratch/groups/efish/WILL/V5-2_chunks/
+
+#dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline8
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline8/bionano
 
 cd $dir
 
@@ -17,19 +17,12 @@ cd $dir
 # mydata=all_variants_merged_21_01_2016
 # instead, now call with `qsub plink_ind_pheno.qsub -v input_data=insertnamehere`
 
-# # derive a simple lookup table from the phenotype file (P0 absent=1, P0 present=2)
-# if [ ! -f individual.list ]
-#   then cat /mnt/research/efish/2015_genomic_data/specimens_for_genome_reseq.txt | tail -67 | cut -f 1,11 | sed 's/[yesYES]\{3\}/2/g' | sed 's/[noNO]\{2\}/1/g' | sed 's/[\t ]\+/ /g' > individual.list
-#
-#   ### seq. data filenames contain a typo; IVI_3923 should have been IVI_4923 (discovered 23/02/2016)
-#   ### this line alters the phenotype lookup table so that the mis-named reads get the correct phenotype.
-#   sed -i s/4923/3923/ individual.list
-#   sed -i s/4007/4027/ individual.list
-# fi
+module load python
 
 # derive a simple lookup table from the *NEW* phenotype file; `ultimate_phenotype.txt` (P0-Absent=1, P0-Present=2)
+# **EDIT** here `ultimate_phenotype.txt` is replaced by the late-2017 `canonical_pheno_2017.txt`
 if [ ! -f ../individual.list ]
-  then tail -63 /mnt/research/efish/2015_genomic_data/ultimate_phenotype.txt | cut -f 1,2 | sed 's/P0-Present/2/g' | sed 's/P0-Absent/1/g' | sed 's/[\t ]\+/ /g' | sed 's/[A-Z]\{3,4\}_//g' > ../individual.list
+  then tail -63 /mnt/research/efish/2015_genomic_data/canonical_pheno_2017.txt | cut -f 1,2 | sed 's/P0-Present/2/g' | sed 's/P0-Absent/1/g' | sed 's/[\t ]\+/ /g' | sed 's/[A-Z]\{3,4\}_//g' > ../individual.list
 
   ### seq. data filenames contain a typo; IVI_3923 should have been IVI_4923 (discovered 23/02/2016)
   ### this line alters the phenotype lookup table so that the mis-named reads get the correct phenotype.

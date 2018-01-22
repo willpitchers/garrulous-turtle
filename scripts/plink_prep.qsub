@@ -9,21 +9,20 @@
 
 ## Set up some variables
 # where do the files live
-#dir=/mnt/scratch/pitchers/eFISH/Analysis/
-dir=/mnt/ls15/scratch/groups/efish/WILL/V5-1_chunks/
-#dir=/mnt/ls15/scratch/groups/efish/WILL/V5-2_chunks/
-ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
+#dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline8
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline8/bionano
+
 
 # load modules
 cd ${dir}
-module load vcftools/0.1.12a
+module load vcftools/0.1.14
 
 #sed -i s/"fileformat=VCFv4.2"/"fileformat=VCFv4.1"/ ${input_data}.vcf
 
 vcftools --vcf ${input_data}.vcf --out ${input_data} --plink
 
-awk -F "[\t ]" '{ $2=$1 "_" $2; print $1 "\t" $2 "\t" $3 "\t" $4 }' ${input_data}.map > temp.map
-mv temp.map ${input_data}.map
+#awk -F "[\t ]" '{ $2=$1 "_" $2; print $1 "\t" $2 "\t" $3 "\t" $4 }' ${input_data}.map > temp.map
+#mv temp.map ${input_data}.map
 
 # email user & start the next job
 echo "." | mail -s "the plink_prep job is finished" ${USER}@msu.edu

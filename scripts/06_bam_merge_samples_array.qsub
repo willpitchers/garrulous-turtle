@@ -15,7 +15,8 @@
 
 ## Set up some variables
 # where do the files live
-dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline8
+#dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline8
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline8/bionano
 
 # Current job number
 n=${PBS_ARRAYID}
@@ -32,7 +33,8 @@ fi
 
 individual=` head -${n} samples.list | tail -1 `
 
-sample=(${individual}*.scaf0.aligned.dedup.recalibrated.bam)
+#sample=(${individual}*scaf0.aligned.dedup.recalibrated.bam)
+sample=(${individual}*Sscaf147.aligned.dedup.recalibrated.bam)
 
 samples=`for i in "${sample[@]}" ; do echo I=${i} ; done | xargs`
 
