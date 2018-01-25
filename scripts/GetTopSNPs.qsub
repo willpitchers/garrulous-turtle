@@ -23,7 +23,7 @@ for thisfile in ${AssocFileList[@]}
 	do  Rscript ${PBS_O_WORKDIR}/GetTopSNPs.R ${thisfile} # this script needs to be adjusted
 
 	# grab scaffold & SNP ID
-	# cut -d',' -f 2 ${thisfile}.topsnps.csv | tail -n +2 | sed s/Var-//g | tr '-' ':'  > ${thisfile}.intervals
+#	cut -d',' -f 2 ${thisfile}.topsnps.csv | tail -n +2 | sed s/Var-//g | tr '-' ':'  > ${thisfile}.intervals
 	cut -d',' -f 1,2 ${thisfile}.topsnps.csv | tail -n +2 | tr ',' ':'  > ${thisfile}.intervals
 
 	# pull out relevant lines from vcf file

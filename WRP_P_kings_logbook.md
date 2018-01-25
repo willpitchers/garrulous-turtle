@@ -1914,3 +1914,4 @@ remake ped to add phenotypes `sort -k 1 ${input_data}.ped > F2 && sort -k 1 ../p
 Week of 22-26th January
 
   - 
+  - all_fish_version_7_plus_6-1.vcf built with `java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T CombineVariants -R ${ref} --variant all_fish_version_7.vcf --variant all _fish_version_6-1.vcf -o all_fish_version_7_plus_6-1.vcf  -genotypeMergeOptions UNSORTED`

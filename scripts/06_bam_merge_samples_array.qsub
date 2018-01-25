@@ -34,7 +34,8 @@ fi
 individual=` head -${n} samples.list | tail -1 `
 
 #sample=(${individual}*scaf0.aligned.dedup.recalibrated.bam)
-sample=(${individual}*Sscaf147.aligned.dedup.recalibrated.bam)
+#sample=(${individual}*Sscaf147.aligned.dedup.recalibrated.bam)
+sample=(${individual}.aligned.dedup.recalibrated.bam)
 
 samples=`for i in "${sample[@]}" ; do echo I=${i} ; done | xargs`
 
