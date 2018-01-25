@@ -6,7 +6,7 @@
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
-#PBS -t 000-687
+#PBS -t 000-516
 
 #### 04_base_score_recalibration_array.qsub
 #  – this script globs in files that look like `XXX_NNNN_library_Lane_RX_Ye.aligned.dedup.bam`
@@ -24,8 +24,9 @@ n=${PBS_ARRAYID}
 
 # build a list of file names
 cd ${dir}
+filelist=(*.aligned.dedup.bam)
 #filelist=(*scaf0.aligned.dedup.bam)
-filelist=(*Sscaf147.aligned.dedup.bam)
+#filelist=(*Sscaf147.aligned.dedup.bam)
 thisfile=${filelist[${n}]}
 
 # load needed modules

@@ -6,7 +6,7 @@
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
-#PBS -t 000-199
+#PBS -t 000-516
 
 #### 05_base_score_recal_array2.qsub
 #  – this script globs in files that look like `XXX_NNNN_library_Lane_RX_Ye.aligned.dedup.bam`
@@ -24,8 +24,9 @@ n=${PBS_ARRAYID}
 
 # build a list of file names
 cd ${dir}
+filelist=(*e.aligned.dedup.bam)
 #filelist=(*.scaf0.aligned.dedup.bam)
-filelist=(*Sscaf147.aligned.dedup.bam)
+#filelist=(*Sscaf147.aligned.dedup.bam)
 thisfile=${filelist[${n}]}
 
 # Set maximum number of jobs for this run
