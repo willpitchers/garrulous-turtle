@@ -1,0 +1,45 @@
+#!/bin/bash -login
+#PBS -l nodes=1:ppn=28,walltime=04:00:00,mem=128gb
+#PBS -l feature='intel16'
+#PBS -o /mnt/research/efish/2015_genomic_data/scripts
+#PBS -N merge_all_vcfs
+#PBS -j oe
+#PBS -M pitchers@msu.edu
+#PBS -m abe
+#PBS -r n
+
+#### 08_merge_all_vcfs.qsub
+#  – this script globs in a pile of files that look like `all_fish_vcf_slice_N.vcf`
+#  - this script writes out 1 big file called `all_fish_version_7.vcf`
+
+## Set up some variables
+# where do the files live
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline7/vcf_chunks/
+ref=/mnt/ls15/scratch/groups/efish/P_kings_genome/supercontigs.fasta
+
+cd ${dir}
+mkdir -p ../Assoc
+
+# load modules
+module load Java/1.8.0_31
+module load GATK/3.7.0
+
+sample_list=(all_fish_vcf_slice_*.vcf)
+samples=`for i in "${sample_list[@]}" ; do echo --variant ${i} ; done | xargs`
+
+# join all the vcf chunks together
+java -Xmx120g -Djava.io.tmpdir=${TMPDIR} -cp /mnt/home/pitchers/GenomeAnalysisTK.jar \
+							org.broadinstitute.gatk.tools.CatVariants \
+							-R ${ref} ${samples} -out ../Assoc/all_fish_version_7.vcf
+
+# validation check on the output vcf
+java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T ValidateVariants -R ${ref} --validationTypeToExclude ALL -V ../Assoc/all_fish_version_7.vcf
+
+# email user & start the next job
+	echo "." | mail -s "The vcf_all_merge job is finished" ${USER}@msu.edu
+	cd $PBS_O_WORKDIR
+
+
+#Print out the statistics for this job
+qstat -f ${PBS_JOBID}
+
