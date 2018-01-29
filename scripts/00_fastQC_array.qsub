@@ -12,16 +12,18 @@
 #  – this script globs in file that look like `XXX_NNNN_library_Lane_RX_001.fastq.gz`
 #  - this script writes out `XXX_NNNN_library_Lane_RX_001_fastqc.zip` & `XXX_NNNN_library_Lane_RX_001_fastqc.html`
 
+
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline8
+ref=/mnt/ls15/scratch/groups/efish/P_kings_genome/supercontigs.fasta
+
 # prepare working environment
 module load FastQC/0.11.2
 module load R/3.2.0
 
 n=${PBS_ARRAYID}
 
-dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline8
-ref=/mnt/ls15/scratch/groups/efish/P_kings_genome/supercontigs.fasta
-
 cd ${dir}
+thisrun=`echo "${PWD##*/}"`
 mkdir -p FastQC
 
 myfiles=(*.fastq.gz)
@@ -36,7 +38,7 @@ fastqc ${thisfile} --outdir=FastQC
 if [ ${n} -eq ${MAXJOBID} ]
 	# if this is the final job, run the R script that builds a summary doc
 	cd FastQC
-	then Rscript --vanilla ${PBS_O_WORKDIR}/fastqc.R
+	then Rscript ${PBS_O_WORKDIR}/fastqc.R
 	cd ${PBS_O_WORKDIR}
 	qsub 01_trimmomatic_array.qsub
 fi

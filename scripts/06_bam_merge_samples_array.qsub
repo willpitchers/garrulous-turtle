@@ -7,7 +7,7 @@
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
-#PBS -t 1-167
+#PBS -t 1-112
 
 #### 05_bam_merge_samples_array.qsub
 #  – this script globs in files that look like `XXX_NNNN_library_Lane_RX_Ye.aligned.dedup.recalibrated.bam`
@@ -35,7 +35,7 @@ individual=` head -${n} samples.list | tail -1 `
 
 #sample=(${individual}*scaf0.aligned.dedup.recalibrated.bam)
 #sample=(${individual}*Sscaf147.aligned.dedup.recalibrated.bam)
-sample=(${individual}.aligned.dedup.recalibrated.bam)
+sample=(${individual}*.aligned.dedup.recalibrated.bam)
 
 samples=`for i in "${sample[@]}" ; do echo I=${i} ; done | xargs`
 
