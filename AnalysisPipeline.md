@@ -224,7 +224,7 @@ Once data reaches the **Statistical Analysis** stage it may become necessary for
 2. | **Alignment** | `02_1_align_array_IL.qsub` | bwa/0.7.12.r1044 | `bwa mem -M -R ..` | `Sample_library_Lane_RX_Ye.trimmed.fq` & `supercontigs.fasta` | `Sample_library_Lane_RX_Ye.trimmed.aligned.sam` | pulls details from fastq files to build a GATK-compatible `@RG` tag, and then runs alignment against the P.kings genome
   | | `02_2_align_array_BN.qsub` | bwa/0.7.12.r1044 | `bwa mem -M -R ..` | `Sample_library_Lane_RX_Ye.trimmed.fq` & `Para_king_2015_013_20_40_15_90_3_superscaffold.fasta` | `Sample_library_Lane_RX_Ye.trimmed.aligned.sam` | pulls details from fastq files to build a GATK-compatible `@RG` tag, and then runs alignment against the *bionano-scaffolded* version of the P.kings genome
 3. | **Sorting/Indexing** | `03_deduplication_array.qsub` | picardTools/1.89 | `SORT_ORDER=coordinate` | `Sample_library_Lane_RX_Ye.trimmed.aligned.sam` | `Sample_library_Lane_RX_Ye.trimmed.aligned.dedup.bam` | SortSam.jar sorts, MarkDuplicates.jar marks duplicates & BuildBamIndex.jar indexes
-  | 
+  |
 
 4. | **Base Score Recalibration** | `04_base_score_recal_array1.qsub` | GATK/3.5.0 | `--run_without_dbsnp_potentially_ruining_quality` | `Sample_library_Lane_RX_Ye.trimmed.aligned.dedup.realigned.bam` & `Reference.fa` | `Sample_library_Lane_RX_Ye.recal_data.table` | 2 passes with `BaseRecalibrator` (with the infamous no-dbsnp flag), this writes recal. tables
 5. | **Base Score Recalibration** | `05_base_score_recal_array2.qsub` | GATK/3.5.0 | `--run_without_dbsnp_potentially_ruining_quality` | `Sample_library_Lane_RX_Ye.trimmed.aligned.dedup.realigned.bam` & `Reference.fa` | `Sample_library_Lane_RX_Ye.recal_plots.pdf` & `Sample_library_Lane_RX_Ye.aligned.dedup.realigned.recalibrated.bam` | `AnalyzeCovariates` prints the plots/stats, then `PrintReads` writes the output bam based on the recal. table
@@ -248,4 +248,17 @@ Once data reaches the **Statistical Analysis** stage it may become necessary for
     7. xxx  
     8. xxx  
 
-  ===
+===
+
+  ----
+
+  explicit list of filters on way in to PLINK:
+
+    - GQx -
+    - filterExpression
+      - QD < 2.0
+      - FS > 60.0
+      - MQ < 40.0
+      - MQRankSum < -12.5
+      - ReadPosRankSum < -8.0
+    -

@@ -9,6 +9,7 @@
 #PBS -t 000-199
 
 ### 01_trimmomatic_array.qsub
+#  – this script is called simply with `qsub 01_trimmomatic_array.qsub`
 #  – this script globs in file that look like `XXX_NNNN_library_Lane_RX_001.fastq.gz`
 #  - this script writes out `XXX_NNNN_library_Lane_RX_001_fastq` & `XXX_NNNN_library_Lane_RX_Ye.trimmed.fq`
 
@@ -42,10 +43,10 @@ module load Java/1.8.0_31
 
 # Trimmomatic command
 if [ ! -f ${thisname}_R1_se.trimmed.fq ]
-	then
-	java -XX:ParallelGCThreads=8 -jar $TRIM/trimmomatic PE -threads 7 -phred33 ${thisname}_R1_001.fastq ${thisname}_R2_001.fastq \
-			${thisname}_R1_pe.trimmed.fq ${thisname}_R1_se.trimmed.fq ${thisname}_R2_pe.trimmed.fq ${thisname}_R2_se.trimmed.fq \
-			ILLUMINACLIP:/mnt/home/pitchers/Illumina_adapters.fa:2:30:10 LEADING:20 TRAILING:20 MAXINFO:50:0.5
+  then
+  java -XX:ParallelGCThreads=8 -jar $TRIM/trimmomatic PE -threads 7 -phred33 ${thisname}_R1_001.fastq ${thisname}_R2_001.fastq \
+          ${thisname}_R1_pe.trimmed.fq ${thisname}_R1_se.trimmed.fq ${thisname}_R2_pe.trimmed.fq ${thisname}_R2_se.trimmed.fq \
+          ILLUMINACLIP:/mnt/research/efish/2015_genomic_data/Illumina_adapters.fa:2:30:10 LEADING:20 TRAILING:20 MAXINFO:50:0.5
 fi
 
 # Calculate next job to run
@@ -63,7 +64,7 @@ if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The Trimmomatic array is finishing" ${USER}@msu.edu
     cd ${PBS_O_WORKDIR}
-    #qsub 02_alignment_array.qsub
+    qsub 02_alignment_array.qsub
 fi
 
 #Print out the statistics for this job

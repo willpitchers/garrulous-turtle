@@ -301,6 +301,8 @@ Week of 14th – 18th December
 
   - Xmas  week -- conveniently enough the iCER staff have partially shut down the HPC to fix some problem with scratch... inconveniently, that is where all our data lives.
 
+## 2016
+
 ---
 
 Week of 4th – 8th January
@@ -936,6 +938,7 @@ Week of Dec. 5-10th
 
  –––  for the Holidays: 12th Dec. - 9th Jan. –––
 
+## 2017
 
 Week of 16-20th Jan.
 
@@ -999,7 +1002,7 @@ Week of 6-10th Feb.
     - `join -1 2 -2 15 all_fish_version_5-1_HPC.assoc.in.sorted all_fish_version_5-1_HPC.vcf.stats.in.sorted > tacopark`
 
 
-Week of 13-17th
+Week of 13-17th February
 
   - before filtering: 27871297 snps, & 5860821 indels --- after filtering: 26345714 snps, & 5572344 indels
   - filtered out 1525583 snps, & 288477 indels --- ~5.5% snps, & ~5% indels
@@ -1913,4 +1916,13 @@ remake ped to add phenotypes `sort -k 1 ${input_data}.ped > F2 && sort -k 1 ../p
 
 Week of 22-26th January
 
-  - 
+  - building analysis outputs for *raw* variants to help with our classification of confusion...
+    - all fish (waves 1 & 2) -- all_fish_version_7_plus_6-1.vcf built with `java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T CombineVariants -R ${ref} --variant all_fish_version_7.vcf --variant all _fish_version_6-1.vcf -o all_fish_version_7_plus_6-1.vcf  -genotypeMergeOptions UNSORTED`
+    -
+  -
+
+
+  ` cat Para_king_2015_013_20_40_15_90_3_superscaffold.fasta | awk '$0 ~ ">" {print c; c=0;printf substr($0,2,100) "\t"; } $0 !~ ">" {c+=length($0);} END { print c; }' `
+
+
+test plink with vcf direct read-in...

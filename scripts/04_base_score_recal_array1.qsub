@@ -45,22 +45,22 @@ df -h ${OUTDIR}
 
 if [ ! -f tempbams/`basename ${thisfile} .bam`.recal_data.table ]
 then
-	## Analysze patterns of covariation in the dataset (~10 mins)
-	java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T BaseRecalibrator \
-			-R ${ref} -I ${dir}/${thisfile} -o `basename ${thisfile} .bam`.recal_data.table \
-			--run_without_dbsnp_potentially_ruining_quality  -nct 28  -rf BadCigar
+    ## Analysze patterns of covariation in the dataset (~10 mins)
+    java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T BaseRecalibrator \
+            -R ${ref} -I ${dir}/${thisfile} -o `basename ${thisfile} .bam`.recal_data.table \
+            --run_without_dbsnp_potentially_ruining_quality  -nct 28  -rf BadCigar
 fi
 
 # copy output back to scratch
 cp `basename ${thisfile} .bam`.recal_data.table ${dir}/tempbams/
 
 if [ ! -f tempbams/`basename ${thisfile} .bam`.post_recal_data.table ]
-	then
-	## Do a second pass to analyze covariation remaining after recalibration (~10 mins)
-	java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T BaseRecalibrator \
-			-R ${ref} -I ${dir}/${thisfile}  -BQSR `basename ${thisfile} .bam`.recal_data.table \
-			-o `basename ${thisfile} .bam`.post_recal_data.table \
-			--run_without_dbsnp_potentially_ruining_quality  -nct 28 -rf BadCigar
+    then
+    ## Do a second pass to analyze covariation remaining after recalibration (~10 mins)
+    java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T BaseRecalibrator \
+            -R ${ref} -I ${dir}/${thisfile}  -BQSR `basename ${thisfile} .bam`.recal_data.table \
+            -o `basename ${thisfile} .bam`.post_recal_data.table \
+            --run_without_dbsnp_potentially_ruining_quality  -nct 28 -rf BadCigar
 fi
 
 # copy output back to scratch

@@ -54,7 +54,7 @@ module load picardTools/1.89
 if [ `$(echo ${thisfile}) | grep -Eo 'pe'` ]
 then
   ${BWA}/bwa mem -v 3 -t 4 -M -T 40 -R ${thisTAG} ${ref} ${thisfile} \
-	`basename ${thisfile} R1_pe.trimmed.fq`R2_pe.trimmed.fq > `basename ${thisfile} .trimmed.fq`.aligned.sam
+`basename ${thisfile} R1_pe.trimmed.fq`R2_pe.trimmed.fq > `basename ${thisfile} .trimmed.fq`.aligned.sam
 else
   ${BWA}/bwa mem -v 3 -t 4 -M -T 40 -R ${thisTAG} ${ref} ${thisfile} > `basename ${thisfile} .trimmed.fq`.aligned.sam
 fi
@@ -78,7 +78,7 @@ if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The alignment array is finishing" ${USER}@msu.edu
     cd ${PBS_O_WORKDIR}
-#    qsub 03_deduplication_array.qsub
+    qsub 03_deduplication_array.qsub
 fi
 
 #Print out sfastq=`basename ${thisfile}`the statistics for this job
