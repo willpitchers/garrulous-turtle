@@ -13,17 +13,21 @@
 #  – this script globs in file that look like `XXX_NNNN_library_Lane_RX_001.fastq.gz`
 #  - this script writes out `XXX_NNNN_library_Lane_RX_001_fastqc.zip` & `XXX_NNNN_library_Lane_RX_001_fastqc.html`
 
+# To repurpose this script for any other directory of fastq's, change this variable:
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline8/bionano
+
 #The JOBSCRIPT variable should be the name of _this_ script
 JOBSCRIPT=00_fastQC_array.qsub
 
 # prepare working environment
 module load FastQC/0.11.5
 module load R/3.2.0
+module load pandoc/1.17.3
 n=${PBS_ARRAYID}
-dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline8
 
 # find the input files
 cd ${dir}
+thisrun=`echo "${PWD##*/}"`
 mkdir -p FastQC
 myfiles=(*.fastq.gz)
 MAXJOBID=`expr ${#myfiles[@]} - 1`
@@ -33,6 +37,15 @@ thisfile=${myfiles[${n}]}
 
 # run fastQC on this file
 fastqc ${thisfile} --outdir=FastQC
+
+# if this is the final job, run the R script that builds a summary doc
+if [ ${n} -eq ${MAXJOBID} ]
+    then summary_name=FastQC_report_${thisrun}_`date +"%m_%d_%y"`
+    cd FastQC
+    Rscript ${PBS_O_WORKDIR}/fastqc.R ${summary_name}
+    cd ${PBS_O_WORKDIR}
+    qsub 01_trimmomatic_array.qsub
+fi
 
 # Calculate next job to run
 NEXT=$(( ${n} + 200 ))
@@ -44,13 +57,6 @@ then
     qsub -t ${NEXT} ${JOBSCRIPT}
 fi
 
-if [ ${n} -eq ${MAXJOBID} ]
-    # if this is the final job, run the R script that builds a summary doc
-    cd FastQC
-    then Rscript --vanilla ${PBS_O_WORKDIR}/fastqc.R
-    cd ${PBS_O_WORKDIR}
-    qsub 01_trimmomatic_array.qsub
-fi
 
 cd ${PBS_O_WORKDIR}
 qstat -f $PBS_JOBID

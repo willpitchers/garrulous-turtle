@@ -46,45 +46,45 @@ df -h ${OUTDIR}
 
 # if [ ! -f tempbams/`basename ${thisfile} .bam`.recal_data.table ]
 # then
-# 	## Analysze patterns of covariation in the dataset (~10 mins)
-# 	java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T BaseRecalibrator \
-# 			-R ${ref} -I ${dir}/${thisfile} -o `basename ${thisfile} .bam`.recal_data.table \
-# 			--run_without_dbsnp_potentially_ruining_quality  -nct 28  -rf BadCigar
+#     ## Analysze patterns of covariation in the dataset (~10 mins)
+#     java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T BaseRecalibrator \
+#             -R ${ref} -I ${dir}/${thisfile} -o `basename ${thisfile} .bam`.recal_data.table \
+#             --run_without_dbsnp_potentially_ruining_quality  -nct 28  -rf BadCigar
 # fi
 #
 # # copy output back to scratch
 # cp `basename ${thisfile} .bam`.recal_data.table ${dir}/tempbams/
 #
 # if [ ! -f tempbams/`basename ${thisfile} .bam`.post_recal_data.table ]
-# 	then
-# 	## Do a second pass to analyze covariation remaining after recalibration (~10 mins)
-# 	java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T BaseRecalibrator \
-# 			-R ${ref} -I ${dir}/${thisfile}  -BQSR `basename ${thisfile} .bam`.recal_data.table \
-# 			-o `basename ${thisfile} .bam`.post_recal_data.table \
-# 			--run_without_dbsnp_potentially_ruining_quality  -nct 28 -rf BadCigar
+#     then
+#     ## Do a second pass to analyze covariation remaining after recalibration (~10 mins)
+#     java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T BaseRecalibrator \
+#             -R ${ref} -I ${dir}/${thisfile}  -BQSR `basename ${thisfile} .bam`.recal_data.table \
+#             -o `basename ${thisfile} .bam`.post_recal_data.table \
+#             --run_without_dbsnp_potentially_ruining_quality  -nct 28 -rf BadCigar
 # fi
 #
 # # copy output back to scratch
 # cp `basename ${thisfile} .bam`.post_recal_data.table ${dir}/tempbams/
 
 if [ ! -f tempbams/`basename ${thisfile} .bam`.recal_plots.pdf ]
-	then
-	## Generate before-after plots (~5 mins)
-	java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T AnalyzeCovariates \
-			-R ${ref}  -before ${dir}/tempbams/`basename ${thisfile} .bam`.recal_data.table \
-			-after ${dir}/tempbams/`basename ${thisfile} .bam`.post_recal_data.table \
-			-plots ${dir}/tempbams/`basename ${thisfile} .bam`.recal_plots.pdf -rf BadCigar
+    then
+    ## Generate before-after plots (~5 mins)
+    java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T AnalyzeCovariates \
+            -R ${ref}  -before ${dir}/tempbams/`basename ${thisfile} .bam`.recal_data.table \
+            -after ${dir}/tempbams/`basename ${thisfile} .bam`.post_recal_data.table \
+            -plots ${dir}/tempbams/`basename ${thisfile} .bam`.recal_plots.pdf -rf BadCigar
 fi
 
 # copy output back to scratch
 cp `basename ${thisfile} .bam`.recal_plots.pdf ${dir}/tempbams/
 
 if [ ! -f tempbams/`basename ${thisfile} .bam`.recalibrated.bam ]
-	then
-	## Apply the recalibration to the sequence data (~5 mins)
-	java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T PrintReads -R ${ref} \
-			-I ${dir}/${thisfile}  -BQSR ${dir}/tempbams/`basename ${thisfile} .bam`.recal_data.table \
-			-o ${dir}/`basename ${thisfile} .bam`.recalibrated.bam  -nct 28 -rf BadCigar
+    then
+    ## Apply the recalibration to the sequence data (~5 mins)
+    java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T PrintReads -R ${ref} \
+            -I ${dir}/${thisfile}  -BQSR ${dir}/tempbams/`basename ${thisfile} .bam`.recal_data.table \
+            -o ${dir}/`basename ${thisfile} .bam`.recalibrated.bam  -nct 28 -rf BadCigar
 fi
 
 # copy output back to scratch
@@ -94,7 +94,7 @@ cd ${dir}
 
 # paranoid check for a well-formed bam-file
 java -XX:ParallelGCThreads=28 -jar ${PICARD}/ValidateSamFile.jar  I=tempbams/`basename ${thisfile} .bam`.recalibrated.bam \
-			 MODE=SUMMARY IGNORE=INVALID_VERSION_NUMBER
+             MODE=SUMMARY IGNORE=INVALID_VERSION_NUMBER
 
 
 # Calculate next job to run
@@ -105,8 +105,8 @@ NEXT=$(( ${n} + 200 ))
 #then
 #  cd ${PBS_O_WORKDIR}
 #  NEXTJOB=`qsub -t ${NEXT} ${JOBSCRIPT}`
-#	echo this is job ${PBS_JOBID} ${n} submitting ${NEXT} ${NEXTJOB}
-#	echo `date`
+#    echo this is job ${PBS_JOBID} ${n} submitting ${NEXT} ${NEXTJOB}
+#    echo `date`
 #fi
 
 #Check to see if this is the last job and email user

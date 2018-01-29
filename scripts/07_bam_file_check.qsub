@@ -6,7 +6,7 @@
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
-#PBS -t 1-167
+#PBS -t 1-100
 
 #### 06_bam_file_check.qsub
 #  – this script globs in files that look like `XXX_NNNN_all_libraries.bam` and does a validation check
@@ -41,10 +41,10 @@ samtools view -H ${individual}*_all_libraries.bam | grep --color="never" -Eo "SM
 count=`wc -l ${individual}.samples | cut -d' ' -f1`
 
 if [ $count -gt 1 ]
-	then
-		echo "ERROR IN ${individual}*_all_libraries.bam"
+    then
+        echo "ERROR IN ${individual}*_all_libraries.bam"
 else
-	rm ${individual}.samples
+    rm ${individual}.samples
 fi
 
 # secondarily, auto-check the bam files are 'valid'

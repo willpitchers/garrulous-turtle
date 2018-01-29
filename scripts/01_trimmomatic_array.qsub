@@ -46,7 +46,7 @@ if [ ! -f ${thisname}_R1_se.trimmed.fq ]
   then
   java -XX:ParallelGCThreads=8 -jar $TRIM/trimmomatic PE -threads 7 -phred33 ${thisname}_R1_001.fastq ${thisname}_R2_001.fastq \
           ${thisname}_R1_pe.trimmed.fq ${thisname}_R1_se.trimmed.fq ${thisname}_R2_pe.trimmed.fq ${thisname}_R2_se.trimmed.fq \
-          ILLUMINACLIP:/mnt/home/pitchers/Illumina_adapters.fa:2:30:10 LEADING:20 TRAILING:20 MAXINFO:50:0.5
+          ILLUMINACLIP:/mnt/research/efish/2015_genomic_data/Illumina_adapters.fa:2:30:10 LEADING:20 TRAILING:20 MAXINFO:50:0.5
 fi
 
 # Calculate next job to run
