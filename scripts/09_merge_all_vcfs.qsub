@@ -22,24 +22,23 @@ mkdir -p ../Assoc
 
 # load modules
 module load Java/1.8.0_31
-module load GATK/3.7.0
+#module load Java/jdk1.8.0
 
 sample_list=(all_fish_vcf_slice_*.vcf)
 samples=`for i in "${sample_list[@]}" ; do echo --variant ${i} ; done | xargs`
 
 # join all the vcf chunks together
 java -Xmx120g -Djava.io.tmpdir=${TMPDIR} -cp /mnt/home/pitchers/GenomeAnalysisTK.jar \
-							org.broadinstitute.gatk.tools.CatVariants \
-							-R ${ref} ${samples} -out ../Assoc/all_fish_version_7.vcf
+            org.broadinstitute.gatk.tools.CatVariants \
+            -R ${ref} ${samples} -out ../Assoc/all_fish_version_7.vcf
 
 # validation check on the output vcf
-java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T ValidateVariants -R ${ref} --validationTypeToExclude ALL -V ../Assoc/all_fish_version_7.vcf
+java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T ValidateVariants -R supercontigs.fasta --validationTypeToExclude ALL -V ../Assoc/all_fish_version_7.vcf
 
 # email user & start the next job
-	echo "." | mail -s "The vcf_all_merge job is finished" ${USER}@msu.edu
-	cd $PBS_O_WORKDIR
+    echo "." | mail -s "The vcf_all_merge job is finished" ${USER}@msu.edu
+    cd $PBS_O_WORKDIR
 
 
 #Print out the statistics for this job
 qstat -f ${PBS_JOBID}
-

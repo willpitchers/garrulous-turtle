@@ -9,7 +9,7 @@
 #PBS -t 1-10
 
 #### 09_genotype_gvcf.qsub
-#  - 
+#  -
 #  – this script globs in files that look like `XXX_NNNN_all_libraries.bam`
 #  - this script writes out *lots* of files that look like `all_fish_slice_N.g.vcf`
 
@@ -41,16 +41,7 @@ thisscaffold=`head -${n} superscaf.indices | tail -1`
 # the call to the GATK GenotypeGVCFs
 java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T GenotypeGVCFs \
               -R $ref  ${thesefish}  -o output_part_${n}.vcf ${thisscaffold} \
-			  --disable_auto_index_creation_and_locking_when_reading_rods 
-
-#                  -R ${ref} -I ${thisfile}  \
- #                 --genotyping_mode DISCOVERY \
-  #                -stand_call_conf 30  -mbq 20 \
-   #               -o `basename ${thisfile} .bam`.g.vcf \
-    #              --output_mode EMIT_ALL_CONFIDENT_SITES \
-	#			  --emitRefConfidence GVCF \
-     #             --num_threads 1 --num_cpu_threads_per_data_thread 14
-
+              --disable_auto_index_creation_and_locking_when_reading_rods
 
 
 # Calculate next job to run
