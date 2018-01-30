@@ -32,9 +32,6 @@ if [ ! -f samples.list ]
 fi
 
 individual=` head -${n} samples.list | tail -1 `
-
-#sample=(${individual}*scaf0.aligned.dedup.recalibrated.bam)
-#sample=(${individual}*Sscaf147.aligned.dedup.recalibrated.bam)
 sample=(${individual}*.aligned.dedup.recalibrated.bam)
 
 samples=`for i in "${sample[@]}" ; do echo I=${i} ; done | xargs`
@@ -42,7 +39,7 @@ samples=`for i in "${sample[@]}" ; do echo I=${i} ; done | xargs`
 # the call to Picard
 if [ ! -f ${individual}_all_libraries.bam ]
   then
-	java -XX:ParallelGCThreads=8 -jar $PICARD/MergeSamFiles.jar ${samples} O=${individual}_all_libraries.bam
+    java -XX:ParallelGCThreads=8 -jar $PICARD/MergeSamFiles.jar ${samples} O=${individual}_all_libraries.bam
 fi
 
 # and now index our new bam

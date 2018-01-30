@@ -9,7 +9,7 @@
 #PBS -t 0-63
 
 #### 08_gvcf_disco_chunk_7_array.qsub
-#  - 
+#  -
 #  – this script globs in files that look like `XXX_NNNN_all_libraries.bam`
 #  - this script writes out *lots* of files that look like `all_fish_slice_N.g.vcf`
 
@@ -60,8 +60,8 @@ if [ ! -f `basename ${thisfile} .bam`.g.vcf ]
                   -stand_call_conf 30  -mbq 20 \
                   -o `basename ${thisfile} .bam`.g.vcf \
                   --output_mode EMIT_ALL_CONFIDENT_SITES \
-				  --emitRefConfidence GVCF \
-                  --num_threads 1 --num_cpu_threads_per_data_thread 14
+                  --emitRefConfidence GVCF \
+                  --num_threads 1 --num_cpu_threads_per_data_thread 28
 fi
 
 

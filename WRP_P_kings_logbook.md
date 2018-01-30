@@ -1926,3 +1926,8 @@ Week of 22-26th January
 
 
 test plink with vcf direct read-in...
+
+
+Week of 29th January -- 2nd February
+
+  - 

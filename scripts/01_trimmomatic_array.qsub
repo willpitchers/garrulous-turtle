@@ -64,7 +64,8 @@ if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The Trimmomatic array is finishing" ${USER}@msu.edu
     cd ${PBS_O_WORKDIR}
-    qsub 02_alignment_array.qsub
+    qsub -v genome=illumina 02_alignment_array.qsub
+    qsub -v genome=bionano  02_alignment_array.qsub
 fi
 
 #Print out the statistics for this job
