@@ -18,7 +18,7 @@ JOBSCRIPT=01_trimmomatic_array.qsub
 
 ## Set up some variables
 # where do the files live
-dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline8
+dir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline8/
 
 # Current job number
 n=${PBS_ARRAYID}
