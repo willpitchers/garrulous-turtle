@@ -95,7 +95,7 @@ Once data reaches the **Statistical Analysis** stage it may become necessary for
 5. | **Sample Merging** | `05_bam_merge_samples_array.qsub` | picardTools/1.89 | `MergeSamFiles.jar` & `BuildBamIndex` | `XXX_NNNN_library_Lane_RX_Ye.aligned.dedup.realigned.recalibrated.bam` | `XXX_NNNN_all_libraries.bam` | I added this step so that we could use the GATK 'Joint Variant Calling' workflow; parallelizing over individuals. Merging files within individual, then re-index the resulting `..bam`
 6. | | `06_bam_file_check.qsub` | picardTools/1.89 | `ValidateSamFile` | `XXX_NNNN_all_libraries.bam` | `XXX_NNNN_samples`
 7. | **Variant Calling** | `07_vcf_disco_chunk_6-1_array.qsub` | GATK/3.7.0 `-T HaplotypeCaller` | `--genotyping_mode DISCOVERY -stand_call_conf 30  -mbq 20 --output_mode EMIT_ALL_CONFIDENT_SITES` | 63 x`POP_ID##_all_libraries.bam` & `indices.list` | ```all_fish_`date '+%d_%m_%Y'`_slice_${n}.vcf``` | builds *n* 'slices' of `..vcf` file, where slice size is set by the file `indices.list` (itself build by `write_scaf_indices.sh`)
-<!-- 8. | | `07_vcf_disco_chunk_6-2_array.qsub` | GATK/3.7.0 `-T HaplotypeCaller` | `--genotyping_mode DISCOVERY -stand_call_conf 30  -mbq 20 --output_mode EMIT_ALL_CONFIDENT_SITES --emitRefConfidence GVCF` | 63 x`POP_ID##_all_libraries.bam` & `indices.list` | ```all_fish_`date '+%d_%m_%Y'`_slice_${n}.g.vcf``` | builds *n* 'slices' of `..g.vcf` file, where slice size is set by the file `indices.list` (itself build by `write_scaf_indices.sh`) -->
+8. | | `07_vcf_disco_chunk_6-2_array.qsub` | GATK/3.7.0 `-T HaplotypeCaller` | `--genotyping_mode DISCOVERY -stand_call_conf 30  -mbq 20 --output_mode EMIT_ALL_CONFIDENT_SITES --emitRefConfidence GVCF` | 63 x`POP_ID##_all_libraries.bam` & `indices.list` | ```all_fish_`date '+%d_%m_%Y'`_slice_${n}.g.vcf``` | builds *n* 'slices' of `..g.vcf` file, where slice size is set by the file `indices.list` (itself build by `write_scaf_indices.sh`)
 
 ---
 
@@ -215,7 +215,7 @@ Once data reaches the **Statistical Analysis** stage it may become necessary for
 
   ===
 
-  ## Version 8 –– with **NEW** data, including only Apassa & Bambomo fish, with 2 forks, and with extra paranoid self-documentation
+## Version 8 –– with **NEW** data, including only Apassa & Bambomo fish, with 2 forks, and with extra paranoid self-documentation
 
 |  Stage   |   Script    |   Tool(s)   |   Options   |   Input   |   Output    |   Description
 ---|----------|-------------|-------------|-------------|-----------|-------------|---------------
