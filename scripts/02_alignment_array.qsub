@@ -58,7 +58,7 @@ BWA=/mnt/home/pitchers/bwa          # my home dir has newest BWA version...
 module load picardTools/1.89
 
 # the BWA command -- the 'if' statement decides whether the alignment should be single or paired-end
-if [ `$(echo ${thisfile}) | grep -Eo 'pe'` ]
+if [  `grep -Eo 'pe' <<< $(echo ${thisfile})` ]
   then
     ${BWA}/bwa mem -v 3 -t 4 -M -T 40 -R ${thisTAG} ${ref} ${thisfile} \
 `basename ${thisfile} R1_pe.trimmed.fq`R2_pe.trimmed.fq > ${dir}/`basename ${thisfile} .trimmed.fq`.aligned.sam
