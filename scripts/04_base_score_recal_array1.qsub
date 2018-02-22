@@ -13,8 +13,11 @@
 #  – this script globs in files that look like `XXX_NNNN_library_Lane_RX_Ye.aligned.dedup.bam`
 #  - this script writes out files that look like `XXX_NNNN_library_Lane_RX_Ye.aligned.dedup.recalibrated.bam`
 
-## Set up some variables -- where do the files live
-topdir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline8
+#The JOBSCRIPT variable should be the name of this script
+JOBSCRIPT=04_base_score_recal_array1.qsub
+
+# Set up some variables -- where do the files live
+topdir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline8/old_fish
 cd ${topdir}
 
 if [ ${genome} == "bionano" ]
@@ -35,6 +38,9 @@ n=${PBS_ARRAYID}
 cd ${dir}
 filelist=(*.aligned.dedup.bam)
 thisfile=${filelist[${n}]}
+
+# Set maximum number of jobs for this run
+MAXJOBID=$( expr `echo ${#filelist[@]}` - 1 )
 
 # load needed modules
 module load GATK/3.7.0
@@ -80,8 +86,8 @@ NEXT=$(( ${n} + 200 ))
 if [ ${NEXT} -le ${MAXJOBID} ]
 then
     cd ${PBS_O_WORKDIR}
-    qsub -t ${NEXT} -v ${genome} ${JOBSCRIPT}
-    NEXTJOB=`qsub -t ${n} -v ${genome} 05_base_score_recal_array2.qsub`
+    qsub -t ${NEXT} -v genome=${genome} ${JOBSCRIPT}
+    NEXTJOB=`qsub -t ${n} -v genome=${genome} 05_base_score_recal_array2.qsub`
     echo this is job ${PBS_JOBID} ${n} submitting ${n} ${NEXTJOB}
     echo `date`
 fi
