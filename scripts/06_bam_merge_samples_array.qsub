@@ -7,14 +7,14 @@
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
-#PBS -t 1-112
+#PBS -t 1-139
 
 #### 05_bam_merge_samples_array.qsub
 #  – this script globs in files that look like `XXX_NNNN_library_Lane_RX_Ye.aligned.dedup.recalibrated.bam`
 #  - this script writes out files that look like `XXX_NNNN_all_libraries.bam`
 
 ## Set up some variables -- where do the files live
-topdir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline8
+topdir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline8/old_fish
 cd ${topdir}
 
 if [ ${genome} == "bionano" ]
@@ -60,7 +60,7 @@ if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The BAM individual merging array is finishing" ${USER}@msu.edu
     cd $PBS_O_WORKDIR
-    qsub 06_bam_file_check.qsub
+    qsub -v genome=${genome} 06_bam_file_check.qsub
 fi
 
 #Print out the statistics for this job

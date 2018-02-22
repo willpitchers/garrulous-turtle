@@ -41,8 +41,7 @@ samtools view -H ${individual}*_all_libraries.bam | grep --color="never" -Eo "SM
 count=`wc -l ${individual}.samples | cut -d' ' -f1`
 
 if [ $count -gt 1 ]
-    then
-        echo "ERROR IN ${individual}*_all_libraries.bam"
+    then echo "ERROR IN ${individual}*_all_libraries.bam"
 else
     rm ${individual}.samples
 fi
@@ -56,7 +55,14 @@ if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The BAM individual merging array is finishing" ${USER}@msu.edu
     cd $PBS_O_WORKDIR
-#    qsub 07_vcf_disco_chunk_7_array.qsub
+    grep -i "error" BAM_check* > bam_errors
+    if [ `wc -l bam_errors | cut -d' ' -f1` -gt 0 ]
+    then
+        echo "." | mail -s "BAM errors require your attention" ${USER}@msu.edu
+	else
+        qsub -v genome=${genome} 08_gvcf_disco_chunk_8_array.qsub
+        qsub -v genome=${genome} 08_gvcf_disco_chunk_8_array.qsub
+	fi
 fi
 
 #Print out the statistics for this job

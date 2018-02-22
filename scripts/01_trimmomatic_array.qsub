@@ -56,7 +56,7 @@ NEXT=$(( ${n} + 200 ))
 if [ ${NEXT} -le ${MAXJOBID} ]
 then
     cd ${PBS_O_WORKDIR}
-    qsub -t ${NEXT} ${JOBSCRIPT}
+    qsub -v genome=${genome} -t ${NEXT} ${JOBSCRIPT}
 fi
 
 #Check to see if this is the last job, if so email me and submit the script for the next stage of the pipeline

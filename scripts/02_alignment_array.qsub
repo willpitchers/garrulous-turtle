@@ -16,7 +16,7 @@
 JOBSCRIPT=02_alignment_array.qsub
 
 ## Set up some variables -- where do the files live
-topdir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline8/old_fish
+topdir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline8
 cd ${topdir}
 
 if [ ${genome} == "bionano" ]
@@ -57,6 +57,8 @@ thisTAG=@RG\\tID:${flowcell}.${lane}\\tSM:${sample}\\tPL:illumina\\tLB:${flowcel
 BWA=/mnt/home/pitchers/bwa          # my home dir has newest BWA version...
 module load picardTools/1.89
 
+if [ ! -f ${dir}/`basename ${thisfile} .trimmed.fq`.aligned.sam ]
+then
 # the BWA command -- the 'if' statement decides whether the alignment should be single or paired-end
 if [ `$(echo ${thisfile}) | grep -Eo 'pe'` ]
   then
@@ -65,7 +67,7 @@ if [ `$(echo ${thisfile}) | grep -Eo 'pe'` ]
   else
     ${BWA}/bwa mem -v 3 -t 4 -M -T 40 -R ${thisTAG} ${ref} ${thisfile} > ${dir}/`basename ${thisfile} .trimmed.fq`.aligned.sam
 fi
-
+fi
 
 # check that the output sam files are well-formed
 java -XX:ParallelGCThreads=4 -jar ${PICARD}/ValidateSamFile.jar  I=${dir}/`basename ${thisfile} .trimmed.fq`.aligned.sam  MODE=SUMMARY
@@ -77,7 +79,7 @@ NEXT=$(( ${n} + 200 ))
 if [ ${NEXT} -le ${MAXJOBID} ]
 then
     cd ${PBS_O_WORKDIR}
-    qsub -t ${NEXT} ${JOBSCRIPT}
+    qsub -v genome=${genome} -t ${NEXT} ${JOBSCRIPT}
 fi
 
 #Check to see if this is the last job and email user
@@ -85,7 +87,7 @@ if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The alignment array is finishing" ${USER}@msu.edu
     cd ${PBS_O_WORKDIR}
-#    qsub -v genome=${genome} 03_deduplication_array.qsub
+    qsub -v genome=${genome} 03_deduplication_array.qsub
 fi
 
 #Print out sfastq=`basename ${thisfile}`the statistics for this job

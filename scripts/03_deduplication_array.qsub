@@ -65,7 +65,7 @@ NEXT=$(( ${n} + 200 ))
 if [ ${NEXT} -le ${MAXJOBID} ]
 then
     cd ${PBS_O_WORKDIR}
-    qsub -t ${NEXT} ${JOBSCRIPT}
+    qsub -t ${NEXT} -v genome=${genome} ${JOBSCRIPT}
 fi
 
 #Check to see if this is the last job and email user
