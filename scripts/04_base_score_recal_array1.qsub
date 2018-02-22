@@ -80,7 +80,7 @@ NEXT=$(( ${n} + 200 ))
 if [ ${NEXT} -le ${MAXJOBID} ]
 then
     cd ${PBS_O_WORKDIR}
-    qsub -t ${NEXT} ${JOBSCRIPT}
+    qsub -t ${NEXT} -v ${genome} ${JOBSCRIPT}
     NEXTJOB=`qsub -t ${n} -v ${genome} 05_base_score_recal_array2.qsub`
     echo this is job ${PBS_JOBID} ${n} submitting ${n} ${NEXTJOB}
     echo `date`
