@@ -9,6 +9,7 @@
 #PBS -t 0-199
 
 #### 03_deduplication_array.qsub
+#  – this script can be called with e.g. `qsub -v genome=bionano 03_deduplication_array.qsub`
 #  – this script globs in files that look like `XXX_NNNN_library_Lane_RX_Ye.aligned.sam`
 #  - this script writes out files that look like `XXX_NNNN_library_Lane_RX_Ye.aligned.sorted.sam` & `XXX_NNNN_library_Lane_RX_Ye.aligned.dedup.bam`
 

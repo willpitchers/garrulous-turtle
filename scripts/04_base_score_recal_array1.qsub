@@ -1,15 +1,15 @@
 #!/bin/bash -login
 #PBS -l nodes=1:ppn=8,walltime=04:00:00,mem=128gb
 #PBS -l file=20gb,feature='intel16'
-#PBS -N BaseR1_temp
+#PBS -N BSQR_pt1
 #PBS -j oe
 #PBS -M pitchers@msu.edu
 #PBS -m abe
 #PBS -r n
-#PBS -t 000-199
+#PBS -t 000-100
 
 #### 04_base_score_recal_array2.qsub
-#  - this script is called like this, e.g. `qsub -v genome=bionano 04_base_score_recal_array2.qsub`
+#  - this script can be called like this, e.g. `qsub -v genome=bionano 04_base_score_recal_array1.qsub`
 #  – this script globs in files that look like `XXX_NNNN_library_Lane_RX_Ye.aligned.dedup.bam`
 #  - this script writes out files that look like `XXX_NNNN_library_Lane_RX_Ye.aligned.dedup.recalibrated.bam`
 
@@ -17,7 +17,7 @@
 JOBSCRIPT=04_base_score_recal_array1.qsub
 
 # Set up some variables -- where do the files live
-topdir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline8/old_fish
+topdir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline8
 cd ${topdir}
 
 if [ ${genome} == "bionano" ]
@@ -39,7 +39,7 @@ cd ${dir}
 filelist=(*.aligned.dedup.bam)
 thisfile=${filelist[${n}]}
 
-# Set maximum number of jobs for this run
+# Set maximum number of jobs for this run – this will be the same as the number of bam files to process
 MAXJOBID=$( expr `echo ${#filelist[@]}` - 1 )
 
 # load needed modules

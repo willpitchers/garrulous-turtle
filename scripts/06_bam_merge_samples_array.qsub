@@ -14,7 +14,7 @@
 #  - this script writes out files that look like `XXX_NNNN_all_libraries.bam`
 
 ## Set up some variables -- where do the files live
-topdir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline8/old_fish
+topdir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline8
 cd ${topdir}
 
 if [ ${genome} == "bionano" ]
@@ -49,18 +49,18 @@ samples=`for i in "${sample[@]}" ; do echo I=${i} ; done | xargs`
 # the call to Picard
 if [ ! -f ${individual}_all_libraries.bam ]
   then
-    java -XX:ParallelGCThreads=8 -jar $PICARD/MergeSamFiles.jar ${samples} O=${individual}_all_libraries.bam
+    java -XX:ParallelGCThreads=8 -jar $PICARD/MergeSamFiles.jar ${samples} O=${individual}_${genome}_all_libraries.bam
 fi
 
 # and now index our new bam
-java -XX:ParallelGCThreads=8 -jar $PICARD/BuildBamIndex.jar I=${individual}_all_libraries.bam
+java -XX:ParallelGCThreads=8 -jar $PICARD/BuildBamIndex.jar I=${individual}_${genome}_all_libraries.bam
 
 #Check to see if this is the last job and email user
 if [ ${n} -eq ${MAXJOBID} ]
 then
     echo "." | mail -s "The BAM individual merging array is finishing" ${USER}@msu.edu
     cd $PBS_O_WORKDIR
-    qsub -v genome=${genome} 06_bam_file_check.qsub
+    qsub -v genome=${genome} 07_bam_file_check.qsub
 fi
 
 #Print out the statistics for this job

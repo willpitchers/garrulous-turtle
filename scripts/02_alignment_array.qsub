@@ -9,6 +9,7 @@
 #PBS -t 000-199
 
 #### 02_alignment_array.qsub
+#  – this script is called simply with e.g. `qsub -v genome=illumina 02_alignment_array.qsub`
 #  – this script globs in files that look like `XXX_NNNN_library_Lane_RX_Ye.trimmed.fq`
 #  - this script writes out files that look like `XXX_NNNN_library_Lane_RX_Ye.aligned.sam`
 
@@ -57,16 +58,17 @@ thisTAG=@RG\\tID:${flowcell}.${lane}\\tSM:${sample}\\tPL:illumina\\tLB:${flowcel
 BWA=/mnt/home/pitchers/bwa          # my home dir has newest BWA version...
 module load picardTools/1.89
 
+# the script checks for an output file and runs only if the ouput *doesn't* already exist
 if [ ! -f ${dir}/`basename ${thisfile} .trimmed.fq`.aligned.sam ]
-then
-# the BWA command -- the 'if' statement decides whether the alignment should be single or paired-end
-if [  `grep -Eo 'pe' <<< $(echo ${thisfile})` ]
   then
-    ${BWA}/bwa mem -v 3 -t 4 -M -T 40 -R ${thisTAG} ${ref} ${thisfile} \
-`basename ${thisfile} R1_pe.trimmed.fq`R2_pe.trimmed.fq > ${dir}/`basename ${thisfile} .trimmed.fq`.aligned.sam
-  else
-    ${BWA}/bwa mem -v 3 -t 4 -M -T 40 -R ${thisTAG} ${ref} ${thisfile} > ${dir}/`basename ${thisfile} .trimmed.fq`.aligned.sam
-fi
+    # the BWA command -- the 'if' statement decides whether the alignment should be single or paired-end
+    if [  `grep -Eo 'pe' <<< $(echo ${thisfile})` ]
+      then
+      ${BWA}/bwa mem -v 3 -t 4 -M -T 40 -R ${thisTAG} ${ref} ${thisfile} \
+          `basename ${thisfile} R1_pe.trimmed.fq`R2_pe.trimmed.fq > ${dir}/`basename ${thisfile} .trimmed.fq`.aligned.sam
+      else
+      ${BWA}/bwa mem -v 3 -t 4 -M -T 40 -R ${thisTAG} ${ref} ${thisfile} > ${dir}/`basename ${thisfile} .trimmed.fq`.aligned.sam
+  fi
 fi
 
 # check that the output sam files are well-formed

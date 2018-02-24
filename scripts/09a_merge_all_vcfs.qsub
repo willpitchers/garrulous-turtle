@@ -8,9 +8,10 @@
 #PBS -m abe
 #PBS -r n
 
-#### 08_merge_all_vcfs.qsub
-#  – this script globs in a pile of files that look like `all_fish_vcf_slice_N.vcf`
-#  - this script writes out 1 big file called `all_fish_version_7.vcf`
+#### 09a_merge_all_vcfs.qsub
+#  – this script needs to be called like this: `qsub -v genome=illumina gvcf=HC 09a_merge_all_vcfs.qsub`
+#  – this script globs in a pile of files that look like e.g. `all_fish_illumina_scafindex_N.vcf`
+#  - this script writes out 1 big file called `all_fish_v8_illumina_HC.vcf`
 
 ## Set up some variables -- where do the files live
 topdir=/mnt/ls15/scratch/groups/efish/WILL/Pipeline8
@@ -32,18 +33,24 @@ module load Java/1.8.0_31
 module load GATK/3.7.0
 localGATK=/mnt/research/efish/2015_genomic_data/GATK/GenomeAnalysisTK.jar
 
-sample_list=(output_part_*.vcf)
+sample_list=(all_fish_${genome}_scafindex_*.vcf)
 samples=`for i in "${sample_list[@]}" ; do echo --variant ${i} ; done | xargs`
 
+if [ ${gvcf} == "GVCF" ]
+  then
+    cd GVCF_called
+  else
+    cd HC_called
+fi
 
 # join all the vcf chunks together
 java -Xmx120g -Djava.io.tmpdir=${TMPDIR} -cp ${localGATK}  org.broadinstitute.gatk.tools.CatVariants \
-              -R ${ref} ${samples} -out all_fish_version_8_${genome}.vcf
+              -R ${ref} ${samples} -out ../Assoc/all_fish_v8_${genome}_${gvcf}.vcf
 
 
 # validation check on the output vcf
-java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T ValidateVariants -R ${ref} --validationTypeToExclude ALL \  
-              -V all_fish_version_8_${genome}.vcf
+java -Xmx120g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T ValidateVariants -R ${ref} --validationTypeToExclude ALL \
+              -V ../Assoc/all_fish_v8_${genome}_${gvcf}.vcf
 
 
 # email user & start the next job

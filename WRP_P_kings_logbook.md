@@ -777,55 +777,27 @@ Week of 10-14th October
 
 Week of 17th-21st October
 
-setdiff( expected, taco$V1 )
-698  798  898  998 1098 1198 1298 1398 1498 |1598
-1302 1402  1502 1602 1702 |1802
-1311 1411 1511 1611 1711 |1811
-1465 1475 1565 1665 |1765
-1467 1567 1667 |1767
-1474 1574 |1674
-1482 1582 1682 |1782
-1497 1597 1697 |1798
-1504 1604 1704 1804
-1523 1623 1723 1823
-1532 1632 1732 1832
-1575 1675 1775
-1797
-1698
-1774
-
-dir=/mnt/ls15/scratch/groups/efish/WILL/
-ref=/mnt/scratch/pitchers/eFISH/P_kings_genome/supercontigs.fasta
-
+```
 java -Xmx60g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantsToBinaryPed \
              -R ${ref}  -V ${input_data} \
              -m ${meta} -mgq 0 \
              -bed ${input_data}.bed \
              -bim ${input_data}.bim \
              -fam ${input_data}.fam
+```
+  - GATK docs lie about this function!
+    - Wednesday, 19 October 2016 Scaffold133:1400019 malformed line crashed job. remaking vcf slice 635
+    - Thursday, 20 October 2016 Scaffold154:1400004 malformed line crashed job. remaking vcf slice 698
+    - JG points out that this behaviour is very I/O-error-reminiscent...
 
-GATK docs lie about this function!
-
-Wednesday, 19 October 2016 Scaffold133:1400019 malformed line crashed job. remaking vcf slice 635
-Thursday, 20 October 2016 Scaffold154:1400004 malformed line crashed job. remaking vcf slice 698
-  JG points out that this behaviour is very I/O-error-reminiscent...
-
-Thursday, 20 October 2016 Scaffold167:15 malformed line crashing job. remaking vcf slice 735
-
-
-vcftools `vcf-sort -c infile.vcf > outfile.vcf`
-
-comparing `all_fish_version_5-1_shockly.vcf` & `all_fish_version_5-1_HPC.vcf`
-
-https://software.broadinstitute.org/gatk/gatkdocs/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php
+  - Thursday, 20 October 2016 Scaffold167:15 malformed line crashing job. remaking vcf slice 735
+    - vcftools `vcf-sort -c infile.vcf > outfile.vcf`
+    - comparing `all_fish_version_5-1_shockly.vcf` & `all_fish_version_5-1_HPC.vcf`
+  - https://software.broadinstitute.org/gatk/gatkdocs/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php
 
 > Output
-> Either a VCF or gVCF file with raw, unfiltered SNP and indel calls. Regular VCFs must be filtered either by variant recalibration (best) or hard-filtering before use in downstream analyses. If using the reference-confidence model workflow for cohort analysis, the output is a GVCF file that must first be run through GenotypeGVCFs and then filtering before further analysis.
-
-
-Week of 24th-28th October
-
-  -
+> Either a VCF or gVCF file with raw, unfiltered SNP and indel calls. Regular VCFs must be filtered either by variant recalibration (best) or hard-filtering before use in downstream analyses.
+> If using the reference-confidence model workflow for cohort analysis, the output is a GVCF file that must first be run through GenotypeGVCFs and then filtering before further analysis.
 
 
 
@@ -920,7 +892,6 @@ Week 28th Nov. – 2nd Dec.
       - `..DOM..` file has n.homo.ref+n.het / n.homo.alt
       - `..REC..` file has n.homo.ref / n.het+n.homo.alt
       - `..TREND..` file has n.ref / n.alt
-      -
       - `awk -F "[\t ]+" ' NR>1 { split( $6, tri, "/") ; split( $7, bi, "/") ; print $0 "\t" tri[1] "\t" tri[2] "\t" tri[3] "\t" bi[1] "\t" bi[2] "\t" bi[3] "\t"   }' all_fish_version_5-1_HPC.GENO.model >> all_fish_version_5-1_HPC.GENO.model.reformatted` followed by `echo -e "CHR SNP A1 A2 TEST AFF UNAFF P p_Hr p_Het p_Ha np_Hr np_Het np_Ha" | cat - all_fish_version_5-1_HPC.GENO.model.reformatted | sponge all_fish_version_5-1_HPC.GENO.model.reformatted` to fix the header row and `awk '{$1=$1}1' OFS="," all_fish_version_5-1_HPC.GENO.model.reformatted > all_fish_version_5-1_HPC.GENO.model.reformatted.csv` to strip out the weird multi-space delimiters.
   - I'm going to start with the `..GENO..` file and sort to find max & min homozygotes...
 
@@ -928,12 +899,8 @@ Week 28th Nov. – 2nd Dec.
 Week of Dec. 5-10th
 
   - re-making presentation-quality Fst plot for JG's talk...
-
   - JG confirms mis-classification of 3 BAM fish in the phenotype 'source' file  `/mnt/research/efish/2015_genomic_data/specimens_for_genome_reseq.txt`... I manually edited this file to switch the phenotype coding from 'P0 present' to 'P0 absent' for BAM_6494, BAM_6497 & BAM_6500
-  -
-
-`assoc <- mutate( taco, CHR=factor( gsub( "Var-", "", gsub( "\\-\\d+", "", taco$SNP ))), SNP=as.integer(gsub( "Var\\-Scaffold\\d+\\-", "", taco$SNP )))`
-  - for the `ALLELIC` file:
+  - `assoc <- mutate( taco, CHR=factor( gsub( "Var-", "", gsub( "\\-\\d+", "", taco$SNP ))), SNP=as.integer(gsub( "Var\\-Scaffold\\d+\\-", "", taco$SNP )))`
 
 
  –––  for the Holidays: 12th Dec. - 9th Jan. –––
@@ -1089,23 +1056,21 @@ Week of 20-25th March
 
 ----
 
-1. which test to use?
-2. why not haz variant – coverage too low?
-                      - some weird repetitive code?
+    1. which test to use?
+    2. why not haz variant – coverage too low?
+                          - some weird repetitive code?
 
-run APA/BAM/BAVA only, with filtering & mix – Bed/Bim files are cooking
+    run APA/BAM/BAVA only, with filtering & mix – Bed/Bim files are cooking
 
-look up how to set up a power analysis for GWAS
+    look up how to set up a power analysis for GWAS
 
-GATK depth of coverage analysis?
-
-
-n. cases – 35 (41 mix)
-n. ctrls – 28 (22 mix)
-prevalence – 0.6
+    GATK depth of coverage analysis?
 
 
-can I collapse the SNP & indel at Scaf 23?
+    n. cases – 35 (41 mix)
+    n. ctrls – 28 (22 mix)
+    prevalence – 0.6
+
 
 1. can I find BAM contamination elsewhere?
     - went to `/mnt/scratch/pitchers/eFISH/Analysis` and ran ``for i in `ls *dedup.bam` ; do echo $i >> bamgrep ; samtools view -h ${i} | grep '^@PG' >> bamgrep ; done``
@@ -1119,8 +1084,6 @@ can I collapse the SNP & indel at Scaf 23?
     - reminder: our read names look like [this](https://support.illumina.com/help/SequencingAnalysisWorkflow/Content/Vault/Informatics/Sequencing_Analysis/CASAVA/swSEQ_mCA_FASTQFiles.htm): `@HWI-D00731:65:C6UU2ANXX:1:1101:2046:1852 1:N:0:GAGATTCCTATAGCC`, which means;
     - @ instrument_name : runID : flowcellID : lane# : tile# : tile_x-coord : tile_y-coord <space> pair_member# : filtered? : control_bits? : index_sequence
 
-  -
-
 
 Week of 27th-31st March
 
@@ -1128,8 +1091,6 @@ Week of 27th-31st March
   - taking this opportunity to update the pipeline to work with latest version of GATK (3.7.0):
     - allows for dropping the indel realignment step
     - speeds up filtering
-    -
-  -
 
 
 Week 3rd-7th April
@@ -1137,27 +1098,17 @@ Week 3rd-7th April
   - **data storage mishap!**
     - the current analysis directory (`/mnt/ls15/scratch/groups/efish/WILL/Pipeline6`) was accidentally `rm -rf`-ed incompletely... Since non-missing files *might* be truncated/decapitated (command was ctrl-c-ed), for safety I elected to nuke the folder, reimport the raw `..fastq.gz` files and restart the pipeline.
     - using this as an opportunity to streamline/check for software updates etc.
-  -
 
 
 Week of 10-15th April
 
   - some weirdness seems to have been occurring...
   - attach JG's permutation command to the end of pipeline
-
-
   - nperms?
   - n. PCs to incorporate?
   - repeat/understand EMP2 calculation
   - try logistic+ model flags?
-
-
-plan for methods/results section?
-  -
-
   - http://meeting.spsp.org/2016/sites/default/files/Lane,%20Hennes,%20West%20SPSP%20Power%20Workshop%202016.pdf
-
-read about taqman assay?
 
 
 Week of 17th-21st April
@@ -1208,27 +1159,21 @@ Week of 1st-5th May
           -
 
 
-          threshold! where and why!?
-          LD pattern
-          graph power by n. , OR?, missingness?,
-
-
 Week of 8-12th May
 
-  -
+    - threshold! where and why!?
+    - LD pattern
+    - graph power by n. , OR?, missingness?,
 
 
 Week of 15-19th May
 
   - Scaffold0:309 – tri C_T 20 & T_T 8 vs. bi C_T 25  
-
   - Scaffold 23 is weird...
     1. pull out all the reads mapped to Scaffold23 – ```for i in ${bamfiles[@]} ; do samtools view ${i} "Scaffold23" > `basename ${i} .bam`.Scaf23.sam ; done```
       - change of plan; sticking closer to the problem region... ```for i in ${bamfiles[@]} ; do samtools view ${i} "Scaffold23:1042000-1043500" > `basename ${i} .bam`.Scaf23.sam ; done```
-    2.
-
-  - COB-free analysis: start with:
-    `java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants \
+    2. COB-free analysis: start with:
+      - `java -Xmx30g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T SelectVariants \
         -V all_fish_version_6-1.filtered.all_variants.GQ20.vcf \
         -o all_fish_version_6-1.filtered.all_variants_noCOB.GQ20.vcf \
         -R /mnt/ls15/scratch/groups/efish/P_kings_genome/supercontigs.fasta -xl_se 'COB_[0-9]{4}' `
@@ -1238,18 +1183,17 @@ Week of 15-19th May
 Week of 22nd-26th May
 
   - setting up to run 100,000 permutation on Shockly
-	- older version of PLINK is installed - updating...
+  - older version of PLINK is installed - updating...
     - brew recipe for plink/1.9 not working out of the box...
     - troubleshooting not successful after ~1hr => just `wget` precompiled version from website
-		- this seems to run just fine.
-  -
+    - this seems to run just fine.
 
 
 Week of 29th May – 2nd June
 
   - at this point, we have tried so many different permutations (ha-ha!) of the association analysis that I'm getting confused... I'm going to need to spend some time tidying up
     - tidying/rationalization is timely – after talking with JG we agree that the best candidate list that we can obtain at this point is going to come from organized comparison of candidate intersects between analysis...
-  -
+
 
 Week of 3th – 9th June
 
@@ -1261,7 +1205,6 @@ Week of 3th – 9th June
     - to that end, updated my `calc_Fst_array` script
     - ...and the `calc_TajD` script
     - new notebook -- `Fst_Analysis_P6.Rmd` -- added to keep pop gen type analyses together
-
     - need to calculate pairwise LD too
     - can I set up LD & Fst calculations by p0p vs. p0a?
     - visualize the set-based logic
@@ -1283,7 +1226,6 @@ Week of 12th - 16th June
   - ...
   - So, with a new canonical VCF **all** the downstream analyses will need to be re-run... also, indels need to be re-incorporated...
       - old VCFs zipped & cold-stored in `research/2015_genomic_data/P_kings_VCFs/`
-      -
 
 
 Week 19th - 23rd June
@@ -1297,7 +1239,6 @@ Week 19th - 23rd June
       - dep.s on samtools and 'boost'... both of these installed without problem
       - seems to be some issue with the compiler. Tried 2 alternate compilers without success...
     - `dancer_config.qsub` and `dancer_max.qsub` scripts added
-      -
       - running with incrementally increasing runtimes to estimate hrs needed
 
 
@@ -1315,30 +1256,20 @@ Week 3rd - 7th July
     - suggests that the genome contains: 2021 inversions, 20879 deletions, 160964 CTX?, 917415 ITX? and 0 insertions(?)
         - CTX and ITX are intrachromosomal and interchromosomal translocations respectively (?)
         - output format detailed [here](/Users/willpitchers/Dropbox\ \(MSU\ Efish\ Lab\/WILL/genome_assembly/garrulous-turtle/dancer_output_format.txt)
-    -
-
-    empirically what OR do we care about - more depth vs. more fish?
-    make lit. results table for JG
-    LAB GURU!! talk to Colin about auto-slurping JSON format notes? (check how much data LG can handle in a lump)
-    JG targeted 8x coverage but we maybe need more like 12-20x ?
-    genome quality score by individual/position
-    what can we say about LD? decay functions for LD differ among pop.s?
-
-
-Week 10–14th July
-
-  - ?
+    - empirically what OR do we care about - more depth vs. more fish?
+    - make lit. results table for JG
+    - LAB GURU!! talk to Colin about auto-slurping JSON format notes? (check how much data LG can handle in a lump)
+    - JG targeted 8x coverage but we maybe need more like 12-20x ?
+    - genome quality score by individual/position
+    - what can we say about LD? decay functions for LD differ among pop.s?
 
 
 Week 17th–21st July
 
-  - ?
-
-`vcftools --vcf all_fish_version_6-1.stringent.filtered.missingrm.snps.recode.vcf --chr "Scaffold0" --geno-r2 --ld-window-bp 10000 --keep apa_bam.txt --remove-filtered-all --max-missing 0 --out apa_bam_` takes ~1min
-
-`...--ld-window-bp 5000...` takes ~35secs
-`...--ld-window-bp 100000...` takes ~5.5mins
-`...--ld-window-bp 50000...` takes ~3mins
+  - `vcftools --vcf all_fish_version_6-1.stringent.filtered.missingrm.snps.recode.vcf --chr "Scaffold0" --geno-r2 --ld-window-bp 10000 --keep apa_bam.txt --remove-filtered-all --max-missing 0 --out apa_bam_` takes ~1min
+    - `...--ld-window-bp 5000...` takes ~35secs
+    - `...--ld-window-bp 100000...` takes ~5.5mins
+    - `...--ld-window-bp 50000...` takes ~3mins
 
 
 Week 24–28th July
@@ -1351,7 +1282,6 @@ Week 24–28th July
 Week 31st July - 4th Aug.
 
   - writing up analyses on labguru
-
 
 
 Week 7–11th Aug.
@@ -1368,23 +1298,15 @@ Week 21-25th Aug.
 
   - Selection of re-re-sequencing candidates
   - more labguru-ing
-  -
 
-
-vcftools --vcf all_fish_version_6-1.filtered.all_variants.GQ20.vcf --chr "Scaffold0" --geno-r2 --ld-window-bp 5000 --keep apa.txt --remove-filtered-all --max-missing 0 --out apa
-
-After filtering, kept 86,716 out of a possible 9,335,131 Sites
-
-vcftools --vcf all_fish_version_6-1.filtered.all_variants.GQ20.vcf --chr "Scaffold0" --geno-r2 --ld-window-bp 5000 --keep apa.txt --remove-filtered-all --max-missing 0 --out apa --remove-indels
-
-After filtering, kept 73,205 out of a possible 9335131 Sites
-Run Time = 214.00 seconds
-
-vcftools --vcf all_fish_version_6-1.filtered.all_variants.GQ20.vcf --chr "Scaffold0" --geno-r2 --ld-window-bp 5000 --keep apa.txt --remove-filtered-all --max-missing 0 --out apa --remove-indels --maf 0.05
-
-After filtering, kept 36,514 out of a possible 9,335,131 Sites
-
-Run Time = 111.00 seconds
+  - `vcftools --vcf all_fish_version_6-1.filtered.all_variants.GQ20.vcf --chr "Scaffold0" --geno-r2 --ld-window-bp 5000 --keep apa.txt --remove-filtered-all --max-missing 0 --out apa`
+    - After filtering, kept 86,716 out of a possible 9,335,131 Sites
+  - `vcftools --vcf all_fish_version_6-1.filtered.all_variants.GQ20.vcf --chr "Scaffold0" --geno-r2 --ld-window-bp 5000 --keep apa.txt --remove-filtered-all --max-missing 0 --out apa --remove-indels`
+    - After filtering, kept 73,205 out of a possible 9335131 Sites
+    - Run Time = 214.00 seconds
+  - `vcftools --vcf all_fish_version_6-1.filtered.all_variants.GQ20.vcf --chr "Scaffold0" --geno-r2 --ld-window-bp 5000 --keep apa.txt --remove-filtered-all --max-missing 0 --out apa --remove-indels --maf 0.05`
+    - After filtering, kept 36,514 out of a possible 9,335,131 Sites
+    - Run Time = 111.00 seconds
 
 vcftools --vcf all_fish_version_6-1.filtered.all_variants.GQ20.vcf --chr "Scaffold0" --geno-r2 --ld-window-bp 5000 --keep apa.txt --remove-filtered-all --max-missing 0 --out apa --remove-indels --maf 0.05 --minDP 3
 
@@ -1930,4 +1852,4 @@ test plink with vcf direct read-in...
 
 Week of 29th January -- 2nd February
 
-  - 
+  -
